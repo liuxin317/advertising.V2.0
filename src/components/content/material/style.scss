@@ -1,0 +1,29 @@
+.material-box {
+    
+    .table-box {
+        h5 {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            font-size: 14px;
+            line-height: 20px;
+            vertical-align: middle;
+
+            &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 20px;
+            width: 4px;
+            background-color: #999;
+            }
+        }
+    }
+}
+
+.modal-box {
+    .tabs-content {
+        margin-top: 10px;
+    }
+}

@@ -1,0 +1,12 @@
+.menu-box {
+  margin-right: 20px;
+
+  &.active {
+    width: 256px;
+  }
+
+  ul.ant-menu-root {
+    padding: 10px 0 200px;
+    background-color: white;
+  }
+}
