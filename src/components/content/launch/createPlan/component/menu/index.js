@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Menu } from 'antd';
-import Store from '../../../../../../store';
-import Type from '../../../../../../action/Type';
+import Store from '@/store';
+import Type from '@/action/Type';
 import './style.scss';
 
 const MenuItemGroup = Menu.ItemGroup;

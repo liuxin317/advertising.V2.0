@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Table, Modal, Radio, Select, Input, message } from 'antd';
-import HttpRequest from '../../../utils/fetch';
+import HttpRequest from '@/utils/fetch';
 // 新建素材视图
 import CreateMaterial from './component/createMaterial';
 import './style.scss';

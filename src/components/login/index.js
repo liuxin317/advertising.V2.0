@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button, message } from 'antd';
-import HttpRequest from '../../utils/fetch';
+import HttpRequest from '@/utils/fetch';
 import { Redirect } from 'react-router-dom';
 import { setCookie } from '../common/methods';
-import logo from '../..//imgs/logo.png';
+import logo from '@/imgs/logo.png';
 import "./style.scss";
 
 const FormItem = Form.Item;

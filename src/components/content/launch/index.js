@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Tabs, Select, Table, Modal, message, Input, Icon } from 'antd';
-import HttpRequest from '../../../utils/fetch';
+import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
 const TabPane = Tabs.TabPane;

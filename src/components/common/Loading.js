@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'; // 容器组件;
-import LoadImg from '../../imgs/loading.png';
+import LoadImg from '@/imgs/loading.png';
 
 class Loading extends Component {
     render () {

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Input, Select, Radio, Checkbox, DatePicker, Button } from 'antd';
-import HttpRequest from '../../../../utils/fetch';
+import HttpRequest from '@/utils/fetch';
 // 时间段选择组件
 import TimeSelected from '../component/common/timeSelected';
 // 全天选择组件
 import AllDay from '../component/common/allDay';
 import './style.scss';
-import Store from '../../../../store';
-import Type from '../../../../action/Type';
+import Store from '@/store';
+import Type from '@/action/Type';
 
 // 广告计划
 import AdvertProgram from './component/advertProgram';

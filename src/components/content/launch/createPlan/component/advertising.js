@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Input, Radio, Icon, Checkbox, Row, Col, Table, Collapse } from 'antd';
+// 地区联动
+import RegLinkage from './regLinkage';
 
 const { TextArea } = Input;
 const RadioGroup = Radio.Group;
@@ -284,7 +286,7 @@ class Advertising extends Component {
               </Panel>
               <Panel header="地域定向" key="2">
                 <div className="pop-attr">
-                    
+                    <RegLinkage />
                 </div>
               </Panel>
               <Panel header="This is panel header 3" key="3">

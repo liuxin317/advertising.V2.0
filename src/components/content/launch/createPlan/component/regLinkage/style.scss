@@ -1,0 +1,35 @@
+.linkage-box {
+    .input-group {
+        display: flex;
+        
+        .already-chosen {
+            padding-right: 10px;
+        }
+
+        .clear-chosen {
+            color: red;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .linkage-content {
+        display: flex;
+        width: 610px;
+        border: #ccc solid 1px;
+
+        .linkage-group {
+            flex: 1;
+            height: 250px;
+            padding: 10px;
+            overflow: auto;
+            border-right: #ccc solid 1px;
+
+            &:last-of-type {
+                border-right: none;
+            }
+        }
+    }
+}

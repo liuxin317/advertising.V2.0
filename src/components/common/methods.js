@@ -1,4 +1,4 @@
-import HttpRequest from '../../utils/fetch';
+import HttpRequest from '@/utils/fetch';
 
 /**
  * 异步发起action公共方法
