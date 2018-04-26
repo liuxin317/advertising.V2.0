@@ -1,12 +1,21 @@
 .linkage-box {
     .input-group {
         display: flex;
-        
+        flex-wrap: wrap;
+        width: 80% !important;
+
         .already-chosen {
-            padding-right: 10px;
+            width: 15%;
+            margin: 0 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left;
         }
 
         .clear-chosen {
+            width: 15%;
+            text-align: left;
             color: red;
 
             &:hover {
@@ -30,6 +39,43 @@
             &:last-of-type {
                 border-right: none;
             }
+
+            .region-row {
+                display: flex;
+                align-items: center;
+
+                .region-name {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 150px;
+                    padding-top: 2px;
+                    line-height: 22px;
+                    cursor: pointer;
+
+                    &:hover,
+                    &.active {
+                        background-color: #f4f4f4;
+                    }
+
+                    span {
+                        width: 100%;
+                        margin-left: 10px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+            }
+        }
+    }
+
+    .linkage-title {
+        display: flex;
+
+        .name {
+            flex: 1;
+            text-align: left;
         }
     }
 }
