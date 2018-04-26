@@ -1,11 +1,12 @@
 .linkage-box {
     .input-group {
-        display: flex;
-        flex-wrap: wrap;
-        width: 80% !important;
+        width: 500px !important;
+        word-wrap:break-word;
 
         .already-chosen {
+            display: inline-block;
             width: 15%;
+            line-height: 36px;
             margin: 0 5px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -14,9 +15,8 @@
         }
 
         .clear-chosen {
-            width: 15%;
-            text-align: left;
             color: red;
+            cursor: pointer;
 
             &:hover {
                 text-decoration: underline;

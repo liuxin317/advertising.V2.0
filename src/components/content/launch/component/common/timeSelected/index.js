@@ -219,7 +219,7 @@ class TimeSelected extends Component {
     return (
       <div className="time-group">
         <span 
-          className={ record[tiems][0] ? "active" : "" } 
+          className={ record[tiems][0] ? "box active" : "box" } 
           onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
           onMouseDown={ this.onmousedownTimeSlot } 
           onMouseUp={ this.onmouseupTimeSlot } 
@@ -228,7 +228,7 @@ class TimeSelected extends Component {
         </span>
 
         <span 
-          className={ record[tiems][1] ? "active" : "" } 
+          className={ record[tiems][1] ? "box active" : "box" } 
           onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
           onMouseDown={ this.onmousedownTimeSlot }  
           onMouseUp={ this.onmouseupTimeSlot } 
@@ -444,7 +444,10 @@ class TimeSelected extends Component {
     const columns = [{
       title: '星期 / 日期',
       dataIndex: 'name',
-      width: '10%'
+      width: '10%',
+      render: (text, record) => {
+        return <span style={{ display: 'block', width: 75 }}>{ record.name }</span>
+      }
     }, {
       title: '上午',
       width: '45%',
@@ -534,67 +537,67 @@ class TimeSelected extends Component {
         },
         {
           title: '13',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time13',
           render: this.tableCloumnRender.bind(this, "time13")
         },
         {
           title: '14',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time14',
           render: this.tableCloumnRender.bind(this, "time14")
         },
         {
           title: '15',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time15',
           render: this.tableCloumnRender.bind(this, "time15")
         },
         {
           title: '16',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time16',
           render: this.tableCloumnRender.bind(this, "time16")
         },
         {
           title: '17',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time17',
           render: this.tableCloumnRender.bind(this, "time17")
         },
         {
           title: '18',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time18',
           render: this.tableCloumnRender.bind(this, "time18")
         },
         {
           title: '19',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time19',
           render: this.tableCloumnRender.bind(this, "time19")
         },
         {
           title: '20',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time20',
           render: this.tableCloumnRender.bind(this, "time20")
         },
         {
           title: '21',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time21',
           render: this.tableCloumnRender.bind(this, "time21")
         },
         {
           title: '22',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time22',
           render: this.tableCloumnRender.bind(this, "time22")
         },
         {
           title: '23',
-          width: '50px',
+          width: '40px',
           dataIndex: 'time23',
           render: this.tableCloumnRender.bind(this, "time23")
         }

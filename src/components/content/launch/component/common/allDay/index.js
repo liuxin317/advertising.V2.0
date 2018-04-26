@@ -60,7 +60,7 @@ class AllDay extends Component {
   tableCloumnRender = (text, record) => {
     return (
       <div className="time-group">
-        <span>
+        <span className="box">
           <Checkbox onChange={this.onChangeAllDay.bind(this, record)} checked={ record.selected } />
         </span>
       </div>

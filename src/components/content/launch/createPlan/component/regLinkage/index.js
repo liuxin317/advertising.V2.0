@@ -455,7 +455,7 @@ class RegLinkage extends Component {
                                 return <span key={index} className="already-chosen">{item}</span>
                             })
                         }
-                        <a className="clear-chosen" onClick={ this.clearSelectData }>清空</a>
+                        <span className="already-chosen clear-chosen" onClick={ this.clearSelectData }>清空</span>
                     </div>
                 </div>
 

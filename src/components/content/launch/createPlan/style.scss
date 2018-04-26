@@ -7,6 +7,7 @@
     margin: 20px 0;
 
     .name {
+      display: block;
       width: 150px;
       line-height: 36px;
       text-align: right;
@@ -19,7 +20,7 @@
     }
 
     .input-group {
-      width: 60%;
+      width: 80%;
       margin-left: 10px;
 
       input.ant-input {
@@ -167,11 +168,33 @@
           }
           
           .age-row {
-            .ant-col-8 {
-              margin-bottom: 10px;
+            line-height: 36px;
+          }
+        }
+
+        .black-white {
+          display: flex;
+          align-items: flex-end;
+          margin-top: 20px;
+
+          .input {
+            flex: 3;
+          }
+
+          .btn-group {
+            flex: 1;
+            display: flex;
+            align-items: center;
+
+            .ant-btn {
+              margin-left: 10px;
             }
           }
         }
+      }
+      
+      .channel-type_1 {
+        margin-top: 7px;
       }
     }
   }

@@ -15,8 +15,10 @@
       width: 40px;
       height: 45px;
 
-      span {
-        flex: 1;
+      span.box {
+        display: inline-block;
+        width: 50%;
+        height: 45px;
         cursor: pointer;
 
         &:first-of-type {

@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { Input, Radio, Icon, Checkbox, Row, Col, Table, Collapse } from 'antd';
+import { Input, Radio, Icon, Checkbox, Row, Col, Table, Collapse, Upload, message, Button, Select, DatePicker } from 'antd';
 // 地区联动
 import RegLinkage from './regLinkage';
+// 时间段选择组件
+import TimeSelected from '../../component/common/timeSelected';
+// 全天选择组件
+import AllDay from '../../component/common/allDay';
 
 const { TextArea } = Input;
 const RadioGroup = Radio.Group;
 const Panel = Collapse.Panel;
+const Option = Select.Option;
+const { RangePicker } = DatePicker;
 const radioStyle = {
   display: 'block',
   height: '30px',
@@ -75,6 +81,21 @@ class Advertising extends Component {
     advertedPositionValue: 1, // 广告版位渠道类型（1、通用，2、选择渠道，3、选择广告形式）
     flowType: 1, // 流量类型（1、移动WAP，2、APP）
     sexValue: 1, // 性别(1、男，2、女)
+    fileList: [], // 上传列表
+    backFileUrl: "", // 文件上传成功后返回地址 
+    blackWhiteList: [{ // 黑白名单
+      name: '设置黑名单',
+      id: 1,
+      active: true
+    }, {
+      name: '设置白名单',
+      id: 2,
+      active: false
+    }],
+    blackWhiteType: 1, // 黑白type
+    modeTime: 'day', // 投放時間切換狀態
+    periodType: 1, // 周期类别（1、自然, 2、设置）
+    periodDay: 1, // 周期按时间类型
   }
 
   // 监听渠道类别
@@ -134,8 +155,113 @@ class Advertising extends Component {
     console.log('checked = ', checkedValues);
   }
 
+  // 监听操作系统
+  onChangeOS = (checkedValues) => {
+    console.log('checked = ', checkedValues);
+  }
+
+  // 监听联网方式
+  onChangeNetMode = (checkedValues) => {
+    console.log('checked = ', checkedValues);
+  }
+
+  // 监听上传图片
+  uploadFileChange = (info) => {
+    let backFileUrl = "";
+    let response = info.file.response;
+    let fileList = info.fileList;
+
+    if (info.file.status === 'done') {
+      backFileUrl = response.data
+      message.success(`${info.file.name} 文件上传成功`);
+    } else if (info.file.status === 'error') {
+      backFileUrl = ""
+      message.error(`${info.file.name} 文件上传失败。`);
+    }
+    // 1. Limit the number of uploaded files
+    //    Only to show two recent uploaded files, and old ones will be replaced by the new
+    fileList = fileList.slice(-1);
+
+    // 2. read from response and show file link
+    fileList = fileList.map((file) => {
+      if (file.response) {
+        // Component will show file.url as link
+        file.url = file.response.url;
+      }
+      return file;
+    });
+
+    this.setState({ fileList, backFileUrl });
+  }
+
+  // 监听DMP人群包
+  handleChangeDMP = (value) => {
+    console.log(`selected ${value}`);
+  }
+
+  // 切换黑白名单
+  switchBlackWhiteList= (id) => {
+    const { blackWhiteList } = this.state;
+    let deepBlackWhiteList= JSON.parse(JSON.stringify(blackWhiteList));
+
+    deepBlackWhiteList.forEach(item => {
+      if (item.id === id) {
+        item.active = true
+      } else {
+        item.active = false
+      }
+    })
+
+    this.setState({
+      blackWhiteList: deepBlackWhiteList,
+      blackWhiteType: id
+    })
+  }
+
+  // 监听投放日期
+  onChangeDate = (date, dateString) => {
+    console.log(date, dateString);
+  }
+
+  // 无法选择今天和今天之前的日子
+	disabledDate = (current) => {
+    return current && current.valueOf() < Date.now() - (24*60*60*1000);
+  }
+
+  // 切换投放时间
+  handleModeChange = (e) => {
+    const modeTime = e.target.value;
+    this.setState({ modeTime });
+  }
+
+  // 获取时间段选择的数据
+  childrenGetTimeSelectedData = (selectData) => {
+    console.log(selectData);
+  }
+
+  //周期类别选择
+  onChangePeriodType = (e) => {
+    this.setState({
+      periodType: e.target.value
+    })
+  }
+
+  // 选择周期方式
+  setPeriodHandleChange = (value) => {
+    this.setState({
+      periodDay: value
+    })
+  }
+
   render () {
-    const { advertPosition, advertedPositionValue, channelsType, flowType, sexValue } = this.state;
+    const { advertPosition, advertedPositionValue, channelsType, periodType, flowType, sexValue, blackWhiteList, modeTime } = this.state;
+    const props = {
+      name: 'file',
+      action: '/material/uploadMaterial',
+      headers: {
+        authorization: 'authorization-text',
+      }
+    };
 
     return (
       <section className="create-plan__group">
@@ -251,7 +377,7 @@ class Advertising extends Component {
           </div>
           
           <div className="create-group" style={{ marginLeft: 30 }}>
-            <Collapse bordered={false} defaultActiveKey={['1','2','3']}>
+            <Collapse bordered={false} defaultActiveKey={['1','2','3','4','5']}>
               {/* 人口属性 */}
               <Panel header="人口属性" key="1">
                 <div className="pop-attr">
@@ -272,28 +398,217 @@ class Advertising extends Component {
                     <div className="input-group">
                       <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeAge}>
                         <Row className="age-row">
-                          <Col span={8}><Checkbox value="18-24岁">18-24岁</Checkbox></Col>
-                          <Col span={8}><Checkbox value="25-34岁">25-34岁</Checkbox></Col>
-                          <Col span={8}><Checkbox value="35-44岁">35-44岁</Checkbox></Col>
-                          <Col span={8}><Checkbox value="45-54岁">45-54岁</Checkbox></Col>
-                          <Col span={8}><Checkbox value="56-64岁">56-64岁</Checkbox></Col>
-                          <Col span={8}><Checkbox value="64岁以上">64岁以上</Checkbox></Col>
+                          <Col span={6}><Checkbox value="18-24岁">18-24岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="25-34岁">25-34岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="35-44岁">35-44岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="45-54岁">45-54岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="56-64岁">56-64岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="64岁以上">64岁以上</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
                   </div>
                 </div>
               </Panel>
+              {/* 地域定向 */}
               <Panel header="地域定向" key="2">
                 <div className="pop-attr">
                     <RegLinkage />
                 </div>
               </Panel>
-              <Panel header="This is panel header 3" key="3">
-                789
+              {/* 设备定向 */}
+              <Panel header="设备定向" key="3">
+                <div className="pop-attr">
+                  {/* 操作系统 */}
+                  <div className="create-group">
+                    <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>操作系统：</label>
+                    <div className="input-group">
+                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeOS}>
+                        <Row className="age-row">
+                          <Col span={6}><Checkbox value="IOS">IOS</Checkbox></Col>
+                          <Col span={6}><Checkbox value="Android">Android</Checkbox></Col>
+                        </Row>
+                      </Checkbox.Group>
+                    </div>
+                  </div>
+
+                  {/* 联网方式 */}
+                  <div className="create-group">
+                    <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>联网方式：</label>
+                    <div className="input-group">
+                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeNetMode}>
+                        <Row className="age-row">
+                          <Col span={6}><Checkbox value="WIFI">WIFI</Checkbox></Col>
+                          <Col span={6}><Checkbox value="2G">2G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="3G">3G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="4G">4G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="其他">其他</Checkbox></Col>
+                        </Row>
+                      </Checkbox.Group>
+                    </div>
+                  </div>
+
+                  {/* 移动运营商 */}
+                  <div className="create-group">
+                    <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>移动运营商：</label>
+                    <div className="input-group">
+                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeNetMode}>
+                        <Row className="age-row">
+                          <Col span={6}><Checkbox value="移动">移动</Checkbox></Col>
+                          <Col span={6}><Checkbox value="联通">联通</Checkbox></Col>
+                          <Col span={6}><Checkbox value="电信">电信</Checkbox></Col>
+                          <Col span={6}><Checkbox value="未知">未知</Checkbox></Col>
+                        </Row>
+                      </Checkbox.Group>
+                    </div>
+                  </div>
+                </div>
+              </Panel>
+              {/* 自定义人群 */}
+              <Panel header="自定义人群" key="4">
+                <div className="pop-attr">
+                    {/* 导入离线人群包 */}
+                    <div className="create-group">
+                      <label className="name" htmlFor="name" style={{ width: '120px', textAlign: 'left' }}>导入离线人群包：</label>
+                      <div className="input-group">
+                        <Upload {...props} onChange={ this.uploadFileChange } fileList={ this.state.fileList }>
+                          <Button>
+                            <Icon type="upload" /> Click to Upload
+                          </Button>
+                        </Upload>
+                      </div>
+                    </div>
+
+                    {/* 导入DMP人群包 */}
+                    <div className="create-group">
+                      <label className="name" htmlFor="name" style={{ width: '120px', textAlign: 'left' }}>导入DMP人群包：</label>
+                      <div className="input-group">
+                        <Select defaultValue="lucy" style={{ width: 150 }} onChange={this.handleChangeDMP}>
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                          <Option value="Yiminghe">yiminghe</Option>
+                        </Select>
+                      </div>
+                    </div>
+                </div>
+              </Panel>
+              {/* 黑白名单定向 */}
+              <Panel header="黑白名单定向" key="5">
+                <div className="pop-attr">
+                  <div className="adverted-position__group">
+                    <ul className="channel-type">
+                      {
+                        blackWhiteList.map(item => {
+                          return <li onClick={ this.switchBlackWhiteList.bind(this, item.id) } className={item.active ? "active" : ""} key={item.id}> { item.name }</li>
+                        })
+                      }
+                    </ul>
+
+                    <div className="black-white">
+                      <TextArea rows={4} className="input" />
+                      <div className="btn-group">
+                        <Button type="primary">确认</Button>
+                        <Button>清空</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </Panel>
             </Collapse>
           </div>
+        </div>
+
+        {/* 排期与频次 */}
+        <div className="column-group">
+          <h3>排期与频次</h3>
+
+          {/* 投放日期 */}
+          <div className="create-group">
+            <label className="name" htmlFor="name">投放日期：</label>
+            <div className="input-group">
+              <RangePicker onChange={this.onChangeDate} disabledDate={this.disabledDate} />
+            </div>
+          </div>
+
+          {/* 投放时间 */}
+          <div className="create-group">
+            <label className="name" htmlFor="name">投放时间：</label>
+            <div className="input-group">
+              <Radio.Group onChange={this.handleModeChange} value={modeTime} style={{ marginBottom: 8 }}>
+                <Radio.Button value="day">全天投放</Radio.Button>
+                <Radio.Button value="time">按时间段投放</Radio.Button>
+              </Radio.Group>
+            </div>
+          </div>
+
+          {/* 时间对应的tabs */}
+          <div className="create-group">
+            <div className="name"></div>
+            <div className="input-group">
+              {
+                modeTime === 'day'
+                ?
+                <AllDay childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
+                :
+                <TimeSelected childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
+              }
+            </div>
+          </div>
+
+          {/* 频次控制 */}
+          <div className="create-group">
+            <label className="name" htmlFor="name">频次控制：</label>
+            <div className="input-group">
+              <div className="channel-type_1">
+                <RadioGroup onChange={this.onChangePeriodType} value={periodType}>
+                  <Radio value={1}>按自然周期</Radio>
+                  <Radio value={2}>按设置周期</Radio>
+                </RadioGroup>
+              </div>
+
+              <div className="channel-group period-group">
+                <div className="period-row">
+                  {
+                    periodType === 1 
+                    ?
+                    <Select defaultValue="1" style={{ width: 100 }} onChange={this.setPeriodHandleChange}>
+                      <Option value="1">每日</Option>
+                      <Option value="2">每周</Option>
+                    </Select>
+                    :
+                    <span>周期内</span>
+                  }
+                  <span style={{ margin: '0 10px' }}>展示</span>
+                  <span>≤</span>
+                  <Input style={{ width: 100, height: 32, margin: '0 10px' }} />
+                  <span>次</span>
+                </div>
+
+                <div className="period-row">
+                  {
+                    periodType === 1 
+                    ?
+                    <Select defaultValue="1" style={{ width: 100 }} onChange={this.setPeriodHandleChange}>
+                      <Option value="1">每日</Option>
+                      <Option value="2">每周</Option>
+                    </Select>
+                    :
+                    <span>周期内</span>
+                  }
+                  
+                  <span style={{ margin: '0 10px' }}>点击</span>
+                  <span>≤</span>
+                  <Input style={{ width: 100, height: 32, margin: '0 10px' }} />
+                  <span>次</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 出价设置 */}
+        <div className="column-group">
+          <h3>出价设置</h3>
         </div>
 
         <div style={{ height: 500 }}></div>
