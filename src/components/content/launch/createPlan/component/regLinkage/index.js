@@ -415,6 +415,8 @@ class RegLinkage extends Component {
 
         this.setState({
             selectData
+        }, () => {
+            this.props.acceptLocalData(this.state.selectData)
         })
     }
 
@@ -439,6 +441,8 @@ class RegLinkage extends Component {
             regionData: deepRegionData,
             tertiaryData: deepTertiaryData,
             secondaryData: deepSecondaryData
+        }, () => {
+            this.props.acceptLocalData(this.state.selectData)
         })
     }
 

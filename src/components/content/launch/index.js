@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Tabs, Select, Table, Modal, message, Input, Icon } from 'antd';
+import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
@@ -70,7 +71,7 @@ class Launch extends Component {
   }
 
   componentDidMount () {
-    this.getPlanList()
+    // this.getPlanList()
   }
 
   // tab切换回调
@@ -202,7 +203,7 @@ class Launch extends Component {
         <div className="content-top">
           <h4>投放管理</h4>
           <div className="launch-top-button">
-            <Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button>
+            <Link to="/content/create-plan"><Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button></Link>
           </div>
         </div>
 

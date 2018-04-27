@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import './style.scss';
 
 class Head extends Component {
+  // 切换客户下拉;
+
   render () {
     const { toggleMenuFun, collapsed } = this.props;
 
