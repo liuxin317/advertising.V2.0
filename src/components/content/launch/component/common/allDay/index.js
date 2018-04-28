@@ -96,7 +96,9 @@ class AllDay extends Component {
         str = `${item.name}：00:00 ~ 23:59`
       }
 
-      timeGroupSelect.push(str)
+      if (str) {
+        timeGroupSelect.push(str)
+      }
     })
 
     this.setState({

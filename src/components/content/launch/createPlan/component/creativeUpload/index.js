@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Upload, Icon, message, Button, Input } from 'antd';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
 const Dragger = Upload.Dragger;
@@ -56,7 +57,11 @@ class CreativeUpload extends Component {
     const props = {
       name: 'file',
       multiple: true,
-      action: 'http://jsonplaceholder.typicode.com/posts/',
+      action: '/plan/upLoad',
+      data: {
+        type: 2,
+        token: JSON.parse(getCookie('userInfo')).token
+      },
       beforeUpload (file) {
         const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg';
         let deepfileList = JSON.parse(JSON.stringify(fileList));
@@ -119,6 +124,7 @@ class CreativeUpload extends Component {
         }
         if (status === 'done') {
           message.success(`${info.file.name} 上传成功！`);
+          console.log(fileList)
           _this.setState({
             fileList
           })
@@ -182,7 +188,8 @@ class CreativeUpload extends Component {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action="//jsonplaceholder.typicode.com/posts/"
+              action='/plan/upLoad'
+              data={{ type: 3, token: JSON.parse(getCookie('userInfo')).token }}
               beforeUpload={beforeUpload}
               onChange={this.handleChangeLOGO}
             >
@@ -195,7 +202,7 @@ class CreativeUpload extends Component {
           <h3>广告文案</h3>
 
           <div className="input-box">
-            <Input placeholder="不能超过20个字符" />
+            <Input maxLength={20} placeholder="不能超过20个字符" />
           </div>
         </div>
 
@@ -203,7 +210,7 @@ class CreativeUpload extends Component {
           <h3>广告描述</h3>
 
           <div className="input-box">
-            <Input placeholder="不能超过20个字符" />
+            <Input maxLength={20} placeholder="不能超过20个字符" />
           </div>
         </div>
 

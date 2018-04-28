@@ -17,7 +17,8 @@ class CreatePlan extends Component {
     plainOptions: [], // 渠道集合
     moneyType: 1, // 预算类型（1、总预算；2、每日预算）
     launchType: 1, // 投放类型（1、均匀；2、加速）
-    planId: "", // 创建广告计划ID
+    plan: "", // 返回的广告计划数据
+    advertData: "", // 返回的广告数据
   }
 
   componentDidMount () {
@@ -45,9 +46,18 @@ class CreatePlan extends Component {
   }
 
   // 获取创建广告计划ID
-  getPlanID = (id) => {
+  getPlanID = (data) => {
+    console.log(data)
     this.setState({
-      planId: id
+      plan: data
+    })
+  }
+
+  // 获取广告板块的数据集合
+  getAdvertData = (data) => {
+    console.log(data)
+    this.setState({
+      advertData: data
     })
   }
 
@@ -58,8 +68,8 @@ class CreatePlan extends Component {
         <AdvertProgram getPlanID={ this.getPlanID } />
 
         {/* 广告板块 */}
-        <Advertising />
-
+        <Advertising getAdvertData={ this.getAdvertData } />
+ 
         {/* 广告创意 */}
         <AdvertCreative />
       </section>

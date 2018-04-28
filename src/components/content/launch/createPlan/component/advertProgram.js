@@ -18,7 +18,7 @@ class AdvertProgram extends Component {
   }
 
   componentDidMount () {
-    // this.getPlanList()
+    this.getPlanList()
   }
 
   // tabs切换

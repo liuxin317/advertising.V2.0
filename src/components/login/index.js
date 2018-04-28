@@ -133,8 +133,8 @@ class Login extends Component {
       if (!err) {
         const { account, password } = values;
         HttpRequest("/auth/login", "GET", {
-          username: account,
-          password: password
+          username: account.trim(),
+          password: password.trim()
         }, res => {
           message.success("登陆成功！");
           setCookie("userInfo", JSON.stringify(res.data)); // 存取用户信息

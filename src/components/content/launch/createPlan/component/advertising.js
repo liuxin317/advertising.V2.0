@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Input, Radio, Icon, Checkbox, Row, Col, Table, Collapse, Upload, message, Button, Select, DatePicker, InputNumber } from 'antd';
+import { getCookie } from '@/components/common/methods';
+import HttpRequest from '@/utils/fetch';
 // 地区联动
 import RegLinkage from './regLinkage';
 // 时间段选择组件
@@ -82,7 +84,7 @@ class Advertising extends Component {
     dataType: 1, // 流量类型（1、移动WAP，2、APP）
     sex: 1, // 性别(1、男，2、女)
     fileList: [], // 上传列表
-    backFileUrl: "", // 文件上传成功后返回地址 
+    offLinePerson: '', // 文件上传成功后返回地址离线人群包
     blackWhiteList: [{ // 黑白名单
       name: '设置黑名单',
       id: 1,
@@ -94,17 +96,39 @@ class Advertising extends Component {
     }],
     blackWhiteType: 1, // 黑白type
     modeTime: 'day', // 投放時間切換狀態
-    periodType: 1, // 周期类别（1、自然, 2、设置）
-    periodDay: 1, // 周期按时间类型
-    offerValue: 1, // 出价方式
+    cycle: 1, // 周期类别（1、自然, 2、设置）
     money: '', // 出价额度
     name: '', // 广告名称
     openUrl: '', // 落地页链接
     viewControl: '', // 展示监测
     clickControl: '', // 点击监测
-    channelGather: "", // 渠道集合
-    advertGather: "", // 广告形式集合
-    area: "", // 地区集合
+    channelGather: '', // 渠道集合
+    advertGather: '', // 广告形式集合
+    area: '', // 地区集合
+    system: '', // 操作系统
+    netType: '', // 联网方式
+    netComp: '', // 联动运营商
+    offLinePerson: '', // 离线人群包
+    dmpPerson: '', // DMP人群
+    blackPerson: '', // 黑名单
+    whitePerson: '', // 白名单
+    blackWhiteValue: '', // 黑白输入框的内容
+    startTime: '', // 投放开始时间
+    endTime: '', // 投放结束时间
+    putTime: '', // 投放时间段
+    dateShowType: "1", // 1、每日；2、每周
+    dateClickType: "1", // 1、每日；2、每周
+    showNum: '', // 展示次数
+    clickNum: '', // 展示次数
+    bidWay: 1, // 出价方式1-cpm、2-cpc
+    exposureNum: '', // 曝光次数 
+    clickLimit: '', // 点击上限
+    isClickNext: false, // 是否通过下一步
+    channelsList: [], // 渠道列表
+  }
+
+  componentDidMount () {
+    this.getChannels()
   }
 
   // 切换广告版位客户端
@@ -136,7 +160,7 @@ class Advertising extends Component {
   // 监听选择渠道和广告形式
   onChangeChooseChannel = (name, checkedValues) => {
     let obj = {};
-    obj[name] = checkedValues
+    obj[name] = checkedValues.join(',')
     this.setState({
       ...obj
     })
@@ -159,31 +183,47 @@ class Advertising extends Component {
   // 监听年龄
   onChangeAge = (checkedValues) => {
     this.setState({
-      age: checkedValues
+      age: checkedValues.join(',')
     })
   }
 
   // 监听操作系统
   onChangeOS = (checkedValues) => {
-    console.log('checked = ', checkedValues);
+    this.setState({
+      system: checkedValues.join(',')
+    })
   }
 
   // 监听联网方式
   onChangeNetMode = (checkedValues) => {
-    console.log('checked = ', checkedValues);
+    this.setState({
+      netType: checkedValues.join(',')
+    })
+  }
+
+  // 监听移动运营商
+  onChangeMobileOperator = (checkedValues) => {
+    this.setState({
+      netComp: checkedValues.join(',')
+    })
   }
 
   // 监听上传图片
   uploadFileChange = (info) => {
-    let backFileUrl = "";
+    let offLinePerson = "";
     let response = info.file.response;
     let fileList = info.fileList;
 
     if (info.file.status === 'done') {
-      backFileUrl = response.data
-      message.success(`${info.file.name} 文件上传成功`);
+      offLinePerson = response.data
+      if (response.code === 200) {
+        message.success(`${info.file.name} 文件上传成功`);
+      } else {
+        offLinePerson = ""
+        message.error(`${info.file.name} 文件上传失败。`);
+      }
     } else if (info.file.status === 'error') {
-      backFileUrl = ""
+      offLinePerson = ""
       message.error(`${info.file.name} 文件上传失败。`);
     }
     // 1. Limit the number of uploaded files
@@ -199,17 +239,19 @@ class Advertising extends Component {
       return file;
     });
 
-    this.setState({ fileList, backFileUrl });
+    this.setState({ fileList, offLinePerson });
   }
 
   // 监听DMP人群包
   handleChangeDMP = (value) => {
-    console.log(`selected ${value}`);
+    this.setState({
+      dmpPerson: value
+    })
   }
 
   // 切换黑白名单
   switchBlackWhiteList= (id) => {
-    const { blackWhiteList } = this.state;
+    const { blackWhiteList, blackPerson, whitePerson } = this.state;
     let deepBlackWhiteList= JSON.parse(JSON.stringify(blackWhiteList));
 
     deepBlackWhiteList.forEach(item => {
@@ -222,13 +264,17 @@ class Advertising extends Component {
 
     this.setState({
       blackWhiteList: deepBlackWhiteList,
-      blackWhiteType: id
+      blackWhiteType: id,
+      blackWhiteValue: id === 1 ? blackPerson : whitePerson
     })
   }
 
   // 监听投放日期
   onChangeDate = (date, dateString) => {
-    console.log(date, dateString);
+    this.setState({
+      startTime: dateString[0],
+      endTime: dateString[1]
+    })
   }
 
   // 无法选择今天和今天之前的日子
@@ -239,39 +285,47 @@ class Advertising extends Component {
   // 切换投放时间
   handleModeChange = (e) => {
     const modeTime = e.target.value;
-    this.setState({ modeTime });
+    this.setState({ modeTime, putTime: '' });
   }
 
   // 获取时间段选择的数据
   childrenGetTimeSelectedData = (selectData) => {
-    console.log(selectData);
+    this.setState({
+      putTime: selectData.join(',')
+    })
   }
 
   //周期类别选择
   onChangePeriodType = (e) => {
     this.setState({
-      periodType: e.target.value
+      cycle: e.target.value
     })
   }
 
   // 选择周期方式
-  setPeriodHandleChange = (value) => {
+  setPeriodHandleChange = (type, value) => {
+    let obj = {};
+    obj[type] = value
+
     this.setState({
-      periodDay: value
+      ...obj
     })
   }
 
   // 监听出价方式
   onChangeOffer = (e) => {
     this.setState({
-      offerValue: e.target.value
+      bidWay: e.target.value
     })
   }
 
   // 监听出价额度
-  onChangeMoney = (value) => {
+  onChangeMoney = (name, value) => {
+    let obj = {};
+    obj[name] = value;
+    
     this.setState({
-      money: value
+      ...obj
     })
   }
 
@@ -286,18 +340,85 @@ class Advertising extends Component {
 
   // 接受地区选择
   acceptLocalData = (data) => {
-    console.log(data)
-    
     this.setState({
-      area: data
+      area: data.join(',')
     })
   }
 
+  // 监听黑白名单框
+  blackWhiteChange = (e) => {
+    const { blackWhiteType } = this.state;
+
+    let str = blackWhiteType === 1 ? "blackPerson" : "whitePerson";
+    let obj = {};
+    obj[str] = e.target.value.trim()
+    
+    this.setState({
+      ...obj,
+      blackWhiteValue: e.target.value
+    })
+  }
+
+  // 清空黑白框输入框
+  clearBlackWhiteInput = () => {
+    const { blackWhiteType } = this.state;
+    let str = blackWhiteType === 1 ? "blackPerson" : "whitePerson";
+    let obj = {};
+    obj[str] = ''
+
+    this.setState({
+      ...obj,
+      blackWhiteValue: ''
+    })
+  }
+
+  // 监听inputNumber输入框
+  onChangeInputNumber = (type, value) => {
+    let obj = {};
+    obj[type] = value
+
+    this.setState({
+      ...obj
+    })
+  }
+
+  // 获取渠道数据
+  getChannels = () => {
+    HttpRequest("/plan/channels", "POST", {}, res => {
+      this.setState({
+        channelsList: res.data
+      })
+    })
+  }
+
+  // 下一步
+  nextStep = () => {
+    const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList } = this.state;
+
+    let passParent = {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit};
+
+    if (mode === 2) {
+      passParent.channelGather = this.state.channelGather
+    } else if (mode === 3) {
+      passParent.advertGather = this.state.advertGather
+    }
+
+    this.setState({
+      isClickNext: true
+    })
+
+    this.props.getAdvertData(passParent);
+  }
+
   render () {
-    const { advertPosition, mode, position, periodType, dataType, sex, blackWhiteList, modeTime } = this.state;
+    const { advertPosition, mode, position, dataType, sex, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList } = this.state;
     const props = {
       name: 'file',
-      action: '/material/uploadMaterial',
+      action: '/plan/upLoad',
+      data: {
+        type: 1,
+        token: JSON.parse(getCookie('userInfo')).token
+      },
       headers: {
         authorization: 'authorization-text',
       }
@@ -365,11 +486,11 @@ class Advertising extends Component {
                 <div className="choose-channel">
                   <Checkbox.Group disabled={mode === 2 ? false : true} style={{ width: '100%' }} onChange={this.onChangeChooseChannel.bind(this, "channelGather")}>
                     <Row>
-                      <Col span={4}><Checkbox value="A">A</Checkbox></Col>
-                      <Col span={4}><Checkbox value="B">B</Checkbox></Col>
-                      <Col span={4}><Checkbox value="C">C</Checkbox></Col>
-                      <Col span={4}><Checkbox value="D">D</Checkbox></Col>
-                      <Col span={4}><Checkbox value="E">E</Checkbox></Col>
+                      {
+                        channelsList.map(item => {
+                          return <Col span={4} key={item.id}><Checkbox value={item.id}>{item.name}</Checkbox></Col>
+                        })
+                      }
                     </Row>
                   </Checkbox.Group>
                 </div>
@@ -465,8 +586,8 @@ class Advertising extends Component {
                     <div className="input-group">
                       <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeOS}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="IOS">IOS</Checkbox></Col>
-                          <Col span={6}><Checkbox value="Android">Android</Checkbox></Col>
+                          <Col span={6}><Checkbox value="1">IOS</Checkbox></Col>
+                          <Col span={6}><Checkbox value="2">Android</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -478,11 +599,11 @@ class Advertising extends Component {
                     <div className="input-group">
                       <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeNetMode}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="WIFI">WIFI</Checkbox></Col>
-                          <Col span={6}><Checkbox value="2G">2G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="3G">3G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="4G">4G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="其他">其他</Checkbox></Col>
+                          <Col span={6}><Checkbox value="1">WIFI</Checkbox></Col>
+                          <Col span={6}><Checkbox value="2">2G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="3">3G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="4">4G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="5">其他</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -492,12 +613,12 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>移动运营商：</label>
                     <div className="input-group">
-                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeNetMode}>
+                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeMobileOperator}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="移动">移动</Checkbox></Col>
-                          <Col span={6}><Checkbox value="联通">联通</Checkbox></Col>
-                          <Col span={6}><Checkbox value="电信">电信</Checkbox></Col>
-                          <Col span={6}><Checkbox value="未知">未知</Checkbox></Col>
+                          <Col span={6}><Checkbox value="1">移动</Checkbox></Col>
+                          <Col span={6}><Checkbox value="2">联通</Checkbox></Col>
+                          <Col span={6}><Checkbox value="3">电信</Checkbox></Col>
+                          <Col span={6}><Checkbox value="4">未知</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -513,23 +634,23 @@ class Advertising extends Component {
                       <div className="input-group">
                         <Upload {...props} onChange={ this.uploadFileChange } fileList={ this.state.fileList }>
                           <Button>
-                            <Icon type="upload" /> Click to Upload
+                            <Icon type="upload" /> 上传
                           </Button>
                         </Upload>
                       </div>
                     </div>
 
                     {/* 导入DMP人群包 */}
-                    <div className="create-group">
+                    {/* <div className="create-group">
                       <label className="name" htmlFor="name" style={{ width: '120px', textAlign: 'left' }}>导入DMP人群包：</label>
                       <div className="input-group">
-                        <Select defaultValue="lucy" style={{ width: 150 }} onChange={this.handleChangeDMP}>
+                        <Select style={{ width: 150 }} placeholder="请选择" onChange={this.handleChangeDMP}>
                           <Option value="jack">Jack</Option>
                           <Option value="lucy">Lucy</Option>
                           <Option value="Yiminghe">yiminghe</Option>
                         </Select>
                       </div>
-                    </div>
+                    </div> */}
                 </div>
               </Panel>
               {/* 黑白名单定向 */}
@@ -545,10 +666,10 @@ class Advertising extends Component {
                     </ul>
 
                     <div className="black-white">
-                      <TextArea rows={4} className="input" />
+                      <TextArea rows={4} value={blackWhiteValue} onChange={this.blackWhiteChange} className="input" />
                       <div className="btn-group">
                         <Button type="primary">确认</Button>
-                        <Button>清空</Button>
+                        <Button onClick={this.clearBlackWhiteInput}>清空</Button>
                       </div>
                     </div>
                   </div>
@@ -600,7 +721,7 @@ class Advertising extends Component {
             <label className="name" htmlFor="name">频次控制：</label>
             <div className="input-group">
               <div className="channel-type_1">
-                <RadioGroup onChange={this.onChangePeriodType} value={periodType}>
+                <RadioGroup onChange={this.onChangePeriodType} value={cycle}>
                   <Radio value={1}>按自然周期</Radio>
                   <Radio value={2}>按设置周期</Radio>
                 </RadioGroup>
@@ -609,9 +730,9 @@ class Advertising extends Component {
               <div className="channel-group period-group">
                 <div className="period-row">
                   {
-                    periodType === 1 
+                    cycle === 1 
                     ?
-                    <Select defaultValue="1" style={{ width: 100 }} onChange={this.setPeriodHandleChange}>
+                    <Select defaultValue={ dateShowType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateShowType")}>
                       <Option value="1">每日</Option>
                       <Option value="2">每周</Option>
                     </Select>
@@ -620,15 +741,15 @@ class Advertising extends Component {
                   }
                   <span style={{ margin: '0 10px' }}>展示</span>
                   <span>≤</span>
-                  <Input style={{ width: 100, height: 32, margin: '0 10px' }} />
+                  <InputNumber min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "showNum")} />
                   <span>次</span>
                 </div>
 
                 <div className="period-row">
                   {
-                    periodType === 1 
+                    cycle === 1 
                     ?
-                    <Select defaultValue="1" style={{ width: 100 }} onChange={this.setPeriodHandleChange}>
+                    <Select defaultValue={ dateClickType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateClickType")}>
                       <Option value="1">每日</Option>
                       <Option value="2">每周</Option>
                     </Select>
@@ -638,7 +759,7 @@ class Advertising extends Component {
                   
                   <span style={{ margin: '0 10px' }}>点击</span>
                   <span>≤</span>
-                  <Input style={{ width: 100, height: 32, margin: '0 10px' }} />
+                  <InputNumber min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "clickNum")} />
                   <span>次</span>
                 </div>
               </div>
@@ -655,7 +776,7 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">出价方式：</label>
               <div className="input-group">
-                <RadioGroup onChange={this.onChangeOffer} value={this.state.offerValue}>
+                <RadioGroup onChange={this.onChangeOffer} value={bidWay}>
                   <Radio value={1}>CPM</Radio>
                   <Radio value={2}>CPC</Radio>
                 </RadioGroup>
@@ -666,7 +787,7 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">出价：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={6.5} onChange={this.onChangeMoney} />
+                <InputNumber style={{ width: 200, marginRight: 10 }} min={6.5} onChange={this.onChangeMoney.bind(this, "money")} />
                 <span>建议出价6.5元起</span>
               </div>
             </div>
@@ -675,7 +796,7 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">每日曝光上限：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney} />
+                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "exposureNum")} />
                 <span>次</span>
               </div>
             </div>
@@ -684,14 +805,14 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">每日点击上限：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney} />
+                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "clickLimit")} />
                 <span>次</span>
               </div>
             </div>
           </div>
         </div>
 
-        <Button type="primary" className="next-step" style={{ marginTop: 30 }}>下一步</Button>
+        <Button type="primary" className="next-step" style={{ marginTop: 30 }} onClick={this.nextStep}>下一步</Button>
       </section>
     )
   }
