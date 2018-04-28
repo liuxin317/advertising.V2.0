@@ -427,7 +427,7 @@ class Advertising extends Component {
       action: '/plan/upLoad',
       data: {
         type: 1,
-        token: JSON.parse(getCookie('userInfo')).token
+        token: getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : ""
       },
       headers: {
         authorization: 'authorization-text',

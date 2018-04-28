@@ -105,7 +105,7 @@ class CreativeUpload extends Component {
       action: '/plan/upLoad',
       data: {
         type: 2,
-        token: JSON.parse(getCookie('userInfo')).token
+        token: getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : ""
       },
       beforeUpload (file) {
         const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg';
@@ -240,7 +240,7 @@ class CreativeUpload extends Component {
               className="avatar-uploader"
               showUploadList={false}
               action='/plan/upLoad'
-              data={{ type: 3, token: JSON.parse(getCookie('userInfo')).token }}
+              data={{ type: 3, token: getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : "" }}
               beforeUpload={beforeUpload}
               onChange={this.handleChangeLOGO}
             >

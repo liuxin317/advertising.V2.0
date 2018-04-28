@@ -34,7 +34,7 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
     
     let newOptions = {};
     if (url.indexOf('login') === -1) {
-        params.token = JSON.parse(getCookie('userInfo')).token;
+        params.token = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : "";
         params.userId = 1;
     }
 
