@@ -64,14 +64,19 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
 
         if (String(data.code) === "200") {
             successBack && successBack(data);
+            return false;
         } else if (String(data.code) === "401") {
             message.warning('登录失效，请重新登录');
+            return false;
         } if (String(data.code) === "404") {
             message.error('资源未找到');
+            return false;
         } else if (String(data.code) === "500")  {
             message.error('服务器内部错误');
+            return false;
         } else if (String(data.code) === "403") {
             message.error('禁止访问');
+            return false;
         } else if (String(data.code) === "501") { // 参数错误
             let messages = [];
 
@@ -88,6 +93,9 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
             } else {
                 message.warning(messages.join(','));
             }
+            return false;
+        } else {
+            message.error("错误！");
         }
     })
     .catch(error => {

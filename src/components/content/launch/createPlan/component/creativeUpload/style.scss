@@ -31,8 +31,20 @@
       font-size: 24px;
     }
   }
+
+  .ant-upload {
+    img {
+      width: 100%;
+    }
+  }
 }
 
 .input-box {
   width: 800px;
+}
+
+.creative-component {
+  &.active {
+    display: none;
+  }
 }

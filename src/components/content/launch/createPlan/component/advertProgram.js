@@ -14,6 +14,7 @@ class AdvertProgram extends Component {
     newID: '', // 新建的广告ID
     dayMoney: '', //每日预算
     planName: '', // 计划名称
+    havePlans: [], // 已有广告列表
     isClickNext: false, // 是否通过下一步
   }
 
@@ -100,14 +101,18 @@ class AdvertProgram extends Component {
   // 获取已有的广告列表
   getPlanList = () => {
     HttpRequest("/plan/planList", "POST", {
-      type: 2, 
-      pageSize: 10,
+      type: 1, 
+      pageSize: 100000,
       pageNum: 1
+    }, res => {
+      this.setState({
+        havePlans: res.data.ls
+      })
     })
   }
 
   render () {
-    const { putType, isClickNext, selectdAdvertPlan } = this.state;
+    const { putType, isClickNext, selectdAdvertPlan, havePlans } = this.state;
     
     return (
       <section className="create-plan__group">
@@ -121,9 +126,11 @@ class AdvertProgram extends Component {
               onChange={ this.handleChangeHavePlans }
               disabled={isClickNext}
             >
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
-              <Option value="Yiminghe">yiminghe</Option>
+              {
+                havePlans.map(item => {
+                  return <Option key={item.id} value={item.id}>{item.planName}</Option>
+                })
+              }
             </Select>
           </TabPane>
 

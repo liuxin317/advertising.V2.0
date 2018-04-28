@@ -29,10 +29,15 @@ class CreativeUpload extends Component {
     backFileUrl: [], // 成功返回列表
     imageUrl: "", // 上传LOGO图片
     loading: false,
+    copyWrite: "", // 广告文案
+    description: "", // 广告描述
   }
 
   // 监听上传LOGO
   handleChangeLOGO = (info) => {
+    let response = info.file.response;
+    let headPortrait = "";
+
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
@@ -40,19 +45,59 @@ class CreativeUpload extends Component {
     if (info.file.status === 'done') {
       // Get this url from response in real world.
       message.success(`${info.file.name} 上传成功！`);
-      getBase64(info.file.originFileObj, imageUrl => this.setState({
-        imageUrl,
-        loading: false,
-      }));
+      getBase64(info.file.originFileObj, imageUrl => {
+        this.setState({
+          imageUrl,
+          loading: false,
+        })
+      });
+      headPortrait = response.data;
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} 上传失败！`);
+      headPortrait = "";
       this.setState({ loading: false });
+    }
+
+    this.setState({
+      headPortrait
+    })
+  }
+
+  // 监听input框
+  onChangeInput = (name, e) => {
+    let obj = {};
+    obj[name] = e.target.value
+
+    this.setState({
+      ...obj
+    })
+  }
+
+  // 向上级传入当前数据
+  passParentData = () => {
+    const { fileList, headPortrait, copyWrite, description } = this.state;
+    const { type } = this.props;
+    let creativeImgs = [];
+
+    fileList.forEach(item => {
+      if (item.response && item.response.data) {
+        creativeImgs.push(item.response.data)
+      }
+    })
+
+    return {
+      type,
+      creativeImgs,
+      headPortrait, 
+      copyWrite,
+      description
     }
   }
   
   render () {
     const _this = this;
     const { fileList, imageUrl } = this.state;
+    const { type, creativeID } = this.props;
 
     const props = {
       name: 'file',
@@ -64,7 +109,6 @@ class CreativeUpload extends Component {
       },
       beforeUpload (file) {
         const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg';
-        let deepfileList = JSON.parse(JSON.stringify(fileList));
 
         if (!isJPG) {
           message.error('请上传图片格式为JPG/JPEG!');
@@ -102,10 +146,20 @@ class CreativeUpload extends Component {
           return resp.w === 640 && resp.h === 180
         }).then(res => {
           if (!res) {
-            message.error('图片尺寸为640*180');
-            _this.setState({
-              fileList: deepfileList.splice((deepfileList.length - 1), 1)
-            })
+            message.error(`${file.name}图片尺寸不为640*180`);
+            setTimeout(() => {
+              let deepfileList = JSON.parse(JSON.stringify(_this.state.fileList));
+
+              deepfileList.forEach((item, index) => {
+                if (item.uid === file.uid) {
+                  deepfileList.splice(index, 1)
+                }
+              })
+
+              _this.setState({
+                fileList: deepfileList
+              })
+            }, 500)
           }
         })
 
@@ -114,8 +168,6 @@ class CreativeUpload extends Component {
       onChange (info) {
         const status = info.file.status;
         let fileList = info.fileList;
-        // let response = info.file.response;
-        // let deepBackFileUrl = JSON.parse(JSON.stringify(backFileUrl));
 
         if (status === 'uploading') {
           _this.setState({
@@ -124,7 +176,6 @@ class CreativeUpload extends Component {
         }
         if (status === 'done') {
           message.success(`${info.file.name} 上传成功！`);
-          console.log(fileList)
           _this.setState({
             fileList
           })
@@ -158,7 +209,7 @@ class CreativeUpload extends Component {
     );
 
     return (
-      <section className="creative-component">
+      <section className={ type === creativeID ? "creative-component" : "creative-component active"}>
         <div className="creative-group">
           <h3>上传创意</h3>
           <div className="creative-content">
@@ -184,7 +235,7 @@ class CreativeUpload extends Component {
 
           <div className="avatar-uploader-group">
             <Upload
-              name="avatar"
+              name="file"
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
@@ -193,7 +244,7 @@ class CreativeUpload extends Component {
               beforeUpload={beforeUpload}
               onChange={this.handleChangeLOGO}
             >
-              {imageUrl ? <img src={imageUrl} alt="" /> : uploadButton}
+              {imageUrl ? <div className="img-box"><img src={imageUrl} alt="" /></div> : uploadButton}
             </Upload>
           </div>
         </div>
@@ -202,15 +253,15 @@ class CreativeUpload extends Component {
           <h3>广告文案</h3>
 
           <div className="input-box">
-            <Input maxLength={20} placeholder="不能超过20个字符" />
+            <Input maxLength={20} onChange={this.onChangeInput.bind(this, "copyWrite")} placeholder="不能超过20个字符" />
           </div>
         </div>
 
-        <div className="creative-group">
+        <div className="creative-group"> 
           <h3>广告描述</h3>
 
           <div className="input-box">
-            <Input maxLength={20} placeholder="不能超过20个字符" />
+            <Input maxLength={20} onChange={this.onChangeInput.bind(this, "description")} placeholder="不能超过20个字符" />
           </div>
         </div>
 

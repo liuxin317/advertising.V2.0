@@ -395,13 +395,23 @@ class Advertising extends Component {
   nextStep = () => {
     const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList } = this.state;
 
-    let passParent = {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit};
+    let passParent = {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime};
+
+    let obj = {};
 
     if (mode === 2) {
       passParent.channelGather = this.state.channelGather
     } else if (mode === 3) {
       passParent.advertGather = this.state.advertGather
     }
+
+    if (cycle === 1) {
+      obj.dateShowType = dateShowType
+      obj.dateClickType = dateClickType
+    }
+
+    passParent.cycle = { type: cycle, ...obj, clickNum, showNum }
+    passParent.bidSetting = { bidWay, money, exposureNum, clickLimit }
 
     this.setState({
       isClickNext: true
