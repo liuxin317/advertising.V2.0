@@ -128,7 +128,7 @@ class Advertising extends Component {
   }
 
   componentDidMount () {
-    this.getChannels()
+    // this.getChannels()
   }
 
   // 切换广告版位客户端
@@ -440,7 +440,7 @@ class Advertising extends Component {
 
         {/* 落地页设置 */}
         <div className="column-group">
-          <h3>- 落地页设置</h3>
+          <h3 id="land_page">- 落地页设置</h3>
 
           {/* 广告名称 */}
           <div className="create-group">
@@ -477,7 +477,7 @@ class Advertising extends Component {
 
         {/* 广告版位 */}
         <div className="column-group">
-          <h3>- 广告版位</h3>
+          <h3 id="ad_layout">- 广告版位</h3>
           
           <div className="adverted-position__group">
             <ul className="channel-type">
@@ -534,7 +534,7 @@ class Advertising extends Component {
 
         {/* 定向设置 */}
         <div className="column-group">
-          <h3>- 定向设置</h3>
+          <h3 id="directional">- 定向设置</h3>
 
           {/* 流量类型 */}
           <div className="create-group" style={{ marginLeft: 30 }}>
@@ -691,7 +691,7 @@ class Advertising extends Component {
 
         {/* 排期与频次 */}
         <div className="column-group">
-          <h3>- 排期与频次</h3>
+          <h3 id="frequency">- 排期与频次</h3>
 
           {/* 投放日期 */}
           <div className="create-group">
@@ -779,7 +779,7 @@ class Advertising extends Component {
 
         {/* 出价设置 */}
         <div className="column-group">
-          <h3>- 出价设置</h3>
+          <h3 id="bid">- 出价设置</h3>
 
           <div className="offer-box">
             {/* 出价方式 */}

@@ -1,4 +1,5 @@
 .create-plan {
+  min-width: auto;
   margin-left: 276px;
 
   .create-group {
@@ -259,4 +260,14 @@
       }
     }
   }
+}
+
+#selected_plan,
+#land_page,
+#ad_layout,
+#directional,
+#frequency,
+#bid,
+#originality {
+  height: 30px;
 }

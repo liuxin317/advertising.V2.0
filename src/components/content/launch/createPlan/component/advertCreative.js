@@ -88,7 +88,7 @@ class AdvertCreative extends Component {
 
     return (
       <section className="create-plan__group">
-        <h2>广告创意</h2>
+        <h2 id="originality">广告创意</h2>
 
         <div className="creative-box">
           <ul className="creative-list">

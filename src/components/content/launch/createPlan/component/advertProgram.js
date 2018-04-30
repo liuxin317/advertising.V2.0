@@ -19,7 +19,7 @@ class AdvertProgram extends Component {
   }
 
   componentDidMount () {
-    this.getPlanList()
+    // this.getPlanList()
   }
 
   // tabs切换
@@ -116,7 +116,7 @@ class AdvertProgram extends Component {
     
     return (
       <section className="create-plan__group">
-        <h2>广告计划</h2>
+        <h2 id="selected_plan">广告计划</h2>
 
         <Tabs defaultActiveKey="1" animated={false} onChange={this.tabCallback}>
           <TabPane tab="选择已有广告计划" key="1" disabled={Number(selectdAdvertPlan) === 1 ? false : isClickNext}>
