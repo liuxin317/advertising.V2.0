@@ -81,81 +81,6 @@ class TimeSelected extends Component {
 
     timeDatas.forEach(item => {
       if (item.key === record.key) {
-        // if (!item[time][state]) { // 判断当前所在的时间区间（上午下午）是否已经选中的状态（做区间选择）
-        //   let currentTimeNubmer = time.split('time')[1]; // 当前选中时间点
-        //   let timeStateNumbers = []; // 选中时间点以及当前点状态集合;
-        //   let timeNumbers = []; // 选中时间点
-
-        //   if (currentTimeNubmer >=0 && currentTimeNubmer <= 11) { // 上午
-        //     for (let val in item) {
-        //       if (val === 'time12') { // 上午截止点
-        //         break;
-        //       } else {
-        //         if (val.indexOf('time') > -1) {
-        //           let num = 0; //计算true次数 
-        //           let obj = {state: []};
-
-        //           item[val].forEach((every, index) => {
-        //             if (every) {
-        //               num++;
-        //               obj.state.push(index)
-        //             }
-        //           })
-
-        //           if (num > 0) {
-        //             obj.time = val.split('time')[1]
-        //             timeStateNumbers.push(obj)
-        //             timeNumbers.push(obj.time)
-        //           }
-        //         }
-        //       }
-        //     }
-
-        //     if (timeNumbers.length) { // 有选中的时间点
-        //       let maxTime = Math.max(...timeNumbers), minTime = Math.min(...timeNumbers); // 计算出最小和最大值
-
-        //       if (currentTimeNubmer > maxTime) { // 当大于最大值
-        //         for (let val in item) { // 填充区间
-        //           if (val === 'time12') { // 上午截止点
-        //             break;
-        //           } else {
-        //             if (val.indexOf('time') > -1) {
-        //               let numberTime = val.split('time')[1];
-
-        //               if (Number(numberTime) > Number(maxTime) && Number(numberTime) < Number(currentTimeNubmer)) { // 当属于这个区间那么填充
-        //                 item[val][0] = true
-        //                 item[val][1] = true
-        //               } else if (Number(numberTime) === Number(currentTimeNubmer)) { // 等于当前选中的时间点并且state为1，则填充state=0
-        //                 if (state !== 0) { // 为1时填充，为0不填充
-        //                   item[val][0] = true
-        //                 }
-        //               } else if (Number(numberTime) === Number(maxTime)) { // 如果等于最大值maxTime，我们要判断最大值的state是为1、0
-        //                 // 当前最大值的状态是否为0;
-        //                 let maxTimeState = false;
-
-        //                 timeStateNumbers.forEach(d => {
-        //                   if (Number(d.time) === Number(maxTime)) { // 寻找最大值的state
-        //                     if (d.state.length === 1 && Number(d.state[0]) === 0) {
-        //                       maxTimeState = true
-        //                     }
-        //                   }
-        //                 })
-
-        //                 if (maxTimeState) { // 如果为true，那么state为1的要填充
-        //                   item[val][1] = true
-        //                 }
-        //               }
-        //             }
-        //           }
-        //         }
-        //       }
-
-        //       console.log(item)
-        //     }
-        //   } else { // 下午
-
-        //   }
-        // }
         item[time][state] = !item[time][state]; // 改变当前选中状态
       }
     })
@@ -215,25 +140,26 @@ class TimeSelected extends Component {
   // 表格每列render
   tableCloumnRender = (tiems, text, record) => {
     const { startMoveOver } = this.state;
+    const { disabled } = this.props;
 
     return (
       <div className="time-group">
         <span 
           className={ record[tiems][0] ? "box active" : "box" } 
-          onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
-          onMouseDown={ this.onmousedownTimeSlot } 
-          onMouseUp={ this.onmouseupTimeSlot } 
-          onMouseOut={ this.onmouseoutTimeSlot }
-          onMouseMove={ startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 0, tiems) : null }>
+          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
+          onMouseDown={ disabled ? null : this.onmousedownTimeSlot } 
+          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
+          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
+          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 0, tiems) : null }>
         </span>
 
         <span 
           className={ record[tiems][1] ? "box active" : "box" } 
-          onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
-          onMouseDown={ this.onmousedownTimeSlot }  
-          onMouseUp={ this.onmouseupTimeSlot } 
-          onMouseOut={ this.onmouseoutTimeSlot }
-          onMouseMove={ startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 1, tiems) : null }>
+          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
+          onMouseDown={ disabled ? null : this.onmousedownTimeSlot }  
+          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
+          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
+          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 1, tiems) : null }>
         </span>
       </div>
     )
@@ -441,6 +367,8 @@ class TimeSelected extends Component {
 
   render () {
     const { timeData, timeGroupSelect } = this.state;
+    const { disabled } = this.props;
+
     const columns = [{
       title: '星期 / 日期',
       dataIndex: 'name',
@@ -625,7 +553,7 @@ class TimeSelected extends Component {
           </div>
 
           <div className="group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button type="primary" style={{ backgroundColor: '#f5222d' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
+            <Button disabled={ disabled } type="primary" style={{ backgroundColor: '#f5222d', color: 'white' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
           </div>
         </div>
       </section>

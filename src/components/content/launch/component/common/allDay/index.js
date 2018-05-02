@@ -58,10 +58,12 @@ class AllDay extends Component {
 
   // 表格每列render
   tableCloumnRender = (text, record) => {
+    const { disabled } = this.props;
+
     return (
       <div className="time-group">
         <span className="box">
-          <Checkbox onChange={this.onChangeAllDay.bind(this, record)} checked={ record.selected } />
+          <Checkbox disabled={disabled} onChange={this.onChangeAllDay.bind(this, record)} checked={ record.selected } />
         </span>
       </div>
     )
@@ -110,6 +112,8 @@ class AllDay extends Component {
 
   render () {
     const { timeData, timeGroupSelect } = this.state;
+    const { disabled } = this.props;
+
     const columns = [{
       title: '星期 / 日期',
       dataIndex: 'name',
@@ -141,7 +145,7 @@ class AllDay extends Component {
           </div>
 
           <div className="group" style={{ display: 'flex' }}>
-            <Button type="primary" style={{ backgroundColor: '#f5222d' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
+            <Button disabled={ disabled } type="primary" style={{ backgroundColor: '#f5222d', color: 'white' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
           </div>
         </div>
       </section>

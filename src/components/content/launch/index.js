@@ -71,7 +71,7 @@ class Launch extends Component {
   }
 
   componentDidMount () {
-    // this.getPlanList()
+    this.getPlanList()
   }
 
   // tab切换回调
@@ -91,6 +91,7 @@ class Launch extends Component {
     const { pageNum, pageSize } = this.state;
 
     HttpRequest("/plan/planList", "POST", {
+      type: 1,
       pageNum,
       pageSize
     }, res => {
