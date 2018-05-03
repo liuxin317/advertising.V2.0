@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { message } from 'antd';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 import Store from '@/store';
@@ -20,12 +21,13 @@ class CreatePlan extends Component {
     plan: "", // 返回的广告计划数据
     advertData: "", // 返回的广告数据
     originalitys: "", // 创意集合
+    one: false, // 广告计划下一步状态
+    two: false, // 广告下一步
+    redirect: false, // 创建成功状态
   }
 
   componentDidMount () {
     Store.dispatch({ type: Type.LEFT_MENU_STATUS, payload: { leftMenuStatus: 2 } });
-
-    // this.getPutChannels()
   }
 
   componentWillUnmount () {
@@ -36,7 +38,8 @@ class CreatePlan extends Component {
   getPlanID = (data) => {
     console.log(data)
     this.setState({
-      plan: data
+      plan: data,
+      one: true
     })
   }
 
@@ -44,7 +47,8 @@ class CreatePlan extends Component {
   getAdvertData = (data) => {
     console.log(data)
     this.setState({
-      advertData: data
+      advertData: data,
+      two: true
     })
   }
 
@@ -66,21 +70,30 @@ class CreatePlan extends Component {
     HttpRequest("/plan/addAdp", "POST",{
       ad: JSON.stringify(obj)
     }, res => {
-
+      message.success('创建成功！')
+      this.setState({
+        redirect: true
+      })
     })
   }
 
   render () {
+    const { one, two, redirect } = this.state;
+
+    if (redirect) {
+      // return <Redirect push to="/content/launch" />
+    }
+
     return (
       <section className="content-box create-plan">
         {/* 广告计划 */}
-        <AdvertProgram getPlanID={ this.getPlanID } />
+        <AdvertProgram one={ one } getPlanID={ this.getPlanID } />
 
         {/* 广告板块 */}
-        <Advertising getAdvertData={ this.getAdvertData } />
+        <Advertising one={ one } two={ two } getAdvertData={ this.getAdvertData } />
  
         {/* 广告创意 */}
-        <AdvertCreative getOriginalitys={ this.getOriginalitys } />
+        <AdvertCreative two={ two } getOriginalitys={ this.getOriginalitys } />
       </section>
     )
   }

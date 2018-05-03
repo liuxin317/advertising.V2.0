@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Tabs, Button, Select, Input, InputNumber, Radio, message } from 'antd';
+import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 
 const TabPane = Tabs.TabPane;
@@ -19,7 +20,7 @@ class AdvertProgram extends Component {
   }
 
   componentDidMount () {
-    // this.getPlanList()
+    this.getPlanList()
   }
 
   // tabs切换
@@ -101,7 +102,7 @@ class AdvertProgram extends Component {
   // 获取已有的广告列表
   getPlanList = () => {
     HttpRequest("/plan/planList", "POST", {
-      type: 1, 
+      type: 2, 
       pageSize: 100000,
       pageNum: 1
     }, res => {
@@ -113,6 +114,7 @@ class AdvertProgram extends Component {
 
   render () {
     const { putType, isClickNext, selectdAdvertPlan, havePlans } = this.state;
+    const { one } = this.props;
     
     return (
       <section className="create-plan__group">
@@ -164,8 +166,11 @@ class AdvertProgram extends Component {
             </div>
           </TabPane>
         </Tabs>
-
-        <Button type="primary" className="next-step" onClick={this.nextStep}>下一步</Button>
+        
+        <div className={`operation ${ one ? 'none' : ''}`}>
+          <Button type="primary" className="next-step" onClick={this.nextStep}>下一步</Button>
+          <Button><Link to="/content/launch">返回上级</Link></Button>
+        </div>
       </section>
     )
   }

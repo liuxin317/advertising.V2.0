@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { Input, Radio, Icon, Checkbox, Row, Col, Table, Collapse, Upload, message, Button, Select, DatePicker, InputNumber } from 'antd';
+import { Link } from 'react-router-dom';
 import { getCookie } from '@/components/common/methods';
 import HttpRequest from '@/utils/fetch';
+import Store from '@/store';
+import Type from '@/action/Type';
 // 地区联动
 import RegLinkage from './regLinkage';
 // 时间段选择组件
@@ -20,68 +23,23 @@ const radioStyle = {
   marginBottom: '10px',
   lineHeight: '30px',
 };
-const dataSource = [{
-  key: '1',
-  advertPosition: '移动开屏',
-  creativeForm: '640x1136单图（文）',
-  describe: '开屏广告位'
-}, {
-  key: '2',
-  advertPosition: '浏览器及手腾网',
-  creativeForm: '640x330单图（文）',
-  describe: '焦点图、悦图、视频暂停'
-}, {
-  key: '3',
-  advertPosition: 'QQ浏览器',
-  creativeForm: '640x200单图（文）',
-  describe: '热门视频列表等'
-}, {
-  key: '4',
-  advertPosition: 'QQ空间',
-  creativeForm: '524x258单图（文）',
-  describe: '沉浸视频流'
-}, {
-  key: '5',
-  advertPosition: '移动Banner',
-  creativeForm: '640x100微动',
-  describe: 'Banner广告位'
-}, {
-  key: '6',
-  advertPosition: 'QQ音乐',
-  creativeForm: '80x80单图（文）',
-  describe: 'QQ音乐歌单底部Banner'
-}];
-const columns = [{
-  title: '广告版位',
-  dataIndex: 'advertPosition',
-  key: 'advertPosition',
-}, {
-  title: '创意形式',
-  dataIndex: 'creativeForm',
-  key: 'creativeForm',
-  sorter: (a, b) => a.creativeForm.length - b.creativeForm.length
-}, {
-  title: '描述',
-  dataIndex: 'describe',
-  key: 'describe',
-}];
 
 class Advertising extends Component {
   state = {
-    position: 1, // 广告版位类型(1、PC，2、MOB)
+    position: 100, // 广告版位类型(1、PC，2、MOB)
     advertPosition: [{ // 广告版位
       name: 'PC',
       icon: 'desktop',
-      id: 1,
+      id: 100,
       active: true
     }, {
       name: 'MOB',
       icon: 'mobile',
-      id: 2,
+      id: 101,
       active: false
     }],
-    mode: 1, // 广告版位渠道类型（1、通用，2、选择渠道，3、选择广告形式）
-    dataType: 1, // 流量类型（1、移动WAP，2、APP）
+    mode: 200, // 广告版位渠道类型（200、通用，201、选择渠道）
+    dataType: 500, // 流量类型（500、移动WAP，501、APP）
     sex: 1, // 性别(1、男，2、女)
     fileList: [], // 上传列表
     offLinePerson: '', // 文件上传成功后返回地址离线人群包
@@ -96,7 +54,7 @@ class Advertising extends Component {
     }],
     blackWhiteType: 1, // 黑白type
     modeTime: 'day', // 投放時間切換狀態
-    cycle: 1, // 周期类别（1、自然, 2、设置）
+    cycle: 11, // 周期类别（11、自然, 12、设置）
     money: '', // 出价额度
     name: '', // 广告名称
     openUrl: '', // 落地页链接
@@ -120,15 +78,28 @@ class Advertising extends Component {
     dateClickType: "1", // 1、每日；2、每周
     showNum: '', // 展示次数
     clickNum: '', // 展示次数
-    bidWay: 1, // 出价方式1-cpm、2-cpc
+    bidWay: 9, // 出价方式9-cpm、10-cpc
     exposureNum: '', // 曝光次数 
     clickLimit: '', // 点击上限
     isClickNext: false, // 是否通过下一步
     channelsList: [], // 渠道列表
+    conditional: { // 监听的条件判断
+      is: false,
+      message: ''
+    }, 
+    adPos: '', // 获取广告版位ids
+    dataSource: [], // 广告版位列表
   }
 
   componentDidMount () {
-    // this.getChannels()
+    this.getChannels()
+    this.getPos()
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.one) {
+      Store.dispatch({ type: Type.AD_CEATE_ONE, payload: { adCreateOne: true } });
+    }
   }
 
   // 切换广告版位客户端
@@ -393,35 +364,75 @@ class Advertising extends Component {
 
   // 下一步
   nextStep = () => {
-    const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList } = this.state;
+    const { conditional } = this.state;
 
-    let passParent = {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime};
+    if (conditional.is) {
+      message.warning(conditional.message)
+    } else {
+      const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather } = this.state;
 
-    let obj = {};
+      let passParent = {name, openUrl, viewControl, clickControl, client: position, putChannel: mode, adFormat: advertGather, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime};
 
-    if (mode === 2) {
-      passParent.channelGather = this.state.channelGather
-    } else if (mode === 3) {
-      passParent.advertGather = this.state.advertGather
+      let obj = {};
+
+      if (mode === 201) {
+        let arr = [];
+        arr.push(passParent.putChannel)
+        arr.push(this.state.channelGather.split(','))
+        passParent.putChannel = arr.join(',')
+        passParent.adPos = this.state.adPos
+      }
+
+      if (cycle === 11) {
+        obj.dateShowType = dateShowType
+        obj.dateClickType = dateClickType
+      }
+
+      passParent.cycle = { type: cycle, ...obj, clickNum, showNum }
+      passParent.bidSetting = { bidWay, money, exposureNum, clickLimit }
+
+      this.setState({
+        isClickNext: true
+      })
+
+      this.props.getAdvertData(passParent);
     }
+  }
 
-    if (cycle === 1) {
-      obj.dateShowType = dateShowType
-      obj.dateClickType = dateClickType
+  // 监听展示监听和点击监听的规格
+  blurDetectionText = (type, e) => {
+    let val = e.target.value.trim();
+    let num = val.match(/(,|，)/g) ? val.match(/(,|，)/g).length : 0;
+    let conditional = {};
+
+    if (num > 2) {
+      conditional.is = true;
+      conditional.message = `${type}最多填写三条，并以逗号隔开`;
+
+      message.warning(`${type}最多填写三条，并以逗号隔开`)
+    } else {
+      conditional.is = false;
+      conditional.message = '';
     }
-
-    passParent.cycle = { type: cycle, ...obj, clickNum, showNum }
-    passParent.bidSetting = { bidWay, money, exposureNum, clickLimit }
 
     this.setState({
-      isClickNext: true
+      conditional
     })
+  }
 
-    this.props.getAdvertData(passParent);
+  // 获取广告版位接口
+  getPos = () => {
+    HttpRequest("/plan/pos", "POST", {}, res => {
+      this.setState({
+        dataSource: res.data
+      })
+    })
   }
 
   render () {
-    const { advertPosition, mode, position, dataType, sex, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList } = this.state;
+    const { advertPosition, mode, position, dataType, sex, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList, isClickNext, dataSource } = this.state;
+    const { one, two } = this.props;
+    
     const props = {
       name: 'file',
       action: '/plan/upLoad',
@@ -434,8 +445,35 @@ class Advertising extends Component {
       }
     };
 
+    const columns = [{
+      title: '广告版位',
+      dataIndex: 'name',
+      key: 'name',
+    }, {
+      title: '创意形式',
+      dataIndex: 'type',
+      key: 'type',
+      sorter: (a, b) => a.type.length - b.type.length
+    }, {
+      title: '描述',
+      dataIndex: 'desc',
+      key: 'desc',
+    }];
+
+    const rowSelection = {
+      onChange: (selectedRowKeys, selectedRows) => {
+        this.setState({
+          adPos: selectedRowKeys.join(',')
+        })
+      },
+      getCheckboxProps: record => ({
+        disabled: isClickNext ? true : mode === 200,
+        name: record.name,
+      })
+    };
+
     return (
-      <section className="create-plan__group">
+      <section className={`create-plan__group ${one ? '' : 'none'}`}>
         <h2>广告</h2>
 
         {/* 落地页设置 */}
@@ -446,7 +484,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">广告名称：</label>
             <div className="input-group">
-              <Input placeholder="请输入广告名称" onChange={ this.onchangeInput.bind(this, "name") } />
+              <Input placeholder="请输入广告名称" disabled={ isClickNext } onChange={ this.onchangeInput.bind(this, "name") } />
             </div>
           </div>
 
@@ -454,7 +492,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">落地页：</label>
             <div className="input-group">
-              <Input placeholder="请输入落地页链接" onChange={ this.onchangeInput.bind(this, "openUrl") } />
+              <Input placeholder="请输入落地页链接" disabled={ isClickNext } onChange={ this.onchangeInput.bind(this, "openUrl") } />
             </div>
           </div>
 
@@ -462,7 +500,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">展示监听：</label>
             <div className="input-group">
-              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "viewControl") } placeholder="最多支持填写三条，以逗号分隔" />
+              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "viewControl") } onBlur={this.blurDetectionText.bind(this, "展示监听")} disabled={ isClickNext } placeholder="最多支持填写三条，以逗号分隔" />
             </div>
           </div>
 
@@ -470,7 +508,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">点击监听：</label>
             <div className="input-group">
-              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "clickControl") } placeholder="最多支持填写三条，以逗号分隔" />
+              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "clickControl") } onBlur={this.blurDetectionText.bind(this, "点击监听")} disabled={ isClickNext } placeholder="最多支持填写三条，以逗号分隔" />
             </div>
           </div>
         </div>
@@ -489,12 +527,12 @@ class Advertising extends Component {
             </ul>
 
             <div className="adverted-position">
-              <RadioGroup style={{ width: '100%' }} onChange={this.onChangeAdvertPosition} value={mode}>
-                <Radio style={radioStyle} value={1}>通用</Radio>
+              <RadioGroup style={{ width: '100%' }} disabled={ isClickNext } onChange={this.onChangeAdvertPosition} value={mode}>
+                <Radio style={radioStyle} value={200}>通用</Radio>
                 {/* 选择渠道 */}
-                <Radio style={radioStyle} value={2}>选择渠道</Radio>
+                <Radio style={radioStyle} value={201}>选择渠道</Radio>
                 <div className="choose-channel">
-                  <Checkbox.Group disabled={mode === 2 ? false : true} style={{ width: '100%' }} onChange={this.onChangeChooseChannel.bind(this, "channelGather")}>
+                  <Checkbox.Group disabled={isClickNext ? true : mode === 201 ? false : true} style={{ width: '100%' }} onChange={this.onChangeChooseChannel.bind(this, "channelGather")}>
                     <Row>
                       {
                         channelsList.map(item => {
@@ -504,30 +542,36 @@ class Advertising extends Component {
                     </Row>
                   </Checkbox.Group>
                 </div>
-
-                {/* 选择广告形式 */}
-                <Radio style={radioStyle} value={3}>选择广告形式</Radio>
-                <div className="choose-channel">
-                  <Checkbox.Group disabled={mode === 3 ? false : true} style={{ width: '100%' }} onChange={this.onChangeChooseChannel.bind(this, "advertGather")}>
-                    <Row>
-                      <Col span={24} style={{ marginBottom: '10px' }}><Checkbox value="banner">banner</Checkbox></Col>
-                      {
-                        position === 2
-                        ?
-                        <Col span={24} style={{ marginBottom: '10px' }}><Checkbox value="信息流">信息流</Checkbox></Col>
-                        :
-                        ""
-                      }
-                      <Col span={4}><Checkbox value="前贴">前贴</Checkbox></Col>
-                      <Col span={4}><Checkbox value="中贴">中贴</Checkbox></Col>
-                      <Col span={4}><Checkbox value="后贴">后贴</Checkbox></Col>
-                    </Row>
-                  </Checkbox.Group>
-                </div>
-
-                {/* 表格 */}
-                <Table dataSource={dataSource} columns={columns} pagination={false} />
               </RadioGroup>
+
+              {/* 选择广告形式 */}
+              <h4>选择广告形式</h4>
+              <div className="choose-channel">
+                <Checkbox.Group disabled={isClickNext} style={{ width: '100%' }} onChange={this.onChangeChooseChannel.bind(this, "advertGather")}>
+                  <Row>
+                    <Col span={24} style={{ marginBottom: '10px' }}><Checkbox value="401">banner</Checkbox></Col>
+                    {
+                      position === 101
+                      ?
+                      <Col span={24} style={{ marginBottom: '10px' }}><Checkbox value="405">信息流</Checkbox></Col>
+                      :
+                      ""
+                    }
+                    <Col span={4}><Checkbox value="402">前贴</Checkbox></Col>
+                    <Col span={4}><Checkbox value="403">中贴</Checkbox></Col>
+                    <Col span={4}><Checkbox value="404">后贴</Checkbox></Col>
+                  </Row>
+                </Checkbox.Group>
+              </div>
+
+              {/* 表格 */}
+              <Table 
+                rowKey={(record, index) => record.id} 
+                rowSelection={ rowSelection } 
+                dataSource={dataSource} 
+                columns={columns} 
+                pagination={false} 
+              />
             </div>
           </div>
         </div>
@@ -540,9 +584,9 @@ class Advertising extends Component {
           <div className="create-group" style={{ marginLeft: 30 }}>
             <label className="name" htmlFor="name" style={{ width: 'auto' }}>流量类型：</label>
             <div className="input-group">
-              <RadioGroup onChange={this.onChangeFlowType} value={dataType}>
-                <Radio value={1}>移动WAP</Radio>
-                <Radio value={2}>APP</Radio>
+              <RadioGroup disabled={ isClickNext } onChange={this.onChangeFlowType} value={dataType}>
+                <Radio value={500}>移动WAP</Radio>
+                <Radio value={501}>APP</Radio>
               </RadioGroup>
             </div>
           </div>
@@ -556,7 +600,7 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: 'auto' }}>性别：</label>
                     <div className="input-group">
-                      <RadioGroup onChange={this.onChangeSex} value={sex}>
+                      <RadioGroup disabled={ isClickNext } onChange={this.onChangeSex} value={sex}>
                         <Radio value={1}>男</Radio>
                         <Radio value={2}>女</Radio>
                       </RadioGroup>
@@ -567,14 +611,14 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: 'auto' }}>年龄：</label>
                     <div className="input-group">
-                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeAge}>
+                      <Checkbox.Group disabled={ isClickNext } style={{ width: '100%' }} onChange={this.onChangeAge}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="1">18-24岁</Checkbox></Col>
-                          <Col span={6}><Checkbox value="2">25-34岁</Checkbox></Col>
-                          <Col span={6}><Checkbox value="3">35-44岁</Checkbox></Col>
-                          <Col span={6}><Checkbox value="4">45-54岁</Checkbox></Col>
-                          <Col span={6}><Checkbox value="5">56-64岁</Checkbox></Col>
-                          <Col span={6}><Checkbox value="6">64岁以上</Checkbox></Col>
+                          <Col span={6}><Checkbox value="3">18-24岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="4">25-34岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="5">35-44岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="6">45-54岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="7">56-64岁</Checkbox></Col>
+                          <Col span={6}><Checkbox value="8">64岁以上</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -584,7 +628,7 @@ class Advertising extends Component {
               {/* 地域定向 */}
               <Panel header="地域定向" key="2">
                 <div className="pop-attr">
-                    <RegLinkage acceptLocalData={ this.acceptLocalData } />
+                    <RegLinkage disabled={ isClickNext } acceptLocalData={ this.acceptLocalData } />
                 </div>
               </Panel>
               {/* 设备定向 */}
@@ -594,10 +638,10 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>操作系统：</label>
                     <div className="input-group">
-                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeOS}>
+                      <Checkbox.Group disabled={ isClickNext } style={{ width: '100%' }} onChange={this.onChangeOS}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="1">IOS</Checkbox></Col>
-                          <Col span={6}><Checkbox value="2">Android</Checkbox></Col>
+                          <Col span={6}><Checkbox value="600">IOS</Checkbox></Col>
+                          <Col span={6}><Checkbox value="601">Android</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -607,13 +651,13 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>联网方式：</label>
                     <div className="input-group">
-                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeNetMode}>
+                      <Checkbox.Group disabled={ isClickNext } style={{ width: '100%' }} onChange={this.onChangeNetMode}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="1">WIFI</Checkbox></Col>
-                          <Col span={6}><Checkbox value="2">2G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="3">3G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="4">4G</Checkbox></Col>
-                          <Col span={6}><Checkbox value="5">其他</Checkbox></Col>
+                          <Col span={6}><Checkbox value="700">WIFI</Checkbox></Col>
+                          <Col span={6}><Checkbox value="701">2G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="702">3G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="703">4G</Checkbox></Col>
+                          <Col span={6}><Checkbox value="704">其他</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -623,12 +667,12 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: '90px', textAlign: 'left' }}>移动运营商：</label>
                     <div className="input-group">
-                      <Checkbox.Group style={{ width: '100%' }} onChange={this.onChangeMobileOperator}>
+                      <Checkbox.Group disabled={ isClickNext } style={{ width: '100%' }} onChange={this.onChangeMobileOperator}>
                         <Row className="age-row">
-                          <Col span={6}><Checkbox value="1">移动</Checkbox></Col>
-                          <Col span={6}><Checkbox value="2">联通</Checkbox></Col>
-                          <Col span={6}><Checkbox value="3">电信</Checkbox></Col>
-                          <Col span={6}><Checkbox value="4">未知</Checkbox></Col>
+                          <Col span={6}><Checkbox value="801">移动</Checkbox></Col>
+                          <Col span={6}><Checkbox value="802">联通</Checkbox></Col>
+                          <Col span={6}><Checkbox value="803">电信</Checkbox></Col>
+                          <Col span={6}><Checkbox value="804">未知</Checkbox></Col>
                         </Row>
                       </Checkbox.Group>
                     </div>
@@ -642,7 +686,7 @@ class Advertising extends Component {
                     <div className="create-group">
                       <label className="name" htmlFor="name" style={{ width: '120px', textAlign: 'left' }}>导入离线人群包：</label>
                       <div className="input-group">
-                        <Upload {...props} onChange={ this.uploadFileChange } fileList={ this.state.fileList }>
+                        <Upload disabled={ isClickNext } {...props} onChange={ this.uploadFileChange } fileList={ this.state.fileList }>
                           <Button>
                             <Icon type="upload" /> 上传
                           </Button>
@@ -676,10 +720,9 @@ class Advertising extends Component {
                     </ul>
 
                     <div className="black-white">
-                      <TextArea rows={4} value={blackWhiteValue} onChange={this.blackWhiteChange} className="input" />
+                      <TextArea disabled={ isClickNext } rows={4} value={blackWhiteValue} onChange={this.blackWhiteChange} className="input" />
                       <div className="btn-group">
-                        <Button type="primary">确认</Button>
-                        <Button onClick={this.clearBlackWhiteInput}>清空</Button>
+                        <Button disabled={ isClickNext } onClick={this.clearBlackWhiteInput}>清空</Button>
                       </div>
                     </div>
                   </div>
@@ -697,7 +740,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">投放日期：</label>
             <div className="input-group">
-              <RangePicker onChange={this.onChangeDate} disabledDate={this.disabledDate} />
+              <RangePicker disabled={ isClickNext } onChange={this.onChangeDate} disabledDate={this.disabledDate} />
             </div>
           </div>
 
@@ -705,7 +748,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">投放时间：</label>
             <div className="input-group">
-              <Radio.Group onChange={this.handleModeChange} value={modeTime} style={{ marginBottom: 8 }}>
+              <Radio.Group disabled={ isClickNext } onChange={this.handleModeChange} value={modeTime} style={{ marginBottom: 8 }}>
                 <Radio.Button value="day">全天投放</Radio.Button>
                 <Radio.Button value="time">按时间段投放</Radio.Button>
               </Radio.Group>
@@ -719,9 +762,9 @@ class Advertising extends Component {
               {
                 modeTime === 'day'
                 ?
-                <AllDay childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
+                <AllDay disabled={ isClickNext } childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
                 :
-                <TimeSelected childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
+                <TimeSelected disabled={ isClickNext } childrenGetTimeSelectedData={ this.childrenGetTimeSelectedData } />
               }
             </div>
           </div>
@@ -731,18 +774,18 @@ class Advertising extends Component {
             <label className="name" htmlFor="name">频次控制：</label>
             <div className="input-group">
               <div className="channel-type_1">
-                <RadioGroup onChange={this.onChangePeriodType} value={cycle}>
-                  <Radio value={1}>按自然周期</Radio>
-                  <Radio value={2}>按设置周期</Radio>
+                <RadioGroup disabled={ isClickNext } onChange={this.onChangePeriodType} value={cycle}>
+                  <Radio value={11}>按自然周期</Radio>
+                  <Radio value={12}>按设置周期</Radio>
                 </RadioGroup>
               </div>
 
               <div className="channel-group period-group">
                 <div className="period-row">
                   {
-                    cycle === 1 
+                    cycle === 11 
                     ?
-                    <Select defaultValue={ dateShowType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateShowType")}>
+                    <Select disabled={ isClickNext } defaultValue={ dateShowType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateShowType")}>
                       <Option value="1">每日</Option>
                       <Option value="2">每周</Option>
                     </Select>
@@ -751,15 +794,15 @@ class Advertising extends Component {
                   }
                   <span style={{ margin: '0 10px' }}>展示</span>
                   <span>≤</span>
-                  <InputNumber min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "showNum")} />
+                  <InputNumber disabled={ isClickNext } min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "showNum")} />
                   <span>次</span>
                 </div>
 
                 <div className="period-row">
                   {
-                    cycle === 1 
+                    cycle === 11 
                     ?
-                    <Select defaultValue={ dateClickType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateClickType")}>
+                    <Select disabled={ isClickNext } defaultValue={ dateClickType } style={{ width: 100 }} onChange={this.setPeriodHandleChange.bind(this, "dateClickType")}>
                       <Option value="1">每日</Option>
                       <Option value="2">每周</Option>
                     </Select>
@@ -769,7 +812,7 @@ class Advertising extends Component {
                   
                   <span style={{ margin: '0 10px' }}>点击</span>
                   <span>≤</span>
-                  <InputNumber min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "clickNum")} />
+                  <InputNumber disabled={ isClickNext } min={0} style={{ width: 100, height: 32, margin: '0 10px' }} onChange={this.onChangeInputNumber.bind(this, "clickNum")} />
                   <span>次</span>
                 </div>
               </div>
@@ -778,7 +821,7 @@ class Advertising extends Component {
         </div>
 
         {/* 出价设置 */}
-        <div className="column-group">
+        <div className="column-group" id="last_bid">
           <h3 id="bid">- 出价设置</h3>
 
           <div className="offer-box">
@@ -786,9 +829,9 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">出价方式：</label>
               <div className="input-group">
-                <RadioGroup onChange={this.onChangeOffer} value={bidWay}>
-                  <Radio value={1}>CPM</Radio>
-                  <Radio value={2}>CPC</Radio>
+                <RadioGroup disabled={ isClickNext } onChange={this.onChangeOffer} value={bidWay}>
+                  <Radio value={9}>CPM</Radio>
+                  <Radio value={10}>CPC</Radio>
                 </RadioGroup>
               </div>
             </div>
@@ -797,7 +840,7 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">出价：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={6.5} onChange={this.onChangeMoney.bind(this, "money")} />
+                <InputNumber disabled={ isClickNext } style={{ width: 200, marginRight: 10 }} min={6.5} onChange={this.onChangeMoney.bind(this, "money")} />
                 <span>建议出价6.5元起</span>
               </div>
             </div>
@@ -806,7 +849,7 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">每日曝光上限：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "exposureNum")} />
+                <InputNumber disabled={ isClickNext } style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "exposureNum")} />
                 <span>次</span>
               </div>
             </div>
@@ -815,14 +858,17 @@ class Advertising extends Component {
             <div className="create-group">
               <label className="name" htmlFor="name">每日点击上限：</label>
               <div className="input-group">
-                <InputNumber style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "clickLimit")} />
+                <InputNumber disabled={ isClickNext } style={{ width: 200, marginRight: 10 }} min={0} onChange={this.onChangeMoney.bind(this, "clickLimit")} />
                 <span>次</span>
               </div>
             </div>
           </div>
         </div>
-
-        <Button type="primary" className="next-step" style={{ marginTop: 30 }} onClick={this.nextStep}>下一步</Button>
+        
+        <div className={`operation ${ two ? 'none' : ''}`}>
+          <Button type="primary" className="next-step" style={{ marginTop: 30 }} onClick={this.nextStep}>下一步</Button>
+          <Button><Link to="/content/launch">返回上级</Link></Button>
+        </div>
       </section>
     )
   }

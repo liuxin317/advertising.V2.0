@@ -140,25 +140,26 @@ class TimeSelected extends Component {
   // 表格每列render
   tableCloumnRender = (tiems, text, record) => {
     const { startMoveOver } = this.state;
+    const { disabled } = this.props;
 
     return (
       <div className="time-group">
         <span 
           className={ record[tiems][0] ? "box active" : "box" } 
-          onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
-          onMouseDown={ this.onmousedownTimeSlot } 
-          onMouseUp={ this.onmouseupTimeSlot } 
-          onMouseOut={ this.onmouseoutTimeSlot }
-          onMouseMove={ startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 0, tiems) : null }>
+          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
+          onMouseDown={ disabled ? null : this.onmousedownTimeSlot } 
+          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
+          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
+          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 0, tiems) : null }>
         </span>
 
         <span 
           className={ record[tiems][1] ? "box active" : "box" } 
-          onClick={ startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
-          onMouseDown={ this.onmousedownTimeSlot }  
-          onMouseUp={ this.onmouseupTimeSlot } 
-          onMouseOut={ this.onmouseoutTimeSlot }
-          onMouseMove={ startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 1, tiems) : null }>
+          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
+          onMouseDown={ disabled ? null : this.onmousedownTimeSlot }  
+          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
+          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
+          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 1, tiems) : null }>
         </span>
       </div>
     )
@@ -297,7 +298,7 @@ class TimeSelected extends Component {
     // 将得到的数据转换成文字区间
     selectTimeData.forEach(item => {
       let intervalArray = item.intervalArray;
-      let intervalVlaue = item.interCol[0].sunday + '：';
+      let intervalVlaue = item.interCol[0].sunday + ':';
       let section = [];
       
       intervalArray.forEach(d => {
@@ -319,19 +320,19 @@ class TimeSelected extends Component {
             let time = String(d.time).length === 1 ? '0' + d.time : d.time;
             // let nextTime = String((Number(time) + 1)).length === 1 ? '0' + (Number(time) + 1) : (Number(time) + 1);
 
-            afterInterval = d.state === 0 ? time + ':00 ~ ' + time + ':30' : time + ':30 ~ ' + time + ':59';
+            afterInterval = d.state === 0 ? time + ':00~' + time + ':30' : time + ':30~' + time + ':59';
           } else {
             let time = String(d[0].time).length === 1 ? '0' + d[0].time : d[0].time;
             // let nextTime = String((Number(time) + 1)).length === 1 ? '0' + (Number(time) + 1) : (Number(time) + 1);
 
-            afterInterval = d[0].state === 0 ? time + ':00 ~ ' + time + ':30' : time + ':30 ~ ' + time + ':59';
+            afterInterval = d[0].state === 0 ? time + ':00~' + time + ':30' : time + ':30~' + time + ':59';
           }
         }
 
         section.push(afterInterval)
       })
 
-      intervalVlaue += section.join('，');
+      intervalVlaue += section.join(',');
       timeGroupSelect.push(intervalVlaue)
     })
 
@@ -366,6 +367,8 @@ class TimeSelected extends Component {
 
   render () {
     const { timeData, timeGroupSelect } = this.state;
+    const { disabled } = this.props;
+
     const columns = [{
       title: '星期 / 日期',
       dataIndex: 'name',
@@ -550,7 +553,7 @@ class TimeSelected extends Component {
           </div>
 
           <div className="group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button type="primary" style={{ backgroundColor: '#f5222d' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
+            <Button disabled={ disabled } type="primary" style={{ backgroundColor: '#f5222d', color: 'white' }} onClick={ this.undoAllOptions }>撤销所有选择</Button>
           </div>
         </div>
       </section>

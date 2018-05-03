@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux'; 
 import { Menu } from 'antd';
 import Store from '@/store';
 import Type from '@/action/Type';
@@ -14,7 +15,16 @@ class MenuBar extends Component {
 
   componentDidMount () {
     Store.dispatch({ type: Type.TOGGLE_MENU_FUN, payload: { toggleMenuFun: this.toggleCollapsed } });
+  }
 
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.adCreateOne || nextProps.adCreateTwo) {
+        this.windowScroll()
+    }
+  }
+
+  // scroll事件
+  windowScroll = () => {
     let $ = (e) => document.querySelector(e);
     let monitorScrTops = [$("#selected_plan").offsetTop, $("#land_page").offsetTop, $("#ad_layout").offsetTop, $("#directional").offsetTop, $("#frequency").offsetTop, $("#bid").offsetTop, $("#originality").offsetTop];
 
@@ -59,10 +69,41 @@ class MenuBar extends Component {
   }
 
   handleClick = (e) => {
+    const { adCreateOne, adCreateTwo } = this.props;
+    let defaultKey = String(e.key);
     let props = e.item.props;
     let $ = (e) => document.querySelector(e);
     let elmDocTop = $(`#${props.destination}`).offsetTop;
-    this.rollAnimation(elmDocTop)
+
+    // 关闭scroll监听菜单事件
+    window.onscroll = () => {
+      let scrolltop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+
+      // 监听右侧菜单栏位置
+      if (scrolltop >= 60) {
+        document.querySelector('.menu-plan-box').style.top = 0;
+      } else if (scrolltop > 0 && scrolltop < 60) {
+        document.querySelector('.menu-plan-box').style.top = (60 - scrolltop) + 'px';
+      } else if (scrolltop === 0) {
+        document.querySelector('.menu-plan-box').style.top = 60 + 'px';
+      }
+    }
+
+    if (adCreateOne) {
+      if (defaultKey !== "7") {
+        this.rollAnimation(elmDocTop)
+        this.setState({
+          defaultKey
+        })
+      }
+    }
+
+    if (adCreateTwo) {
+      this.setState({
+        defaultKey
+      })
+      this.rollAnimation(elmDocTop)
+    }
   }
 
   // 滚动动效
@@ -76,16 +117,22 @@ class MenuBar extends Component {
       if (type === 1) {
         if (scrolltop <= elmDocTop) {
           window.scrollTo(0, elmDocTop)
+          // 开启scroll监听菜单事件
+          this.windowScroll()
           return false;
         }
       } else {
         if (scrolltop >= elmDocTop) {
           window.scrollTo(0, elmDocTop)
+          // 开启scroll监听菜单事件
+          this.windowScroll()
           return false;
         }
       }
     } else {
       if (scrolltop === elmDocTop) {
+        // 开启scroll监听菜单事件
+        this.windowScroll()
         return false;
       }
     }
@@ -146,4 +193,15 @@ class MenuBar extends Component {
   }
 }
 
-export default MenuBar;
+const mapStateToProps = (store) => {
+  return {
+    adCreateOne: store.common.adCreateOne,
+    adCreateTwo: store.common.adCreateTwo
+  }
+}
+
+const ConnectMenuBar = connect(
+  mapStateToProps
+)(MenuBar)
+
+export default ConnectMenuBar;

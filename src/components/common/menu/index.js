@@ -47,7 +47,12 @@ class MenuBar extends Component {
           </SubMenu>
           <Menu.Item key="5"><Icon type="video-camera" /> <span>广告主管理</span></Menu.Item>
           <Menu.Item key="6"><Icon type="pay-circle-o" /> <span>财务管理</span></Menu.Item>
-          <Menu.Item key="8"><Icon type="user" /> <span>管理员</span></Menu.Item>
+          <SubMenu key="sub3" title={<span><Icon type="user" /><span>管理员</span></span>}>
+            <Menu.Item key="8"><span>广告主管理</span></Menu.Item>
+            <Menu.Item key="9"><span>广告位管理</span></Menu.Item>
+            <Menu.Item key="10"><span>优先级调控</span></Menu.Item>
+            <Menu.Item key="11"><span>低价调控</span></Menu.Item>
+          </SubMenu>
         </Menu>
       </nav>
     )

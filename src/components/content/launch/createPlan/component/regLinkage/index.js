@@ -15,7 +15,7 @@ class ExtractThreeLevelRegion extends Component {
     }
 
     render () {
-        const { regionData } = this.props;
+        const { regionData, disabled } = this.props;
         let area = regionData ? regionData.area : [];
 
         return (
@@ -24,7 +24,7 @@ class ExtractThreeLevelRegion extends Component {
                     area.map((item, index) => {
                         return (
                             <div key={index} className="region-row">
-                                <Checkbox checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeThreeAll.bind(this, item) }></Checkbox>
+                                <Checkbox disabled={ disabled } checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeThreeAll.bind(this, item) }></Checkbox>
                                 <div className="region-name">
                                     <span>{item.name}</span>
                                 </div>
@@ -60,7 +60,7 @@ class ExtractTwoLevelRegion extends Component {
     }
 
     render () {
-        const { regionData } = this.props;
+        const { regionData,  disabled } = this.props;
         let city = regionData ? regionData.city : [];
         
         return (
@@ -69,7 +69,7 @@ class ExtractTwoLevelRegion extends Component {
                     city.map((item, index) => {
                         return (
                             <div key={index} className="region-row">
-                                <Checkbox checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeTwoAll.bind(this, item) }></Checkbox>
+                                <Checkbox disabled={ disabled } checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeTwoAll.bind(this, item) }></Checkbox>
                                 <div className={ item.active ? "region-name active" : "region-name" } onClick={ this.lowerLevelData.bind(this, item) }>
                                     <span>{item.name}</span>
                                     <Icon type="right" />
@@ -112,7 +112,7 @@ class ExtractOneLevelRegion extends Component {
     }
 
     render () {
-        const { regionData } = this.props;
+        const { regionData, disabled } = this.props;
 
         return (
             <div className="one-level">
@@ -120,7 +120,7 @@ class ExtractOneLevelRegion extends Component {
                     regionData.map((item, index) => {
                         return (
                             <div key={index} className="region-row">
-                                <Checkbox checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeOneAll.bind(this, item) }></Checkbox>
+                                <Checkbox disabled={ disabled } checked={ item.checked } indeterminate={ item.indeterminate } onChange={ this.onChangeOneAll.bind(this, item) }></Checkbox>
                                 <div className={ item.active ? "region-name active" : "region-name" } onClick={ this.lowerLevelData.bind(this, item) }>
                                     <span>{item.name}</span>
                                     <Icon type="right" />
@@ -390,20 +390,24 @@ class RegLinkage extends Component {
     // 提取选中数据
     extractSelectedData = (data) => {
         let selectData = [];
+        let selectDataIds = [];
 
         data.forEach(item => {
             if (item.checked) {
                 selectData.push(item.name)
+                selectDataIds.push(item.id)
             } else {
                 if (item.city && item.city.length) {
                     item.city.forEach(two => {
                         if (two.checked) {
                             selectData.push(two.name)
+                            selectDataIds.push(two.id)
                         } else {
                             if (two.area && two.area.length) {
                                 two.area.forEach(three => {
                                     if (three.checked) {
                                         selectData.push(three.name)
+                                        selectDataIds.push(three.id)
                                     }
                                 })
                             }
@@ -416,7 +420,7 @@ class RegLinkage extends Component {
         this.setState({
             selectData
         }, () => {
-            this.props.acceptLocalData(this.state.selectData)
+            this.props.acceptLocalData(selectDataIds)
         })
     }
 
@@ -448,7 +452,7 @@ class RegLinkage extends Component {
 
     render () {
         const { regionData, secondaryData, tertiaryData, selectData } = this.state;
-
+        const  { disabled }= this.props;
         return (
             <section className="linkage-box">
                 <div className="create-group">
@@ -459,7 +463,7 @@ class RegLinkage extends Component {
                                 return <span key={index} className="already-chosen">{item}</span>
                             })
                         }
-                        <span className="already-chosen clear-chosen" onClick={ this.clearSelectData }>清空</span>
+                        <span className={`already-chosen clear-chosen ${disabled ? "color-gray" : ""}`} onClick={ disabled ? null : this.clearSelectData }>清空</span>
                     </div>
                 </div>
 
@@ -475,6 +479,7 @@ class RegLinkage extends Component {
                             regionData={ regionData } 
                             getSecondaryData={ this.getSecondaryData } 
                             replaceCombinData={ this.replaceCombinData } 
+                            disabled = { disabled }
                         />
                     </div>
                     <div className="linkage-group">
@@ -482,12 +487,14 @@ class RegLinkage extends Component {
                             regionData={ secondaryData } 
                             accessTertiaryData={ this.accessTertiaryData }
                             replaceCombinData={ this.replaceCombinData } 
+                            disabled = { disabled }
                         />
                     </div>
                     <div className="linkage-group">
                         <ExtractThreeLevelRegion 
                             regionData={ tertiaryData }
                             replaceCombinData={ this.replaceCombinData } 
+                            disabled = { disabled }
                         />
                     </div>
                 </div>

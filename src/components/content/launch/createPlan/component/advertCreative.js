@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Icon } from 'antd';
+import { Button, Icon, message } from 'antd';
+import { Link } from 'react-router-dom';
+import Store from '@/store';
+import Type from '@/action/Type';
 // 上传创意
 import CreativeUpload from './creativeUpload';
 
@@ -12,6 +15,19 @@ class AdvertCreative extends Component {
       active: true
     }],
     creativeID: 1, // 当前创意ID 
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.two) {
+      Store.dispatch({ type: Type.AD_CEATE_TWO, payload: { adCreateTwo: true } });
+
+      // 根据屏幕高度来添加.create-plan的paddingBottom
+      let winH = window.innerHeight;
+      let adCreativeH = document.querySelector('#ad_creative').offsetHeight;
+      if (winH > adCreativeH) {
+        document.querySelector('.create-plan').style.paddingBottom = (winH - adCreativeH + 30) + 'px';
+      }
+    }
   }
 
   // 切换黑白名单
@@ -76,18 +92,45 @@ class AdvertCreative extends Component {
   nextStep = () => {
     const { creativeList } = this.state;
     let arr = [];
+    let num = 0;
+
     creativeList.forEach(item => {
       let name = `creativity${item.id}`
       arr.push(this.refs[name].passParentData())
     })
-    this.props.getOriginalitys(arr);
+
+    arr.forEach(item => {
+      if (!item.creativeImgs.length) {
+        message.warning(`请上传创意${item.type}的创意！`)
+        num++
+        return false
+      } else if (!item.headPortrait) {
+        message.warning(`请上传创意${item.type}的头像！`)
+        num++
+        return false
+      } else if (!item.copyWrite) {
+        message.warning(`请填写创意${item.type}的广告文案！`)
+        num++
+        return false
+      } else if (!item.description) {
+        message.warning(`请填写创意${item.type}的广告描述！`)
+        num++
+        return false
+      }
+    })
+
+    // 判断广告创意是否填写完毕
+    if (num === 0) {
+      this.props.getOriginalitys(arr);
+    }
   }
 
   render () {
     const { creativeList, creativeID } = this.state;
+    const { two } = this.props;
 
     return (
-      <section className="create-plan__group">
+      <section className={`create-plan__group ${ two ? '' : 'none' }`} id="ad_creative" style={{ height: 900 }}>
         <h2 id="originality">广告创意</h2>
 
         <div className="creative-box">
@@ -114,7 +157,10 @@ class AdvertCreative extends Component {
         </div>
 
         {/* 提交 */}
-        <Button type="primary" className="next-step" style={{ marginTop: 30 }} onClick={this.nextStep}>提交</Button>
+        <div className="operation" style={{ marginTop: 30 }}>
+          <Button type="primary" className="next-step" onClick={this.nextStep}>提交</Button>
+          <Button><Link to="/content/launch">返回上级</Link></Button>
+        </div>
       </section>
     )
   }

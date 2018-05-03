@@ -61,7 +61,7 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
     })
     .then(data => {
         Store.dispatch({ type: Type.LOAD_STATE, payload: { loading: false } });
-
+        
         if (String(data.code) === "200") {
             successBack && successBack(data);
             return false;
