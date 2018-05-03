@@ -1,54 +1,59 @@
 import React, { Component } from 'react';
 import { Button, Input, Table } from 'antd';
+import { Link } from 'react-router-dom';
 import './style.scss';
 
 const columns = [{
   title: 'ID',
-  dataIndex: 'name',
-  key: 'name',
+  dataIndex: 'id',
+  key: 'id',
 }, {
   title: '客户名称',
-  dataIndex: 'age',
-  key: 'age',
-}, {
-  title: '行业',
-  dataIndex: 'address',
-  key: 'address',
-}, {
-  title: 'AM',
   dataIndex: 'name',
   key: 'name',
 }, {
+  title: '行业',
+  dataIndex: 'hy',
+  key: 'hy',
+}, {
+  title: 'AM',
+  dataIndex: 'am',
+  key: 'am',
+}, {
   title: '联系人电话',
-  dataIndex: 'age',
-  key: 'age',
+  dataIndex: 'phone',
+  key: 'phone',
 }, {
   title: '负责BD',
-  dataIndex: 'address',
-  key: 'address',
+  dataIndex: 'bd',
+  key: 'bd',
 }, {
   title: '创建时间',
-  dataIndex: 'age',
-  key: 'age',
+  dataIndex: 'time',
+  key: 'time',
 }, {
   title: '操作',
-  dataIndex: 'address',
-  key: 'address',
   render : (text, record) => {
     return <a>编辑</a>
   }
 }];
 
 const dataSource = [{
-  key: '1',
+  id: '1',
   name: '胡彦斌',
-  age: 32,
-  address: '西湖区湖底公园1号'
+  am: 32,
+  hy: '西湖区湖底公园1号',
+  bd: 20,
+  time: 123,
+  phone: 18200110585
 }, {
-  key: '2',
-  name: '胡彦祖',
-  age: 42,
-  address: '西湖区湖底公园1号'
+  id: '2',
+  name: '胡彦斌',
+  am: 32,
+  hy: '西湖区湖底公园1号',
+  bd: 20,
+  time: 123,
+  phone: 18200110585
 }];
 
 class Advertiser extends Component {
@@ -66,7 +71,7 @@ class Advertiser extends Component {
         <div className="content-top">
           <h4>广告主管理</h4>
           <div className="launch-top-button">
-            <Button type="primary">新建广告主</Button>
+            <Button type="primary"><Link to="/content/admin/new-advertiser">新建广告主</Link></Button>
           </div>
         </div>
 

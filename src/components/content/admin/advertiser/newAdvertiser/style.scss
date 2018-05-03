@@ -1,0 +1,48 @@
+.new-edit__box{
+    
+    .cloumn-name {
+        cursor: pointer;
+        font-size: 16px;
+
+        a {
+            color: #333;
+        }
+    }
+
+    .cloumn-group {
+        margin-bottom: 50px;
+
+        .title {
+            height: 50px;
+            line-height: 50px;
+            font-size: 14px;
+            color: #666;
+            border-bottom: #eee solid 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 0 20px;
+
+            .name {
+                display: block;
+                width: 180px;
+                line-height: 35px;
+                text-align: left;
+
+                em {
+                    color: red;
+                    font-style: normal;
+                }
+            }
+
+            .main {
+                .ant-input,
+                .ant-input-number {
+                    width: 200px;
+                }
+            }
+        }
+    }
+}
