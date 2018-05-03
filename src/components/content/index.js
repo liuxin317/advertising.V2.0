@@ -32,6 +32,12 @@ const Material = loadable({
   loading: PreLoading
 })
 
+// 管理员
+const Admin = loadable({
+  loader: () => import('./admin'),
+  loading: PreLoading
+})
+
 class Content extends Component {
   render () {
     const { match, location, leftMenuStatus } = this.props;
@@ -59,6 +65,7 @@ class Content extends Component {
           <Route path={`${ match.path }/launch`} component={ Launch } />
           <Route path={`${ match.path }/create-plan`} component={ createPlan } />
           <Route path={`${ match.path }/material`} component={ Material } />
+          <Route path={`${ match.path }/admin`} component={ Admin } />
         </div>
       </section>
     )

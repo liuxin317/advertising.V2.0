@@ -390,20 +390,24 @@ class RegLinkage extends Component {
     // 提取选中数据
     extractSelectedData = (data) => {
         let selectData = [];
+        let selectDataIds = [];
 
         data.forEach(item => {
             if (item.checked) {
                 selectData.push(item.name)
+                selectDataIds.push(item.id)
             } else {
                 if (item.city && item.city.length) {
                     item.city.forEach(two => {
                         if (two.checked) {
                             selectData.push(two.name)
+                            selectDataIds.push(two.id)
                         } else {
                             if (two.area && two.area.length) {
                                 two.area.forEach(three => {
                                     if (three.checked) {
                                         selectData.push(three.name)
+                                        selectDataIds.push(three.id)
                                     }
                                 })
                             }
@@ -416,7 +420,7 @@ class RegLinkage extends Component {
         this.setState({
             selectData
         }, () => {
-            this.props.acceptLocalData(this.state.selectData)
+            this.props.acceptLocalData(selectDataIds)
         })
     }
 

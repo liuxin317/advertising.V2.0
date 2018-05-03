@@ -298,7 +298,7 @@ class TimeSelected extends Component {
     // 将得到的数据转换成文字区间
     selectTimeData.forEach(item => {
       let intervalArray = item.intervalArray;
-      let intervalVlaue = item.interCol[0].sunday + '：';
+      let intervalVlaue = item.interCol[0].sunday + ':';
       let section = [];
       
       intervalArray.forEach(d => {
@@ -320,19 +320,19 @@ class TimeSelected extends Component {
             let time = String(d.time).length === 1 ? '0' + d.time : d.time;
             // let nextTime = String((Number(time) + 1)).length === 1 ? '0' + (Number(time) + 1) : (Number(time) + 1);
 
-            afterInterval = d.state === 0 ? time + ':00 ~ ' + time + ':30' : time + ':30 ~ ' + time + ':59';
+            afterInterval = d.state === 0 ? time + ':00~' + time + ':30' : time + ':30~' + time + ':59';
           } else {
             let time = String(d[0].time).length === 1 ? '0' + d[0].time : d[0].time;
             // let nextTime = String((Number(time) + 1)).length === 1 ? '0' + (Number(time) + 1) : (Number(time) + 1);
 
-            afterInterval = d[0].state === 0 ? time + ':00 ~ ' + time + ':30' : time + ':30 ~ ' + time + ':59';
+            afterInterval = d[0].state === 0 ? time + ':00~' + time + ':30' : time + ':30~' + time + ':59';
           }
         }
 
         section.push(afterInterval)
       })
 
-      intervalVlaue += section.join('，');
+      intervalVlaue += section.join(',');
       timeGroupSelect.push(intervalVlaue)
     })
 
