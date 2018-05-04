@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Input, Table } from 'antd';
 import { Link } from 'react-router-dom';
+import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
 const columns = [{
@@ -9,16 +10,16 @@ const columns = [{
   key: 'id',
 }, {
   title: '客户名称',
-  dataIndex: 'name',
-  key: 'name',
+  dataIndex: 'cname',
+  key: 'cname',
 }, {
   title: '行业',
-  dataIndex: 'hy',
-  key: 'hy',
+  dataIndex: 'industry',
+  key: 'industry',
 }, {
   title: 'AM',
-  dataIndex: 'am',
-  key: 'am',
+  dataIndex: 'name',
+  key: 'name',
 }, {
   title: '联系人电话',
   dataIndex: 'phone',
@@ -29,31 +30,14 @@ const columns = [{
   key: 'bd',
 }, {
   title: '创建时间',
-  dataIndex: 'time',
-  key: 'time',
+  dataIndex: 'createTime',
+  key: 'createTime',
 }, {
   title: '操作',
   render : (text, record) => {
-    return <a>编辑</a>
+    var path = `/content/admin/new-advertiser/${record.id}`;
+    return <div><Link to={path}>编辑</Link></div>
   }
-}];
-
-const dataSource = [{
-  id: '1',
-  name: '胡彦斌',
-  am: 32,
-  hy: '西湖区湖底公园1号',
-  bd: 20,
-  time: 123,
-  phone: 18200110585
-}, {
-  id: '2',
-  name: '胡彦斌',
-  am: 32,
-  hy: '西湖区湖底公园1号',
-  bd: 20,
-  time: 123,
-  phone: 18200110585
 }];
 
 class Advertiser extends Component {
@@ -61,31 +45,62 @@ class Advertiser extends Component {
     pageNum: 1,
     pageSize: 10,
     total: '', // 总共的数据条数
+    name: '', //查询名称
+    advertiserList: [], // 广告主列表
+  }
+
+  componentDidMount () {
+    this.getUserList()
+  }
+
+  // 获取广告主列表
+  getUserList = () => {
+    const { pageNum, pageSize, name } = this.state;
+    HttpRequest("/sys/userList", "POST", {
+      pageNum,
+      pageSize,
+      name
+    }, res => {
+      this.setState({
+        total: res.data.totalNum,
+        advertiserList: res.data.ls
+      })
+    })
+  }
+
+  // 监听input框
+  onChangeInput = (name, e) => {
+    let obj = {};
+    obj[name] = e.target.value.trim();
+
+    this.setState({
+      ...obj
+    })
   }
 
   render () {
-    const { pageNum, pageSize, total } = this.state;
+    const { pageNum, pageSize, total, advertiserList } = this.state;
 
     return (
       <section className="advertiser-box">
         <div className="content-top">
           <h4>广告主管理</h4>
           <div className="launch-top-button">
-            <Button type="primary"><Link to="/content/admin/new-advertiser">新建广告主</Link></Button>
+            <Button type="primary"><Link to="/content/admin/new-advertiser/new">新建广告主</Link></Button>
           </div>
         </div>
 
         <div className="advertiser-tables">
           <div className="search-condition">
-            <Input style={{ width: 200, margin: "0 15px" }} placeholder="输入广告主名称" onChange={ null } />
-            <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ null } />
+            <Input style={{ width: 200, margin: "0 15px" }} placeholder="输入广告主名称" onChange={ this.onChangeInput.bind(this, 'name') } />
+            <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.getUserList } />
           </div>
 
           <div className="table-box">
             <Table 
               rowKey={(record, index) => index}
               columns={columns} 
-              dataSource={dataSource} 
+              dataSource={advertiserList} 
               pagination={{ showQuickJumper: true, total, current: pageNum, pageSize, onChange: this.onChangePage, showTotal: total => `共 ${total} 条`}}
             />
           </div>

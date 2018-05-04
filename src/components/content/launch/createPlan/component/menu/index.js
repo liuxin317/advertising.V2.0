@@ -35,12 +35,14 @@ class MenuBar extends Component {
       let actualScrolltop = scrolltop + 30;
 
       // 监听右侧菜单栏位置
-      if (scrolltop >= 60) {
-        document.querySelector('.menu-plan-box').style.top = 0;
-      } else if (scrolltop > 0 && scrolltop < 60) {
-        document.querySelector('.menu-plan-box').style.top = (60 - scrolltop) + 'px';
-      } else if (scrolltop === 0) {
-        document.querySelector('.menu-plan-box').style.top = 60 + 'px';
+      if ($('.menu-plan-box')) {
+        if (scrolltop >= 60) {
+          $('.menu-plan-box').style.top = 0;
+        } else if (scrolltop > 0 && scrolltop < 60) {
+          $('.menu-plan-box').style.top = (60 - scrolltop) + 'px';
+        } else if (scrolltop === 0) {
+          $('.menu-plan-box').style.top = 60 + 'px';
+        }
       }
 
       // 监听下拉条所在位置

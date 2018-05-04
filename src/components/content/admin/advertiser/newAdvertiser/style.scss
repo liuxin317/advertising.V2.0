@@ -15,14 +15,13 @@
         .title {
             height: 50px;
             line-height: 50px;
-            font-size: 14px;
+            font-size: 15px;
             color: #666;
             border-bottom: #eee solid 1px;
         }
 
         .input-group {
             display: flex;
-            align-items: center;
             margin: 20px 0 0 20px;
 
             .name {
@@ -38,11 +37,29 @@
             }
 
             .main {
-                .ant-input,
+                input.ant-input,
                 .ant-input-number {
                     width: 200px;
                 }
+
+                textarea.ant-input {
+                    width: 410px;
+                }
+
+                .upload-box {
+                    display: flex;
+                    align-items: center;
+                }
             }
+        }
+    }
+
+    .btn-group {
+        margin: 20px 0 0 20px;
+
+        .ant-btn {
+            width: 120px;
+            height: 36px;
         }
     }
 }

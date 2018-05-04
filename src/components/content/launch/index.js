@@ -28,6 +28,7 @@ class Launch extends Component {
     rowData: '', // 当前列的数据
     name: '', // 查询名称
     searchListName: 'planList', // 根据切换更改接口地址名称
+    nowKey: '1', // 当前所在tabs
   }
 
   componentDidMount () {
@@ -37,7 +38,8 @@ class Launch extends Component {
   // tab切换回调
   TabCallback = (key) => {
     this.setState({
-      searchListName: key === 1 ? 'planList' : 'selectAdList'
+      searchListName: key === '1' ? 'planList' : 'selectAdList',
+      nowKey: key
     }, () => {
       this.getPlanList()
     })

@@ -21,7 +21,7 @@ class Admin extends Component {
     return (
       <section className="content-box">
         <Route path={`${ match.path }/advertiser`} component={ Advertiser } />
-        <Route path={`${ match.path }/new-advertiser`} component={ NewAdvertiser } />
+        <Route path={`${ match.path }/new-advertiser/:state`} component={ NewAdvertiser } />
       </section>
     )
   }
