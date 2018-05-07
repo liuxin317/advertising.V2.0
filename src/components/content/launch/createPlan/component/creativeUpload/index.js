@@ -168,6 +168,9 @@ class CreativeUpload extends Component {
       onChange (info) {
         const status = info.file.status;
         let fileList = info.fileList;
+        let respone = info.file.response;
+        let uid = info.file.uid;
+        let deepfileList = JSON.parse(JSON.stringify(fileList));
 
         if (status === 'uploading') {
           _this.setState({
@@ -175,14 +178,33 @@ class CreativeUpload extends Component {
           })
         }
         if (status === 'done') {
-          message.success(`${info.file.name} 上传成功！`);
-          _this.setState({
-            fileList
-          })
+          if (Number(respone.code) === 200) {
+            message.success(`${info.file.name} 上传成功！`);
+            _this.setState({
+              fileList
+            })
+          } else {
+            message.error(`${info.file.name} 上传失败！`);
+            deepfileList.forEach((item, index) => {
+              if (item.uid === uid) {
+                deepfileList.splice(index, 1)
+              }
+            })
+    
+            _this.setState({
+              fileList: deepfileList
+            })
+          }
         } else if (status === 'error') {
           message.error(`${info.file.name} 上传失败！`);
+          deepfileList.forEach((item, index) => {
+            if (item.uid === uid) {
+              deepfileList.splice(index, 1)
+            }
+          })
+  
           _this.setState({
-            fileList
+            fileList: deepfileList
           })
         }
       },

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { message } from 'antd';
+import { Redirect } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 import Store from '@/store';
@@ -71,9 +72,11 @@ class CreatePlan extends Component {
       ad: JSON.stringify(obj)
     }, res => {
       message.success('创建成功！')
-      this.setState({
-        redirect: true
-      })
+      setTimeout(() => {
+        this.setState({
+          redirect: true
+        })
+      }, 1000)
     })
   }
 
@@ -81,7 +84,7 @@ class CreatePlan extends Component {
     const { one, two, redirect } = this.state;
 
     if (redirect) {
-      // return <Redirect push to="/content/launch" />
+      return <Redirect push to="/content/launch" />
     }
 
     return (

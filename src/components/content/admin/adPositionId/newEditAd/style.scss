@@ -1,0 +1,101 @@
+.new-edit__ad{
+    
+  .cloumn-name {
+      cursor: pointer;
+      font-size: 16px;
+
+      a {
+          color: #333;
+      }
+  }
+
+  .cloumn-group {
+      margin-bottom: 50px;
+
+      .input-group {
+          display: flex;
+          margin: 20px 0 0 20px;
+
+          .name {
+              display: block;
+              min-width: 120px;
+              line-height: 35px;
+              text-align: left;
+
+              em {
+                  color: red;
+                  font-style: normal;
+              }
+          }
+
+          .main {
+              input.ant-input,
+              .ant-input-number {
+                  width: 200px;
+              }
+
+              textarea.ant-input {
+                  width: 410px;
+              }
+
+              .upload-box {
+                  display: flex;
+                  align-items: center;
+              }
+
+              .block-group {
+                margin-bottom: 10px;
+
+                .block-name {
+                  font-size: 14px;
+                  line-height: 35px;
+                }
+
+                .block-main {
+                  padding-left: 20px;
+
+                  .block-row {
+                    display: flex;
+                    margin-bottom: 10px;
+                    
+                    &__title {
+                      width: 100px;
+                      line-height: 35px;
+                    }
+
+                    &__cent {
+                      .ant-input-number {
+                        width: 100px;
+                      }
+                    }
+                  }
+                }
+              }
+
+              .ant-radio-group {
+                line-height: 35px;
+              }
+              
+              .ant-upload {
+                width: 200px;
+                height: 300px;
+              }
+
+              .ant-upload-list-picture-card .ant-upload-list-item {
+                width: 200px;
+                height: 300px;
+                margin: 0 8px 0 10px;
+              }
+          }
+      }
+  }
+
+  .btn-group {
+      margin: 60px 0 0 20px;
+
+      .ant-btn {
+          width: 120px;
+          height: 36px;
+      }
+  }
+}

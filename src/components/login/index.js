@@ -13,7 +13,7 @@ const FormItem = Form.Item;
 */
 var WINDOW_WIDTH = document.body.offsetWidth;
 var WINDOW_HEIGHT = document.body.offsetHeight;
-var canvas,context;
+var canvas,context, stop;
 var num = 500;
 var stars = [];
 // var mouseX = WINDOW_WIDTH/2;
@@ -26,12 +26,6 @@ function liuxing(){
     rnd = Math.ceil(Math.random()*stars.length)
     liuxing();
   },time)
-}
-
-function mouseMove(e){
-  //因为是整屏背景，这里不做坐标转换
-  // mouseX = e.clientX;
-  // mouseY = e.clientY;
 }
 
 function render(){
@@ -86,6 +80,14 @@ function render(){
     context.fill();
     context.closePath();
   }
+
+  if (stop) {
+    return false
+  }
+
+  setTimeout(function () {
+    render()
+  }, 33)
 }
 
 function addStar(){
@@ -117,13 +119,13 @@ class Login extends Component {
 		canvas.height = WINDOW_HEIGHT;
 
 		context = canvas.getContext('2d');
+    addStar();
+    render();
+  }
 
-		addStar();
-		setInterval(render,33);
-		liuxing();
-
-		// render();
-    document.body.addEventListener('mousemove',mouseMove);
+  componentWillUnmount () {
+    canvas = null;
+    stop = true;
   }
 
   // 登录提交

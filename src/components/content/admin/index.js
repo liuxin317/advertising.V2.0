@@ -9,10 +9,25 @@ const Advertiser = loadable({
   loading: PreLoading
 })
 
+// 创建编辑广告主
 const NewAdvertiser = loadable({
   loader: () => import('./advertiser/newAdvertiser'),
   loading: PreLoading
 })
+
+// 广告位列表页
+const AdPositionId = loadable({
+  loader: () => import('./adPositionId'),
+  loading: PreLoading
+})
+
+// 新建编辑广告位
+const NewEditAd = loadable({
+  loader: () => import('./adPositionId/newEditAd'),
+  loading: PreLoading
+})
+
+
 
 class Admin extends Component {
   render () {
@@ -22,6 +37,8 @@ class Admin extends Component {
       <section className="content-box">
         <Route path={`${ match.path }/advertiser`} component={ Advertiser } />
         <Route path={`${ match.path }/new-advertiser/:state`} component={ NewAdvertiser } />
+        <Route path={`${ match.path }/ad-position`} component={ AdPositionId } />
+        <Route path={`${ match.path }/new-edit-ad/:state`} component={ NewEditAd } />
       </section>
     )
   }

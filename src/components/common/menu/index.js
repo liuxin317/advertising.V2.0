@@ -40,8 +40,7 @@ class MenuBar extends Component {
           inlineCollapsed={this.state.collapsed}
         >
           <Menu.Item key="1"><Icon type="area-chart" /> <span>Dashboard</span></Menu.Item>
-          <Menu.Item key="2"><Icon type="shop" /> <Link to="/content/launch"><span>投放管理</span></Link></Menu.Item>
-          <Menu.Item key="7"><Icon type="trademark" /> <span>素材管理</span></Menu.Item>
+          <Menu.Item key="2"><Link to="/content/launch"><Icon type="shop" /> <span>投放管理</span></Link></Menu.Item>
           <SubMenu key="sub2" title={<span><Icon type="credit-card" /><span>报表管理</span></span>}>
             <Menu.Item key="3">实时报表</Menu.Item>
             <Menu.Item key="4">基础报表</Menu.Item>
@@ -49,7 +48,7 @@ class MenuBar extends Component {
           <Menu.Item key="6"><Icon type="pay-circle-o" /> <span>财务管理</span></Menu.Item>
           <SubMenu key="sub3" title={<span><Icon type="user" /><span>管理员</span></span>}>
             <Menu.Item key="8"><Link to="/content/admin/advertiser"><span>广告主管理</span></Link></Menu.Item>
-            <Menu.Item key="9"><span>广告位管理</span></Menu.Item>
+            <Menu.Item key="9"><Link to="/content/admin/ad-position"><span>广告位管理</span></Link></Menu.Item>
             <Menu.Item key="10"><span>优先级调控</span></Menu.Item>
             <Menu.Item key="11"><span>低价调控</span></Menu.Item>
           </SubMenu>

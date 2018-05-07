@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Icon, Input, InputNumber, Select, Button, message } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
@@ -38,11 +38,12 @@ class NewAdvertiser extends Component {
         AMList: [], // AM列表
         AMPhoneList: [], // AM电话列表
         isNowEdit: 1, // 是否是新建或者编辑页面（1、新建，2编辑）
+        redirect: false, // 跳转状态
     }
 
     componentDidMount() {
-        const { match } = this.props; 
-        
+        const { match } = this.props;
+
         this.getQueryIndustrys()
         this.getQueryAms()
 
@@ -247,16 +248,28 @@ class NewAdvertiser extends Component {
             message.warning('请填写详细地址！')
         } else {
             let obj = { cName, cNum, cAddress, cImg, network, icp, text, aptitude, adAptitude, address: address + ',' + detailedAddress, bd, bdPhone, industry, name, phone };
-            this.addUser(obj)
+            if (this.state.isNowEdit !== 1) {
+                obj.id = this.props.match.params.state
+            }
+            this.addEditUser(obj)
         }
     }
 
-    // 新建接口
-    addUser = (data) => {
-        HttpRequest('/sys/addUser', "POST", {
+    // 新建编辑接口
+    addEditUser = (data) => {
+        const { isNowEdit } = this.state;
+        let str = isNowEdit === 1 ? 'addUser' : 'updateUser';
+
+        HttpRequest(`/sys/${str}`, "POST", {
             userJson: JSON.stringify(data)
         }, res => {
-            message.success('创建成功！');
+            message.success(`${isNowEdit === 1 ? '创建成功！' : '保存成功！'}`);
+
+            setTimeout(() => {
+                this.setState({
+                    redirect: true
+                })
+            }, 1000)
         })
     }
 
@@ -372,7 +385,11 @@ class NewAdvertiser extends Component {
     }
 
     render () {
-        const { industryOneList, industryTwoList, industryOneId, industryTwoId, AMList, AMPhoneList, phone, name, cName, icp, cNum, aptitude, adAptitude, cAddress, address, network, text, bd, bdPhone, detailedAddress, cImg, isNowEdit } = this.state;
+        const { industryOneList, industryTwoList, industryOneId, industryTwoId, AMList, AMPhoneList, phone, name, cName, icp, cNum, aptitude, adAptitude, cAddress, address, network, text, bd, bdPhone, detailedAddress, cImg, isNowEdit, redirect } = this.state;
+
+        if (redirect) {
+            return <Redirect pudh to="/content/admin/advertiser" />
+        }
 
         return (
             <section className="new-edit__box">

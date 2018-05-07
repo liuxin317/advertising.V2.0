@@ -10,8 +10,8 @@ const columns = [{
   key: 'id',
 }, {
   title: '客户名称',
-  dataIndex: 'cname',
-  key: 'cname',
+  dataIndex: 'cName',
+  key: 'cName',
 }, {
   title: '行业',
   dataIndex: 'industry',

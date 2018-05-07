@@ -77,6 +77,10 @@ li {
   margin: 0 auto;
 }
 
+.operation a:hover {
+  text-decoration: underline;
+}
+
 @keyframes showHide {
   0% {
     opacity: 1;

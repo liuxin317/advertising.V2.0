@@ -12,11 +12,14 @@ class Launch extends Component {
     pageNum: 1,
     pageSize: 10,
     putInStatus: [{
+      name: '全部',
+      id: ''
+    }, {
       name: '投放中',
-      id: 0
+      id: 1
     },{
       name: '暂停中',
-      id: 1
+      id: 0
     }],
     putID: '', // 投放状态ID
     planList: [], // 广告计划列表数据
@@ -94,10 +97,12 @@ class Launch extends Component {
 
   // 确定删除确定框,广告计划批量删除
   okModalRemove = () => {
-    const { batchIds, type } = this.state;
+    const { batchIds, type, nowKey } = this.state;
     
     if (type === 3) {
-      HttpRequest("/plan/delPlans", "POST", {
+      let str = String(nowKey) === "1" ? "delPlans" : "delAds";
+
+      HttpRequest(`/plan/${str}`, "POST", {
         ids: batchIds
       }, res => {
         message.success("删除成功！");
@@ -109,9 +114,9 @@ class Launch extends Component {
         })
       })
     } else if (type === 2) {
-      this.batchUpdatePlans(1)
-    } else if (type === 1) {
       this.batchUpdatePlans(0)
+    } else if (type === 1) {
+      this.batchUpdatePlans(1)
     } else if (type === 4) {
       this.singleUpdatePlans()
     }
@@ -181,9 +186,10 @@ class Launch extends Component {
 
   // 批量修改状态
   batchUpdatePlans = (state) => {
-    const { batchIds } = this.state;
+    const { batchIds, nowKey } = this.state;
+    let str = String(nowKey) === "1" ? "updatePlans" : "updateAd";
 
-    HttpRequest("/plan/updatePlans", "POST", {
+    HttpRequest(`/plan/${str}`, "POST", {
       ids: batchIds,
       state: state
     }, res => {
@@ -225,9 +231,9 @@ class Launch extends Component {
   }
 
   render () {
-    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys} = this.state;
+    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys, nowKey} = this.state;
     const columns = [{
-      title: '计划名称',
+      title: `${String(nowKey) === "1" ? '计划名称' : '广告主名称'}`,
       dataIndex: 'name',
     }, {
       title: '计划ID',
@@ -273,7 +279,7 @@ class Launch extends Component {
       render: (text, record) => {
         return (
           <div className="operation-group">
-            <Icon type="play-circle" onClick={this.showBatchDeleteModal.bind(this, 4, record)} />
+            <Icon type={`${ record.state === 0 ? 'pause-circle' : 'play-circle' }`} onClick={this.showBatchDeleteModal.bind(this, 4, record)} />
           </div>
         )
       }
@@ -281,11 +287,14 @@ class Launch extends Component {
       title: '状态',
       dataIndex: 'state',
       render: (text, record) => {
-        return <span>{ record.state === 0 ? "投放中" : "暂停中" }</span>
+        return <span>{ record.state === 1 ? "投放中" : "暂停中" }</span>
       }
     }, {
-      title: '每日预算',
+      title: `${String(nowKey) === "1" ? '每日预算' : '出价'}`,
       dataIndex: 'dayMoney',
+      render: (text, record) => {
+        return <span>{ String(nowKey) === "1" ? record.dayMoney : record.money }</span>
+      }
     }];
 
     // 批量表格
@@ -311,94 +320,104 @@ class Launch extends Component {
         <div className="launch-tabs">
           <Tabs defaultActiveKey="1" animated={false} onChange={this.TabCallback}>
             <TabPane tab="广告计划" key="1">
-              {/* <CreatePlan backListView={ this.backListView } /> */}
-              <div className="plan-examine">
-                <div className="operation-row">
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
-                </div>
-
-                <div className="table-box">
-                  <div className="table-top">
-                    <h5>详细数据</h5>
-
-                    <div className="search-condition">
-                      <Select
-                        showSearch
-                        style={{ width: 200 }}
-                        placeholder="投放状态"
-                        optionFilterProp="children"
-                        onChange={this.handleChangeStatus}
-                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                      >
-                        {
-                          putInStatus.map((item, index) => {
-                            return <Option key={ index } value={ item.id }>{ item.name }</Option>
-                          })
-                        }
-                      </Select>
-
-                      <Input style={{ width: 200, margin: "0 15px" }} placeholder="广告计划名称" onChange={ this.onChangeSearch } />
-
-                      <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.clickQuery } />
-                    </div>
+              {
+                String(nowKey) === "1"
+                ?
+                <div className="plan-examine">
+                  <div className="operation-row">
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
                   </div>
 
-                  <Table 
-                    rowKey={(record, index) => index}
-                    rowSelection={rowSelection} 
-                    columns={columns} 
-                    dataSource={planList} 
-                    pagination={{ showQuickJumper: true, total, current: pageNum, pageSize, onChange: this.onChangePage, showTotal: total => `共 ${total} 条`}}
-                  />
+                  <div className="table-box">
+                    <div className="table-top">
+                      <h5>详细数据</h5>
+
+                      <div className="search-condition">
+                        <Select
+                          showSearch
+                          style={{ width: 200 }}
+                          placeholder="投放状态"
+                          optionFilterProp="children"
+                          onChange={this.handleChangeStatus}
+                          filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
+                          {
+                            putInStatus.map((item, index) => {
+                              return <Option key={ index } value={ item.id }>{ item.name }</Option>
+                            })
+                          }
+                        </Select>
+
+                        <Input style={{ width: 200, margin: "0 15px" }} placeholder="广告计划名称" onChange={ this.onChangeSearch } />
+
+                        <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.clickQuery } />
+                      </div>
+                    </div>
+
+                    <Table 
+                      rowKey={(record, index) => index}
+                      rowSelection={rowSelection} 
+                      columns={columns} 
+                      dataSource={planList} 
+                      pagination={{ showQuickJumper: true, total, current: pageNum, pageSize, onChange: this.onChangePage, showTotal: total => `共 ${total} 条`}}
+                    />
+                  </div>
                 </div>
-              </div>
+                :
+                ""
+              }
             </TabPane>
             <TabPane tab="广告" key="2">
-              {/* <CreatePlan backListView={ this.backListView } /> */}
-              <div className="plan-examine">
-                <div className="operation-row">
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
-                  <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
-                </div>
-
-                <div className="table-box">
-                  <div className="table-top">
-                    <h5>详细数据 <span style={{marginLeft: 20}}>每日预算：500</span></h5>
-
-                    <div className="search-condition">
-                      <Select
-                        showSearch
-                        style={{ width: 200 }}
-                        placeholder="投放状态"
-                        optionFilterProp="children"
-                        onChange={this.handleChangeStatus}
-                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                      >
-                        {
-                          putInStatus.map((item, index) => {
-                            return <Option key={ index } value={ item.id }>{ item.name }</Option>
-                          })
-                        }
-                      </Select>
-
-                      <Input style={{ width: 200, margin: "0 15px" }} placeholder="广告计划名称" onChange={ this.onChangeSearch } />
-
-                      <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.clickQuery } />
-                    </div>
+              {
+                String(nowKey) === "2"
+                ?
+                <div className="plan-examine">
+                  <div className="operation-row">
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
+                    <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
                   </div>
 
-                  <Table 
-                    rowKey={(record, index) => index}
-                    rowSelection={rowSelection} 
-                    columns={columns} 
-                    dataSource={planList} 
-                    pagination={{ showQuickJumper: true, total, current: pageNum, pageSize, onChange: this.onChangePage, showTotal: total => `共 ${total} 条`}}
-                  />
+                  <div className="table-box">
+                    <div className="table-top">
+                      <h5>详细数据 <span style={{marginLeft: 20}}>每日预算：500</span></h5>
+
+                      <div className="search-condition">
+                        <Select
+                          showSearch
+                          style={{ width: 200 }}
+                          placeholder="投放状态"
+                          optionFilterProp="children"
+                          onChange={this.handleChangeStatus}
+                          filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
+                          {
+                            putInStatus.map((item, index) => {
+                              return <Option key={ index } value={ item.id }>{ item.name }</Option>
+                            })
+                          }
+                        </Select>
+
+                        <Input style={{ width: 200, margin: "0 15px" }} placeholder="广告计划名称" onChange={ this.onChangeSearch } />
+
+                        <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.clickQuery } />
+                      </div>
+                    </div>
+
+                    <Table 
+                      rowKey={(record, index) => index}
+                      rowSelection={rowSelection} 
+                      columns={columns} 
+                      dataSource={planList} 
+                      pagination={{ showQuickJumper: true, total, current: pageNum, pageSize, onChange: this.onChangePage, showTotal: total => `共 ${total} 条`}}
+                    />
+                  </div>
                 </div>
-              </div>
+                :
+                ''
+              }
             </TabPane>
           </Tabs>
         </div>

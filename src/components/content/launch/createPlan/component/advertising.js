@@ -77,7 +77,7 @@ class Advertising extends Component {
     dateShowType: "1", // 1、每日；2、每周
     dateClickType: "1", // 1、每日；2、每周
     showNum: '', // 展示次数
-    clickNum: '', // 展示次数
+    clickNum: '', // 点击次数
     bidWay: 9, // 出价方式9-cpm、10-cpc
     exposureNum: '', // 曝光次数 
     clickLimit: '', // 点击上限
