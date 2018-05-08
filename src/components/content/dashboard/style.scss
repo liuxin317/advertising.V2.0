@@ -1,0 +1,93 @@
+.dashboard-box {
+  .content-top-name {
+    h4 {
+      font-size: 18px;
+      color: #333;
+    }
+  }
+
+  .overview-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+
+    .block-group {
+      width: 300px;
+      height: 150px;
+      padding: 20px;
+      border: #ccc solid 1px;
+      border-radius: 10px;
+
+      .name {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 15px;
+        color: #666;
+        line-height: 25px;
+      }
+
+      .value {
+        margin-top: 10px;
+        font-size: 28px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .dashboard-main {
+    margin-top: 30px;
+
+    .dashboard-tabs {
+      display: flex;
+      align-content: center;
+      height: 45px;
+      background-color: #f8f8f8;
+
+      li {
+        width: 120px;
+        text-align: center;
+        line-height: 45px;
+        border-right: #eee solid 1px;
+
+        &.can-point {
+          cursor: pointer;
+
+          &.active {
+            background-color: #1f91fe;
+            color: white;
+          }
+        }
+
+        &:not(.can-point) {
+          font-weight: bold;
+        }
+      }
+    }
+
+    .tab-content {
+      margin-top: 20px;
+    }
+
+    .details-listed {
+      .title {
+        position: relative;
+        padding-left: 15px;
+        line-height: 24px;
+        font-size: 15px;
+        color: #333;
+
+        &:before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 5px;
+          height: 24px;
+          background-color: #666;
+        }
+      }
+    }
+  }
+}

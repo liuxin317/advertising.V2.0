@@ -39,7 +39,7 @@ class MenuBar extends Component {
           mode="inline"
           inlineCollapsed={this.state.collapsed}
         >
-          <Menu.Item key="1"><Icon type="area-chart" /> <span>Dashboard</span></Menu.Item>
+          <Menu.Item key="1"><Link to="/content/dashboard"><Icon type="area-chart" /> <span>Dashboard</span></Link></Menu.Item>
           <Menu.Item key="2"><Link to="/content/launch"><Icon type="shop" /> <span>投放管理</span></Link></Menu.Item>
           <SubMenu key="sub2" title={<span><Icon type="credit-card" /><span>报表管理</span></span>}>
             <Menu.Item key="3">实时报表</Menu.Item>
