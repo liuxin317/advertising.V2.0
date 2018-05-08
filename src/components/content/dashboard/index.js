@@ -7,41 +7,41 @@ import './style.scss';
 // 视图 -start
 const DataSet = require('@antv/data-set');
 const sourceData = [
-  {month: "00:00", today: 62, yesterday: 41, sevenday: 24, month1: 28},
-  {month: "01:00", today: 72, yesterday: 32, sevenday: 26, month1: 38},
-  {month: "02:00", today: 67, yesterday: 33, sevenday: 28, month1: 49},
-  {month: "03:00", today: 74, yesterday: 28, sevenday: 26, month1: 41},
-  {month: "04:00", today: 73, yesterday: 36, sevenday: 31, month1: 35},
-  {month: "05:00", today: 68, yesterday: 29, sevenday: 31, month1: 33},
-  {month: "06:00", today: 78, yesterday: 37, sevenday: 29, month1: 30},
-  {month: "07:00", today: 68, yesterday: 26, sevenday: 31, month1: 38},
-  {month: "08:00", today: 73, yesterday: 33, sevenday: 32, month1: 28},
-  {month: "09:00", today: 64, yesterday: 36, sevenday: 24, month1: 26},
-  {month: "10:00", today: 72, yesterday: 33, sevenday: 25, month1: 33},
-  {month: "11:00", today: 55, yesterday: 39, sevenday: 32, month1: 38},
-  {month: "12:00", today: 59, yesterday: 41, sevenday: 29, month1: 52},
-  {month: "13:00", today: 44, yesterday: 43, sevenday: 35, month1: 28},
-  {month: "14:00", today: 58, yesterday: 50, sevenday: 40, month1: 31},
-  {month: "15:00", today: 58, yesterday: 40, sevenday: 43, month1: 45},
-  {month: "16:00", today: 52, yesterday: 44, sevenday: 32, month1: 23},
-  {month: "17:00", today: 47, yesterday: 43, sevenday: 36, month1: 41},
-  {month: "18:00", today: 68, yesterday: 49, sevenday: 36, month1: 34},
-  {month: "19:00", yesterday: 51, sevenday: 27, month1: 31},
-  {month: "20:00", yesterday: 41, sevenday: 36, month1: 29},
-  {month: "21:00", yesterday: 55, sevenday: 38, month1: 27},
-  {month: "22:00", yesterday: 48, sevenday: 35, month1: 38},
-  {month: "23:00", yesterday: 62, sevenday: 37, month1: 45}
+  {time: "00:00", '今天': 62, '昨天': 41, '7天': 24, '30天': 28},
+  {time: "01:00", '今天': 72, '昨天': 32, '7天': 26, '30天': 38},
+  {time: "02:00", '今天': 67, '昨天': 33, '7天': 28, '30天': 49},
+  {time: "03:00", '今天': 74, '昨天': 28, '7天': 26, '30天': 41},
+  {time: "04:00", '今天': 73, '昨天': 36, '7天': 31, '30天': 35},
+  {time: "05:00", '今天': 68, '昨天': 29, '7天': 31, '30天': 33},
+  {time: "06:00", '今天': 78, '昨天': 37, '7天': 29, '30天': 30},
+  {time: "07:00", '今天': 68, '昨天': 26, '7天': 31, '30天': 38},
+  {time: "08:00", '今天': 73, '昨天': 33, '7天': 32, '30天': 28},
+  {time: "09:00", '今天': 64, '昨天': 36, '7天': 24, '30天': 26},
+  {time: "10:00", '今天': 72, '昨天': 33, '7天': 25, '30天': 33},
+  {time: "11:00", '今天': 55, '昨天': 39, '7天': 32, '30天': 38},
+  {time: "12:00", '今天': 59, '昨天': 41, '7天': 29, '30天': 52},
+  {time: "13:00", '今天': 44, '昨天': 43, '7天': 35, '30天': 28},
+  {time: "14:00", '今天': 58, '昨天': 50, '7天': 40, '30天': 31},
+  {time: "15:00", '今天': 58, '昨天': 40, '7天': 43, '30天': 45},
+  {time: "16:00", '今天': 52, '昨天': 44, '7天': 32, '30天': 23},
+  {time: "17:00", '今天': 47, '昨天': 43, '7天': 36, '30天': 41},
+  {time: "18:00", '今天': 68, '昨天': 49, '7天': 36, '30天': 34},
+  {time: "19:00", '昨天': 51, '7天': 27, '30天': 31},
+  {time: "20:00", '昨天': 41, '7天': 36, '30天': 29},
+  {time: "21:00", '昨天': 55, '7天': 38, '30天': 27},
+  {time: "22:00", '昨天': 48, '7天': 35, '30天': 38},
+  {time: "23:00", '昨天': 62, '7天': 37, '30天': 45}
 ];
 const dv = new DataSet.View().source(sourceData);
 dv.transform({
   type: 'fold',
-  fields: ['today', 'yesterday', 'sevenday', 'month1'],
+  fields: ['今天', '昨天', '7天', '30天'],
   key: 'city',
   value: 'temperature',
 });
 const data = dv.rows;
 const scale = [{
-  dataKey: 'month',
+  dataKey: 'time',
   min: 0,
   max: 1,
 }];
@@ -252,12 +252,12 @@ class Dashboard extends Component {
             
             <div className="tab-content">
               <Chart forceFit height={400} padding={[20, 20, 95, 80]} data={data} scale={scale}>
-                <Tooltip />
+                <Tooltip crosshairs={{type: 'y'}} />
                 <Axis />
                 <Legend />
                 {/* <Guide type="text" content={"123456"} position={["50%", "0"]} top={true} /> */}
-                <Line position="month*temperature" color="city" />
-                <Point position="month*temperature" color="city" size={4} style={{ stroke: '#fff', lineWidth: 1 }} shape="circle"/>
+                <Line position="time*temperature" color="city" />
+                <Point position="time*temperature" color="city" size={2} style={{ stroke: '#fff', lineWidth: 1 }} shape="circle"/>
               </Chart>
             </div>
           </section>
