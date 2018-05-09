@@ -49,28 +49,40 @@ class MenuBar extends Component {
         }
       }
 
+      $('.one').classList.remove('ant-menu-item-selected')
+      $('.two').classList.remove('ant-menu-item-selected')
+      $('.three').classList.remove('ant-menu-item-selected')
+      $('.four').classList.remove('ant-menu-item-selected')
+      $('.five').classList.remove('ant-menu-item-selected')
+      $('.six').classList.remove('ant-menu-item-selected')
+      $('.seven').classList.remove('ant-menu-item-selected')
+
       // 监听下拉条所在位置
       if (actualScrolltop <= monitorScrTops[0]) {
         defaultKey = "1"
+        $('.one').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[0]  && actualScrolltop < monitorScrTops[1] ) {
         defaultKey = "1"
+        $('.one').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[1]  && actualScrolltop < monitorScrTops[2] ) {
         defaultKey = "2"
+        $('.two').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[2]  && actualScrolltop < monitorScrTops[3] ) {
         defaultKey = "3"
+        $('.three').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[3]  && actualScrolltop < monitorScrTops[4] ) {
         defaultKey = "4"
+        $('.four').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[4]  && actualScrolltop < monitorScrTops[5] ) {
         defaultKey = "5"
+        $('.five').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[5]  && actualScrolltop < monitorScrTops[6] ) {
         defaultKey = "6"
+        $('.six').classList.add('ant-menu-item-selected')
       } else if (actualScrolltop >= monitorScrTops[6]) {
         defaultKey = "7"
+        $('.seven').classList.add('ant-menu-item-selected')
       }
-
-      this.setState({
-        defaultKey
-      })
     }
   }
 
@@ -106,6 +118,14 @@ class MenuBar extends Component {
       }
 
       if (adCreateTwo) {
+        $('.one').classList.remove('ant-menu-item-selected')
+        $('.two').classList.remove('ant-menu-item-selected')
+        $('.three').classList.remove('ant-menu-item-selected')
+        $('.four').classList.remove('ant-menu-item-selected')
+        $('.five').classList.remove('ant-menu-item-selected')
+        $('.six').classList.remove('ant-menu-item-selected')
+        $('.seven').classList.remove('ant-menu-item-selected')
+
         this.setState({
           defaultKey
         })
@@ -182,17 +202,17 @@ class MenuBar extends Component {
             inlineCollapsed={this.state.collapsed}
           >
             <MenuItemGroup key="g1" title="广告计划">
-              <Menu.Item key="1" destination="selected_plan">选择计划</Menu.Item>
+              <Menu.Item key="1" className="one" destination="selected_plan">选择计划</Menu.Item>
             </MenuItemGroup>
             <MenuItemGroup key="g2" title="广告">
-              <Menu.Item key="2" destination="land_page">落地页设置</Menu.Item>
-              <Menu.Item key="3" destination="ad_layout">广告版位</Menu.Item>
-              <Menu.Item key="4" destination="directional">定向设置</Menu.Item>
-              <Menu.Item key="5" destination="frequency">排期与频次</Menu.Item>
-              <Menu.Item key="6" destination="bid">出价设置</Menu.Item>
+              <Menu.Item key="2" className="two" destination="land_page">落地页设置</Menu.Item>
+              <Menu.Item key="3" className="three" destination="ad_layout">广告版位</Menu.Item>
+              <Menu.Item key="4" className="four" destination="directional">定向设置</Menu.Item>
+              <Menu.Item key="5" className="five" destination="frequency">排期与频次</Menu.Item>
+              <Menu.Item key="6" className="six" destination="bid">出价设置</Menu.Item>
             </MenuItemGroup>
             <MenuItemGroup key="g3" title="广告创意">
-              <Menu.Item key="7" destination="originality">上传创意</Menu.Item>
+              <Menu.Item key="7" className="seven" destination="originality">上传创意</Menu.Item>
             </MenuItemGroup>
           </Menu>
         </nav>

@@ -28,7 +28,7 @@ function liuxing(){
   },time)
 }
 
-function render(){
+function renderStart(){
   context.fillStyle = '#031428';
   context.fillRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
   // context.clearRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT)
@@ -86,7 +86,7 @@ function render(){
   }
 
   setTimeout(function () {
-    render()
+    renderStart()
   }, 33)
 }
 
@@ -121,7 +121,7 @@ class Login extends Component {
 
 		context = canvas.getContext('2d');
     addStar();
-    render();
+    renderStart();
   }
 
   componentWillUnmount () {
