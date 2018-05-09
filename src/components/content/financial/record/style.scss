@@ -1,0 +1,38 @@
+.record-box {
+  h4 {
+    a {
+      color: #333;
+    }
+  }
+
+  .record-table {
+    margin-top: 20px;
+
+    .name {
+      position: relative;
+      padding-left: 20px;
+      font-size: 15px;
+      line-height: 25px;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 25px;
+        background-color: #666;
+      }
+    }
+
+    .search-group {
+      display: flex;
+      align-content: center;
+      margin-top: 30px;
+
+      .search-button {
+        margin-left: 10px;
+      }
+    }
+  }
+}

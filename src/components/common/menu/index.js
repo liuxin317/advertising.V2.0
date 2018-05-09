@@ -39,13 +39,13 @@ class MenuBar extends Component {
           mode="inline"
           inlineCollapsed={this.state.collapsed}
         >
-          <Menu.Item key="1"><Link to="/content/dashboard"><Icon type="area-chart" /> <span>Dashboard</span></Link></Menu.Item>
-          <Menu.Item key="2"><Link to="/content/launch"><Icon type="shop" /> <span>投放管理</span></Link></Menu.Item>
+          <Menu.Item key="1"><Link to="/content/dashboard"><Icon type="area-chart" /><span>Dashboard</span></Link></Menu.Item>
+          <Menu.Item key="2"><Link to="/content/launch"><Icon type="shop" /><span>投放管理</span></Link></Menu.Item>
           <SubMenu key="sub2" title={<span><Icon type="credit-card" /><span>报表管理</span></span>}>
             <Menu.Item key="3">实时报表</Menu.Item>
             <Menu.Item key="4">基础报表</Menu.Item>
           </SubMenu>
-          <Menu.Item key="6"><Icon type="pay-circle-o" /> <span>财务管理</span></Menu.Item>
+          <Menu.Item key="6"><Link to="/content/financial"><Icon type="pay-circle-o" /><span>财务管理</span></Link></Menu.Item>
           <SubMenu key="sub3" title={<span><Icon type="user" /><span>管理员</span></span>}>
             <Menu.Item key="8"><Link to="/content/admin/advertiser"><span>广告主管理</span></Link></Menu.Item>
             <Menu.Item key="9"><Link to="/content/admin/ad-position"><span>广告位管理</span></Link></Menu.Item>

@@ -20,7 +20,8 @@ class PicturesWall extends Component {
           uid: index,
           name: 'xxx.png',
           status: 'done',
-          url: item
+          url: item,
+          response: { data: item }
         }
 
         fileList.push(obj)
@@ -44,38 +45,48 @@ class PicturesWall extends Component {
   }
 
   handleChange = (info) => {
-    let fileList = JSON.parse(JSON.stringify(info.fileList));
-    let uid = info.file.uid;
+    const status = info.file.status;
+    let fileList = info.fileList;
     let respone = info.file.response;
+    let uid = info.file.uid;
+    let deepfileList = JSON.parse(JSON.stringify(fileList));
 
-    this.setState({ 
-      fileList
-    })
-
-    if (info.file.status === 'done') {
-      if (Number(respone.code) === 200) {
-        this.props.backUploadData(fileList);
-        message.success(`${info.file.name} 上传成功！`);
-      } else {
-        message.warning(`${info.file.name} 上传失败！`);
-        fileList.forEach((item, index) => {
-          if (uid === item.uid) {
-            fileList.splice(index, 1)
-          }
-        })
-      }
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} 上传失败！`);
-      fileList.forEach((item, index) => {
-        if (uid === item.uid) {
-          fileList.splice(index, 1)
-        }
+    if (status === 'uploading') {
+      this.setState({
+        fileList
       })
     }
+    if (status === 'done') {
+      if (Number(respone.code) === 200) {
+        this.props.backUploadData(deepfileList);
+        message.success(`${info.file.name} 上传成功！`);
+        this.setState({
+          fileList
+        })
+      } else {
+        message.error(`${info.file.name} 上传失败！`);
+        deepfileList.forEach((item, index) => {
+          if (item.uid === uid) {
+            deepfileList.splice(index, 1)
+          }
+        })
 
-    this.setState({
-      fileList
-    })
+        this.setState({
+          fileList: deepfileList
+        })
+      }
+    } else if (status === 'error') {
+      message.error(`${info.file.name} 上传失败！`);
+      deepfileList.forEach((item, index) => {
+        if (item.uid === uid) {
+          deepfileList.splice(index, 1)
+        }
+      })
+
+      this.setState({
+        fileList: deepfileList
+      })
+    }
   }
 
   beforeUpload = (file) => {
@@ -130,7 +141,7 @@ class PicturesWall extends Component {
           listType="picture-card"
           fileList={fileList}
           data={{ type, token: getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : "" }}
-          onPreview={validation ? this.handlePreview : null}
+          onPreview={this.handlePreview}
           onChange={validation ? this.handleChange : null}
           beforeUpload={this.beforeUpload}
           onRemove={this.onRemove}

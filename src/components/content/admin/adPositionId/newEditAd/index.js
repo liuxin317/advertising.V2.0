@@ -32,6 +32,7 @@ class NewEditAd extends Component {
       money: '', // 出价
       state: '', // 仅编辑页面使用
       redirect: false, // 跳转状态
+      validation: false, // 验证上传
     }
 
     componentDidMount() {
@@ -218,6 +219,53 @@ class NewEditAd extends Component {
       })
     }
 
+    // 上传图片change事件
+    onChangeUpLoad = (info) => {
+      const status = info.file.status;
+      let fileList = info.fileList;
+      let respone = info.file.response;
+      let uid = info.file.uid;
+      let deepfileList = JSON.parse(JSON.stringify(fileList));
+
+      if (status === 'uploading') {
+        this.setState({
+          fileList
+        })
+      }
+      if (status === 'done') {
+        if (Number(respone.code) === 200) {
+          if (this.state.validation) {
+            message.success(`${info.file.name} 上传成功！`);
+            this.setState({
+              fileList
+            })
+          }
+        } else {
+          message.error(`${info.file.name} 上传失败！`);
+          deepfileList.forEach((item, index) => {
+            if (item.uid === uid) {
+              deepfileList.splice(index, 1)
+            }
+          })
+  
+          this.setState({
+            fileList: deepfileList
+          })
+        }
+      } else if (status === 'error') {
+        message.error(`${info.file.name} 上传失败！`);
+        deepfileList.forEach((item, index) => {
+          if (item.uid === uid) {
+            deepfileList.splice(index, 1)
+          }
+        })
+
+        this.setState({
+          fileList: deepfileList
+        })
+      }
+    }
+
     render () {
       const { isNowEdit, fileList, previewVisible, previewImage, channelsList, channelId, name, no, text, descs, width, height, limitSize, limitCopy, limitDesc, type, money, redirect } = this.state;
       const _this = this;
@@ -234,7 +282,6 @@ class NewEditAd extends Component {
         onPreview: _this.handlePreview,
         beforeUpload (file) {
           const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
-  
           if (!isJPG) {
             message.error('请上传图片格式为JPG/JPEG!');
           }
@@ -286,53 +333,15 @@ class NewEditAd extends Component {
                 })
               }, 500)
             }
+
+            _this.setState({
+              validation: res
+            })
           })
   
           return isJPG && isLt2M;
         },
-        onChange (info) {
-          const status = info.file.status;
-          let fileList = info.fileList;
-          let respone = info.file.response;
-          let uid = info.file.uid;
-          let deepfileList = JSON.parse(JSON.stringify(fileList));
-  
-          if (status === 'uploading') {
-            _this.setState({
-              fileList
-            })
-          }
-          if (status === 'done') {
-            if (Number(respone.code) === 200) {
-              message.success(`${info.file.name} 上传成功！`);
-              _this.setState({
-                fileList
-              })
-            } else {
-              message.error(`${info.file.name} 上传失败！`);
-              deepfileList.forEach((item, index) => {
-                if (item.uid === uid) {
-                  deepfileList.splice(index, 1)
-                }
-              })
-      
-              _this.setState({
-                fileList: deepfileList
-              })
-            }
-          } else if (status === 'error') {
-            message.error(`${info.file.name} 上传失败！`);
-            deepfileList.forEach((item, index) => {
-              if (item.uid === uid) {
-                deepfileList.splice(index, 1)
-              }
-            })
-    
-            _this.setState({
-              fileList: deepfileList
-            })
-          }
-        },
+        onChange: _this.onChangeUpLoad,
         onRemove (file) {
           let deepfileList = JSON.parse(JSON.stringify(fileList));
           deepfileList.forEach((item, index) => {
@@ -491,7 +500,7 @@ class NewEditAd extends Component {
               {/* 按钮 */}
               <div className="btn-group">
                   <Button type="primary" onClick={ this.confirmationTest }>确认</Button>
-                  <Button style={{ marginLeft: 60 }}><Link to="/content/admin/ad-position">取消</Link></Button>
+                  <Link to="/content/admin/ad-position"><Button style={{ marginLeft: 60 }}>取消</Button></Link>
               </div>
           </section>
       )

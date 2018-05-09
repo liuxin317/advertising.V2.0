@@ -86,7 +86,7 @@ class Advertiser extends Component {
         <div className="content-top">
           <h4>广告主管理</h4>
           <div className="launch-top-button">
-            <Button type="primary"><Link to="/content/admin/new-advertiser/new">新建广告主</Link></Button>
+            <Link to="/content/admin/new-advertiser/new"><Button type="primary">新建广告主</Button></Link>
           </div>
         </div>
 

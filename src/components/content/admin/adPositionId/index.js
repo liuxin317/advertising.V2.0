@@ -151,7 +151,7 @@ class AdPositionId extends Component {
         <div className="content-top">
           <h4>广告位管理</h4>
           <div className="launch-top-button">
-            <Button type="primary"><Link to="/content/admin/new-edit-ad/new">新建广告位</Link></Button>
+            <Link to="/content/admin/new-edit-ad/new"><Button type="primary">新建广告位</Button></Link>
           </div>
         </div>
 

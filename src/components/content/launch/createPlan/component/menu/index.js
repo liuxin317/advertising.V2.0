@@ -23,6 +23,10 @@ class MenuBar extends Component {
     }
   }
 
+  componentWillUnmount () {
+    window.onscroll = null;
+  }
+
   // scroll事件
   windowScroll = () => {
     let $ = (e) => document.querySelector(e);
@@ -71,40 +75,42 @@ class MenuBar extends Component {
   }
 
   handleClick = (e) => {
-    const { adCreateOne, adCreateTwo } = this.props;
-    let defaultKey = String(e.key);
-    let props = e.item.props;
-    let $ = (e) => document.querySelector(e);
-    let elmDocTop = $(`#${props.destination}`).offsetTop;
+    if (e.key) {
+      const { adCreateOne, adCreateTwo } = this.props;
+      let defaultKey = String(e.key);
+      let props = e.item.props;
+      let $ = (e) => document.querySelector(e);
+      let elmDocTop = $(`#${props.destination}`).offsetTop;
 
-    // 关闭scroll监听菜单事件
-    window.onscroll = () => {
-      let scrolltop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      // 关闭scroll监听菜单事件
+      window.onscroll = () => {
+        let scrolltop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
 
-      // 监听右侧菜单栏位置
-      if (scrolltop >= 60) {
-        document.querySelector('.menu-plan-box').style.top = 0;
-      } else if (scrolltop > 0 && scrolltop < 60) {
-        document.querySelector('.menu-plan-box').style.top = (60 - scrolltop) + 'px';
-      } else if (scrolltop === 0) {
-        document.querySelector('.menu-plan-box').style.top = 60 + 'px';
+        // 监听右侧菜单栏位置
+        if (scrolltop >= 60) {
+          document.querySelector('.menu-plan-box').style.top = 0;
+        } else if (scrolltop > 0 && scrolltop < 60) {
+          document.querySelector('.menu-plan-box').style.top = (60 - scrolltop) + 'px';
+        } else if (scrolltop === 0) {
+          document.querySelector('.menu-plan-box').style.top = 60 + 'px';
+        }
       }
-    }
 
-    if (adCreateOne) {
-      if (defaultKey !== "7") {
-        this.rollAnimation(elmDocTop)
+      if (adCreateOne) {
+        if (defaultKey !== "7") {
+          this.rollAnimation(elmDocTop)
+          this.setState({
+            defaultKey
+          })
+        }
+      }
+
+      if (adCreateTwo) {
         this.setState({
           defaultKey
         })
+        this.rollAnimation(elmDocTop)
       }
-    }
-
-    if (adCreateTwo) {
-      this.setState({
-        defaultKey
-      })
-      this.rollAnimation(elmDocTop)
     }
   }
 

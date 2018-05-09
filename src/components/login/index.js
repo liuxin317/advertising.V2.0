@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Form, Icon, Input, Button, message } from 'antd';
 import HttpRequest from '@/utils/fetch';
 import { Redirect } from 'react-router-dom';
-import { setCookie } from '../common/methods';
+import { setCookie, removeCookie } from '../common/methods';
 import logo from '@/imgs/logo.png';
 import "./style.scss";
 
@@ -114,6 +114,7 @@ class Login extends Component {
   }
 
   componentDidMount () {
+    removeCookie('userInfo');
     canvas = document.getElementById('canvas');
 		canvas.width = WINDOW_WIDTH;
 		canvas.height = WINDOW_HEIGHT;

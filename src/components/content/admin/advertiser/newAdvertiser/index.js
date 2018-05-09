@@ -39,6 +39,7 @@ class NewAdvertiser extends Component {
         AMPhoneList: [], // AM电话列表
         isNowEdit: 1, // 是否是新建或者编辑页面（1、新建，2编辑）
         redirect: false, // 跳转状态
+        editPassImgNum: 0, // 编辑初始传入已上传图片标志
     }
 
     componentDidMount() {
@@ -380,13 +381,17 @@ class NewAdvertiser extends Component {
                         })
                     }
                 })
+
+                this.setState({
+                    editPassImgNum: 1
+                })
             })
         })
     }
 
     render () {
-        const { industryOneList, industryTwoList, industryOneId, industryTwoId, AMList, AMPhoneList, phone, name, cName, icp, cNum, aptitude, adAptitude, cAddress, address, network, text, bd, bdPhone, detailedAddress, cImg, isNowEdit, redirect } = this.state;
-
+        const { industryOneList, industryTwoList, industryOneId, industryTwoId, AMList, AMPhoneList, phone, name, cName, icp, cNum, aptitude, adAptitude, cAddress, address, network, text, bd, bdPhone, detailedAddress, cImg, isNowEdit, redirect, editPassImgNum } = this.state;
+        console.log(editPassImgNum, cImg)
         if (redirect) {
             return <Redirect pudh to="/content/admin/advertiser" />
         }
@@ -423,7 +428,7 @@ class NewAdvertiser extends Component {
                     <div className="input-group">
                         <label className="name"><em>*</em> 营业执照/企业资质证明：</label>
                         <div className="main">
-                            <PicturesWall init={ cImg } type={4} backUploadData={ this.backUploadDataCImg } />
+                            <PicturesWall init={ isNowEdit === 1 ? '' : editPassImgNum === 0 ? cImg : '' } type={4} backUploadData={ this.backUploadDataCImg } />
                         </div>
                     </div>
                 </div>
@@ -442,7 +447,7 @@ class NewAdvertiser extends Component {
                     <div className="input-group">
                         <label className="name"><em>*</em> 官方ICP备案：</label>
                         <div className="main">
-                            <PicturesWall init={ icp } type={5} backUploadData={ this.backUploadDataICP } />
+                            <PicturesWall init={ isNowEdit === 1 ? '' : editPassImgNum === 0 ? icp : '' } type={5} backUploadData={ this.backUploadDataICP } />
                         </div>
                     </div>
 
@@ -478,14 +483,14 @@ class NewAdvertiser extends Component {
                     <div className="input-group">
                         <label className="name">行业资质：</label>
                         <div className="main">
-                            <PicturesWall init={ aptitude } type={6} backUploadData={ this.backUploadDataAptitude } />
+                            <PicturesWall init={ isNowEdit === 1 ? '' : editPassImgNum === 0 ? aptitude : '' } type={6} backUploadData={ this.backUploadDataAptitude } />
                         </div>
                     </div>
 
                     <div className="input-group">
                         <label className="name">广告资质：</label>
                         <div className="main">
-                            <PicturesWall init={ adAptitude } type={7} backUploadData={ this.backUploadDataAdAptitude } />
+                            <PicturesWall init={ isNowEdit === 1 ? '' : editPassImgNum === 0 ? adAptitude : '' } type={7} backUploadData={ this.backUploadDataAdAptitude } />
                         </div>
                     </div>
                 </div>
@@ -546,7 +551,7 @@ class NewAdvertiser extends Component {
                 {/* 按钮 */}
                 <div className="btn-group">
                     <Button type="primary" onClick={ this.confirmNew }>确认</Button>
-                    <Button style={{ marginLeft: 60 }}><Link to="/content/admin/advertiser">取消</Link></Button>
+                    <Link to="/content/admin/advertiser"><Button style={{ marginLeft: 60 }}>取消</Button></Link>
                 </div>
             </section>
         )

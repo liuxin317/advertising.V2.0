@@ -169,7 +169,7 @@ class AdvertProgram extends Component {
         
         <div className={`operation ${ one ? 'none' : ''}`}>
           <Button type="primary" className="next-step" onClick={this.nextStep}>下一步</Button>
-          <Button><Link to="/content/launch">返回上级</Link></Button>
+          <Link to="/content/launch"><Button>返回上级</Button></Link>
         </div>
       </section>
     )

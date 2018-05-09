@@ -38,6 +38,18 @@ const Admin = loadable({
   loading: PreLoading
 })
 
+// 财务管理
+const Financial = loadable({
+  loader: () => import('./financial'),
+  loading: PreLoading
+})
+
+// 财务记录
+const Record = loadable({
+  loader: () => import('./financial/record'),
+  loading: PreLoading
+})
+
 class Content extends Component {
   render () {
     const { match, location, leftMenuStatus } = this.props;
@@ -66,6 +78,8 @@ class Content extends Component {
           <Route path={`${ match.path }/create-plan`} component={ createPlan } />
           <Route path={`${ match.path }/material`} component={ Material } />
           <Route path={`${ match.path }/admin`} component={ Admin } />
+          <Route path={`${ match.path }/financial`} component={ Financial } />
+          <Route path={`${ match.path }/financial-record/:id/:name`} component={ Record } />
         </div>
       </section>
     )

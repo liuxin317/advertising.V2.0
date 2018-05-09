@@ -6,40 +6,6 @@ import './style.scss';
 
 // 视图 -start
 const DataSet = require('@antv/data-set');
-const sourceData = [
-  {time: "00:00", '今天': 62, '昨天': 41, '7天': 24, '30天': 28},
-  {time: "01:00", '今天': 72, '昨天': 32, '7天': 26, '30天': 38},
-  {time: "02:00", '今天': 67, '昨天': 33, '7天': 28, '30天': 49},
-  {time: "03:00", '今天': 74, '昨天': 28, '7天': 26, '30天': 41},
-  {time: "04:00", '今天': 73, '昨天': 36, '7天': 31, '30天': 35},
-  {time: "05:00", '今天': 68, '昨天': 29, '7天': 31, '30天': 33},
-  {time: "06:00", '今天': 78, '昨天': 37, '7天': 29, '30天': 30},
-  {time: "07:00", '今天': 68, '昨天': 26, '7天': 31, '30天': 38},
-  {time: "08:00", '今天': 73, '昨天': 33, '7天': 32, '30天': 28},
-  {time: "09:00", '今天': 64, '昨天': 36, '7天': 24, '30天': 26},
-  {time: "10:00", '今天': 72, '昨天': 33, '7天': 25, '30天': 33},
-  {time: "11:00", '今天': 55, '昨天': 39, '7天': 32, '30天': 38},
-  {time: "12:00", '今天': 59, '昨天': 41, '7天': 29, '30天': 52},
-  {time: "13:00", '今天': 44, '昨天': 43, '7天': 35, '30天': 28},
-  {time: "14:00", '今天': 58, '昨天': 50, '7天': 40, '30天': 31},
-  {time: "15:00", '今天': 58, '昨天': 40, '7天': 43, '30天': 45},
-  {time: "16:00", '今天': 52, '昨天': 44, '7天': 32, '30天': 23},
-  {time: "17:00", '今天': 47, '昨天': 43, '7天': 36, '30天': 41},
-  {time: "18:00", '今天': 68, '昨天': 49, '7天': 36, '30天': 34},
-  {time: "19:00", '昨天': 51, '7天': 27, '30天': 31},
-  {time: "20:00", '昨天': 41, '7天': 36, '30天': 29},
-  {time: "21:00", '昨天': 55, '7天': 38, '30天': 27},
-  {time: "22:00", '昨天': 48, '7天': 35, '30天': 38},
-  {time: "23:00", '昨天': 62, '7天': 37, '30天': 45}
-];
-const dv = new DataSet.View().source(sourceData);
-dv.transform({
-  type: 'fold',
-  fields: ['今天', '昨天', '7天', '30天'],
-  key: 'city',
-  value: 'temperature',
-});
-const data = dv.rows;
 const scale = [{
   dataKey: 'time',
   min: 0,
@@ -96,7 +62,7 @@ class Dashboard extends Component {
       name: '展示',
       ename: 'showNum',
       id: 1,
-      active: true
+      active: false
     }, {
       name: '点击',
       ename: 'clickNum',
@@ -114,12 +80,13 @@ class Dashboard extends Component {
       active: false
     }, {
       name: '花费',
+      ename: 'cost',
       id: 5,
-      active: false
+      active: true
     }],
     detailsList: [], // 详细数据列表
     visualizatData: [], // 趋势图数据
-    newTabVal: 'showNum', // 当前tab
+    newTabVal: 'cost', // 当前tab
     visualList: [], // 当前视图数据
   }
 
@@ -143,6 +110,8 @@ class Dashboard extends Component {
     this.setState({
       kpi: deepKpi,
       newTabVal: data.ename
+    }, () => {
+      this.extractData()
     })
   }
 
@@ -181,24 +150,22 @@ class Dashboard extends Component {
         let day = '';
 
         if (index === 0) {
-          day = "today"
+          day = "今天"
         } else if (index === 1) {
-          day = "yesterday"
+          day = "昨天"
         } else if (index === 2) {
-          day = "sevenday"
+          day = "7天"
         } else if (index === 3) {
-          day = "month"
+          day = "30天"
         }
 
         if (String(d.time) !== "-1") {
-          obj[day] = d[newTabVal]
+          obj[day] = Number(d[newTabVal].toFixed(2))
         }
       })
 
       visualList.push(obj)
     })
-
-    console.log(visualList)
 
     this.setState({
       visualList
@@ -207,6 +174,15 @@ class Dashboard extends Component {
 
   render () {
     const { kpi, detailsList, visualList } = this.state;
+
+    const dv = new DataSet.View().source(visualList);
+    dv.transform({
+      type: 'fold',
+      fields: ['今天', '昨天', '7天', '30天'],
+      key: 'city',
+      value: 'temperature',
+    });
+    const data = dv.rows;
 
     return (
       <section className="content-box dashboard-box">
@@ -238,7 +214,7 @@ class Dashboard extends Component {
           </div>
         </div>
 
-        <main className="dashboard-main">
+        <section className="dashboard-main">
           <section className="tab-box">
             <ul className="dashboard-tabs">
               <li>小时指标</li>
@@ -269,7 +245,7 @@ class Dashboard extends Component {
               <Table rowKey={(item, index) => index} pagination={false} dataSource={detailsList} columns={columns} />
             </div>
           </section>
-        </main>
+        </section>
       </section>
     )
   }
