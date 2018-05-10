@@ -27,7 +27,11 @@ const NewEditAd = loadable({
   loading: PreLoading
 })
 
-
+// 优先级调控
+const Priority = loadable({
+  loader: () => import('./priority'),
+  loading: PreLoading
+})
 
 class Admin extends Component {
   render () {
@@ -39,6 +43,7 @@ class Admin extends Component {
         <Route path={`${ match.path }/new-advertiser/:state`} component={ NewAdvertiser } />
         <Route path={`${ match.path }/ad-position`} component={ AdPositionId } />
         <Route path={`${ match.path }/new-edit-ad/:state`} component={ NewEditAd } />
+        <Route path={`${ match.path }/priority`} component={ Priority } />
       </section>
     )
   }

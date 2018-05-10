@@ -87,7 +87,7 @@ function renderStart(){
 
   setTimeout(function () {
     renderStart()
-  }, 33)
+  }, 100)
 }
 
 function addStar(){

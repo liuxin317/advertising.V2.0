@@ -14,6 +14,7 @@ class MenuBar extends Component {
 
   componentDidMount () {
     Store.dispatch({ type: Type.TOGGLE_MENU_FUN, payload: { toggleMenuFun: this.toggleCollapsed } });
+    console.log(this.props)
   }
 
   handleClick = (e) => {
@@ -49,7 +50,7 @@ class MenuBar extends Component {
           <SubMenu key="sub3" title={<span><Icon type="user" /><span>管理员</span></span>}>
             <Menu.Item key="8"><Link to="/content/admin/advertiser"><span>广告主管理</span></Link></Menu.Item>
             <Menu.Item key="9"><Link to="/content/admin/ad-position"><span>广告位管理</span></Link></Menu.Item>
-            <Menu.Item key="10"><span>优先级调控</span></Menu.Item>
+            <Menu.Item key="10"><Link to="/content/admin/priority"><span>优先级调控</span></Link></Menu.Item>
             <Menu.Item key="11"><span>低价调控</span></Menu.Item>
           </SubMenu>
         </Menu>

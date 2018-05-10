@@ -28,6 +28,7 @@ const times = {
   time22: [false, false],
   time23: [false, false]
 }
+let moveOne = true; // 在时间节点内启动一次移动事件内部只做一次操作
 
 class TimeSelected extends Component {
   state = {
@@ -61,7 +62,6 @@ class TimeSelected extends Component {
       ...times
     }],
     startMoveOver: false, // 启动时间节点点移动事件
-    moveOne: true, // 在时间节点内启动一次移动事件内部只做一次操作
     timeGroupSelect: [], // 选中的时间区间
   }
 
@@ -74,10 +74,30 @@ class TimeSelected extends Component {
     }
   }
 
+  shouldComponentUpdate (nextProps, nextState) {
+    const { disabled } = this.props;
+    const { startMoveOver } = this.state;
+    
+    if (nextProps.disabled !== disabled || startMoveOver !== nextState.startMoveOver) {
+      return false;
+    }
+
+    return true;
+  }
+
   // 时间段选中状态(0 => 0-30， 1 => 30-1)(time => 时间段)(record => 改rowDate)
   periodTimeChooseState = (state, time, record) => {
-    const { timeData } = this.state;
+    const { disabled } = this.props;
+    const { timeData, startMoveOver } = this.state;
     let timeDatas = JSON.parse(JSON.stringify(timeData));
+
+    if (disabled) {
+      return false
+    }
+
+    if (startMoveOver) {
+      return false
+    }
 
     timeDatas.forEach(item => {
       if (item.key === record.key) {
@@ -94,6 +114,12 @@ class TimeSelected extends Component {
 
   // 时间段区间鼠标按下事件
   onmousedownTimeSlot = () => {
+    const { disabled } = this.props;
+
+    if (disabled) {
+      return false
+    }
+
     this.setState({
       startMoveOver: true
     })
@@ -101,6 +127,12 @@ class TimeSelected extends Component {
 
   // 时间段区间鼠标松开事件
   onmouseupTimeSlot = () => {
+    const { disabled } = this.props;
+
+    if (disabled) {
+      return false
+    }
+
     this.setState({
       startMoveOver: false
     })
@@ -109,11 +141,20 @@ class TimeSelected extends Component {
   // 时间段区间鼠标移动事件(record => 该节点数据)(state => 前半段or后半段)(time => 该时间节点)
   onmousemoveTimeSlot = (record, state, time, e) => {
     e.preventDefault();
-    
-    const { timeData, moveOne } = this.state;
+    const { disabled } = this.props;
+    const { timeData, startMoveOver } = this.state;
+
+    if (disabled) {
+      return false
+    }
+
+    if (!startMoveOver) {
+      return false
+    }
 
     if (moveOne) {
       let timeDatas = JSON.parse(JSON.stringify(timeData));
+      moveOne = false;
 
       timeDatas.forEach(item => {
         if (item.key === record.key) {
@@ -122,8 +163,7 @@ class TimeSelected extends Component {
       })
 
       this.setState({
-        timeData: timeDatas,
-        moveOne: false
+        timeData: timeDatas
       }, () => {
         this.getSelectTimeInterval()
       })
@@ -132,34 +172,35 @@ class TimeSelected extends Component {
 
   // 时间段区离开事件
   onmouseoutTimeSlot = () => {
-    this.setState({
-      moveOne: true
-    })
+    const { disabled } = this.props;
+
+    if (disabled) {
+      return false
+    }
+
+    moveOne = true
   }
 
   // 表格每列render
   tableCloumnRender = (tiems, text, record) => {
-    const { startMoveOver } = this.state;
-    const { disabled } = this.props;
-
     return (
       <div className="time-group">
         <span 
           className={ record[tiems][0] ? "box active" : "box" } 
-          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 0, tiems, record) } 
-          onMouseDown={ disabled ? null : this.onmousedownTimeSlot } 
-          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
-          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
-          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 0, tiems) : null }>
+          onClick={ this.periodTimeChooseState.bind(this, 0, tiems, record) } 
+          onMouseDown={ this.onmousedownTimeSlot } 
+          onMouseUp={ this.onmouseupTimeSlot } 
+          onMouseOut={ this.onmouseoutTimeSlot }
+          onMouseMove={ this.onmousemoveTimeSlot.bind(this, record, 0, tiems) }>
         </span>
 
         <span 
           className={ record[tiems][1] ? "box active" : "box" } 
-          onClick={ disabled ? null : startMoveOver ? null : this.periodTimeChooseState.bind(this, 1, tiems, record) } 
-          onMouseDown={ disabled ? null : this.onmousedownTimeSlot }  
-          onMouseUp={ disabled ? null : this.onmouseupTimeSlot } 
-          onMouseOut={ disabled ? null : this.onmouseoutTimeSlot }
-          onMouseMove={ disabled ? null : startMoveOver ? this.onmousemoveTimeSlot.bind(this, record, 1, tiems) : null }>
+          onClick={ this.periodTimeChooseState.bind(this, 1, tiems, record) } 
+          onMouseDown={ this.onmousedownTimeSlot }  
+          onMouseUp={ this.onmouseupTimeSlot } 
+          onMouseOut={ this.onmouseoutTimeSlot }
+          onMouseMove={ this.onmousemoveTimeSlot.bind(this, record, 1, tiems) }>
         </span>
       </div>
     )
@@ -368,7 +409,7 @@ class TimeSelected extends Component {
   render () {
     const { timeData, timeGroupSelect } = this.state;
     const { disabled } = this.props;
-
+    
     const columns = [{
       title: '星期 / 日期',
       dataIndex: 'name',

@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
 import { Icon, Button, DatePicker, Table } from 'antd';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
-const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+// const dateFormat = 'YYYY-MM-DD HH:mm:ss',import moment from 'moment';
 const { RangePicker } = DatePicker;
 const columns = [{
   title: "日期",
-  key: 'createTime',
-  dataIndex: 'createTime',
-  render: (text) => {
-    return <span>{moment(text).format(dateFormat)}</span>
+  key: 'days',
+  dataIndex: 'days',
+  render: (text, record) => {
+    return <span>{record.days ? record.days : record.days2}</span>
   }
 }, {
   title: "存入（元）",
-  key: 'money',
-  dataIndex: 'money',
+  key: 'inMoney',
+  dataIndex: 'inMoney',
 }, {
   title: "支出（元）",
   key: 'outMoney',

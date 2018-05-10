@@ -1,0 +1,30 @@
+.priority-box {
+
+  .priority-main {
+    margin-top: 20px;
+
+    .conditions {
+      display: flex;
+      align-items: center;
+    }
+
+    .table-box {
+      margin-top: 30px;
+
+      .weight-box {
+        display: flex;
+        align-items: center;
+
+        .icon {
+          font-size: 22px;
+          color: #1890ff;
+          cursor: pointer;
+        }
+        
+        .input-number {
+          margin: 0 5px;
+        }
+      }
+    }
+  }
+}

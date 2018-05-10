@@ -86,7 +86,7 @@ class Dashboard extends Component {
     }],
     detailsList: [], // 详细数据列表
     visualizatData: [], // 趋势图数据
-    newTabVal: 'cost', // 当前tab
+    newTabVal: 'showNum', // 当前tab
     visualList: [], // 当前视图数据
   }
 
@@ -95,20 +95,27 @@ class Dashboard extends Component {
     this.getCountVal()
   }
 
-  // 指标切换
-  switchTab = (data) => {
-    let deepKpi = JSON.parse(JSON.stringify(this.state.kpi));
+  shouldComponentUpdate (nextProps, nextState) {
+    const { newTabVal } = this.state;
 
-    deepKpi.forEach(item => {
-      if (item.id === data.id) {
-        item.active = true
-      } else {
-        item.active = false
-      }
-    })
+    if (newTabVal !== nextState.newTabVal) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // 指标切换
+  switchTab = (data, e) => {
+    let lis = e.target.parentNode.childNodes;
+    for (let i = 0; i < lis.length; i++) {
+      let item = lis[i];
+      item.classList.remove('active')
+    }
+
+    e.target.classList.add('active')
 
     this.setState({
-      kpi: deepKpi,
       newTabVal: data.ename
     }, () => {
       this.extractData()
@@ -174,7 +181,6 @@ class Dashboard extends Component {
 
   render () {
     const { kpi, detailsList, visualList } = this.state;
-
     const dv = new DataSet.View().source(visualList);
     dv.transform({
       type: 'fold',
@@ -220,8 +226,8 @@ class Dashboard extends Component {
               <li>小时指标</li>
 
               {
-                kpi.map(item => {
-                  return <li className={`can-point ${item.active ? 'active' : ''}`} key={item.id} onClick={this.switchTab.bind(this, item)}>{item.name}</li>
+                kpi.map((item, index) => {
+                  return <li className={`can-point ${index === 0 ? 'active' : '' }`} key={item.id} onClick={this.switchTab.bind(this, item)}>{item.name}</li>
                 })
               }
             </ul>
