@@ -111,6 +111,7 @@ function addStar(){
 class Login extends Component {
   state = {
     isLogin: false, // 跳转页面状态
+    userId: '', // 默认ID
   }
 
   componentDidMount () {
@@ -122,11 +123,24 @@ class Login extends Component {
 		context = canvas.getContext('2d');
     addStar();
     renderStart();
+    this.getUserList();
   }
 
   componentWillUnmount () {
     canvas = null;
     stop = true;
+  }
+
+  //获取客户列表
+  getUserList = () => {
+    HttpRequest("/sys/userList", "POST", {
+      pageNum: 1,
+      pageSize: 100000
+    }, res => {
+      this.setState({
+        userId: res.data.ls[0].id
+      })
+    })
   }
 
   // 登录提交
@@ -140,6 +154,7 @@ class Login extends Component {
           password: password.trim()
         }, res => {
           message.success("登陆成功！");
+          res.data.userId = this.state.userId;
           setCookie("userInfo", JSON.stringify(res.data)); // 存取用户信息
           this.setState({ isLogin: true }); // 跳转页面
         })

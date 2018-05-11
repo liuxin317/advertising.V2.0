@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Table } from 'antd';
 import { Chart, Tooltip, Axis, Legend, Line, Point, Guide } from 'viser-react';
 import HttpRequest from '@/utils/fetch';
+import Customer from '@/components/common/customer';
 import './style.scss';
 
 // 视图 -start
@@ -192,6 +193,9 @@ class Dashboard extends Component {
 
     return (
       <section className="content-box dashboard-box">
+        {/* 切换客户 */}
+        <Customer />
+        
         <div className="content-top-name">
           <h4>客户总览</h4>
 

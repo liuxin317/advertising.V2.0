@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Table, InputNumber, Modal, message } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
+import Customer from '@/components/common/customer';
 import './style.scss';
 
 class Financial extends Component {
@@ -145,6 +146,9 @@ class Financial extends Component {
 
     return (
       <section className="content-box financial-box">
+        {/* 切换客户 */}
+        <Customer />
+
         <div className="content-top">
           <h4>财务管理</h4>
         </div>

@@ -18,7 +18,14 @@ class Customer extends Component {
   }
 
   handleChange = (value) => {
+    userInfo.userId = value
+    setCookie('userInfo', JSON.stringify(userInfo))
 
+    this.setState({
+      nowValue: value
+    }, () => {
+      window.location.reload()
+    })
   }
 
   //获取客户列表
@@ -30,18 +37,23 @@ class Customer extends Component {
       this.setState({
         userList: res.data.ls,
         nowValue: userInfo.userId ? userInfo.userId : res.data.ls[0].id
+      }, () => {
+        if (!userInfo.userId) {
+          userInfo.userId = res.data.ls[0].id
+          setCookie('userInfo', JSON.stringify(userInfo))
+        }
       })
     })
   }
 
   render () {
-    const { userList } = this.state;
+    const { userList, nowValue } = this.state;
 
     return (
       <section className="customer-box">
         <div className="customer-selected">
           <label className="name" htmlFor="name">客户：</label>
-          <Select defaultValue="lucy" style={{ width: 200 }} onChange={this.handleChange}>
+          <Select value={nowValue} style={{ width: 200 }} onChange={this.handleChange}>
             {
               userList.map(item => {
                 return <Option value={item.id} key={item.id}>{item.cName}</Option>

@@ -33,10 +33,12 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
     Store.dispatch({ type: Type.LOAD_STATE, payload: { loading: true } });
     
     let newOptions = {};
+    const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+    
     if (url.indexOf('login') === -1) {
-        params.token = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : "";
+        params.token = userInfo.token;
         if (!params.userId) {
-            params.userId = 1;
+            params.userId = userInfo.userId;
         }
     }
 
