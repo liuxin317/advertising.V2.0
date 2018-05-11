@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { Icon } from 'antd';
 import { connect } from 'react-redux';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
+
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
 
 class Head extends Component {
   // 切换客户下拉;
@@ -17,7 +20,7 @@ class Head extends Component {
         </menu>
         <div className="user-info">
           <Icon type="user" />
-          <span>欢迎！张三</span>
+          <span>欢迎！{ userInfo.userName }</span>
         </div>
       </header>
     )

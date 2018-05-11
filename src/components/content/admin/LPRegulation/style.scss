@@ -1,0 +1,29 @@
+.regulation-box {
+  .priority-main {
+    margin-top: 20px;
+  
+    .conditions {
+      display: flex;
+      align-items: center;
+    }
+
+    .regulation-main {
+      margin-top: 20px;
+    }
+  }
+}
+
+.pos-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  .key {
+    color: #666;
+  }
+
+  .value {
+    margin-left: 10px;
+    color: #333;
+  }
+}

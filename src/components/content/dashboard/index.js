@@ -161,9 +161,9 @@ class Dashboard extends Component {
         } else if (index === 1) {
           day = "昨天"
         } else if (index === 2) {
-          day = "7天"
+          day = "7天前"
         } else if (index === 3) {
-          day = "30天"
+          day = "30天前"
         }
 
         if (String(d.time) !== "-1") {
@@ -184,7 +184,7 @@ class Dashboard extends Component {
     const dv = new DataSet.View().source(visualList);
     dv.transform({
       type: 'fold',
-      fields: ['今天', '昨天', '7天', '30天'],
+      fields: ['今天', '昨天', '7天前', '30天前'],
       key: 'city',
       value: 'temperature',
     });

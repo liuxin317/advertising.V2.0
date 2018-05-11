@@ -69,7 +69,7 @@ class Content extends Component {
           {
             location.pathname === match.path
             ?
-            <Redirect push to="/content/launch" />
+            <Redirect push to="/content/dashboard" />
             :
             ''
           }

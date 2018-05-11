@@ -1,0 +1,18 @@
+.customer-box {
+  display: flex;
+  justify-content: flex-end;
+  height: 50px;
+  border-bottom: #eee dashed 1px;
+  margin-bottom: 20px;
+  padding-bottom: 5px;
+
+  .customer-selected {
+    display: flex;
+    align-items: center;
+
+    .name {
+      font-size: 16px;
+      color: #333;
+    }
+  }
+}

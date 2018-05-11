@@ -35,7 +35,9 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
     let newOptions = {};
     if (url.indexOf('login') === -1) {
         params.token = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : "";
-        params.userId = 1;
+        if (!params.userId) {
+            params.userId = 1;
+        }
     }
 
     if (method === 'GET') { // 区分请求方式传参方式不一样

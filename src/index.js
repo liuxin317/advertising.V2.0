@@ -2,6 +2,7 @@
 import 'core-js/fn/promise';
 // IE object.assign
 import 'core-js/fn/object/assign';
+import 'raf/polyfill';
 import 'es6-shim';
 import 'fetch-ie8';
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Tabs, Select, Table, Modal, message, Input, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
+import Customer from '@/components/common/customer';
 import './style.scss';
 
 const TabPane = Tabs.TabPane;
@@ -254,7 +255,7 @@ class Launch extends Component {
       title: '点击率',
       dataIndex: 'putType',
       render: (text, record) => {
-        return <span>{ record.planData ? record.planData.clickRate : "" }</span>
+        return <span>{ record.planData ? `${(record.planData.clickRate*100).toFixed(2)}%` : "" }</span>
       }
     }, {
       title: 'CPC',
@@ -310,6 +311,9 @@ class Launch extends Component {
 
     return (
       <section className="content-box launch-box">
+        {/* 切换客户 */}
+        <Customer />
+        
         <div className="content-top">
           <h4>投放管理</h4>
           <div className="launch-top-button">

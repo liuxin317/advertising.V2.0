@@ -40,8 +40,8 @@ class Record extends Component {
   // 时间选择框监听
   onChangeDate = (date, dateString) => {
     this.setState({
-      startTime: `${dateString[0]} 00:00:00`,
-      endTime: `${dateString[1]} 23:59:59`
+      startTime: dateString[0] ? `${dateString[0]} 00:00:00` : '',
+      endTime: dateString[1] ? `${dateString[1]} 23:59:59` : ''
     })
   }
 

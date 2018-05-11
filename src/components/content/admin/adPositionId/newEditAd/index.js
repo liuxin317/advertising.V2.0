@@ -28,7 +28,7 @@ class NewEditAd extends Component {
       limitSize: '', // 大小
       limitCopy: '', // 文案限制
       limitDesc: '', // 描述限制
-      type: 1, // 出价方式 1- cpc, 2- cpm
+      type: 9, // 出价方式 10- cpc, 9- cpm
       money: '', // 出价
       state: '', // 仅编辑页面使用
       redirect: false, // 跳转状态
@@ -463,8 +463,8 @@ class NewEditAd extends Component {
                       <label className="name">出价方式：</label>
                       <div className="main">
                         <RadioGroup value={type} onChange={this.onChangeRadio}>
-                          <Radio value={1}>CPC</Radio>
-                          <Radio value={2}>CPM</Radio>
+                          <Radio value={9}>CPM</Radio>
+                          <Radio value={10}>CPC</Radio>
                         </RadioGroup>
                       </div>
                   </div>

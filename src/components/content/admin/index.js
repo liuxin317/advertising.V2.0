@@ -33,6 +33,12 @@ const Priority = loadable({
   loading: PreLoading
 })
 
+// 低价调控
+const LPRegulation = loadable({
+  loader: () => import('./LPRegulation'),
+  loading: PreLoading
+})
+
 class Admin extends Component {
   render () {
     const { match } = this.props;
@@ -44,6 +50,7 @@ class Admin extends Component {
         <Route path={`${ match.path }/ad-position`} component={ AdPositionId } />
         <Route path={`${ match.path }/new-edit-ad/:state`} component={ NewEditAd } />
         <Route path={`${ match.path }/priority`} component={ Priority } />
+        <Route path={`${ match.path }/regulation`} component={ LPRegulation } />
       </section>
     )
   }

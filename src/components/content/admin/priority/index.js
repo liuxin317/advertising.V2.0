@@ -39,7 +39,9 @@ class Priority extends Component {
       ...obj
     }, () => {
       if (name === 'channelId') {
-        this.getPosList()
+        this.getPosList(1)
+      } else if (name === 'posId') {
+        this.getSelectUserPos()
       }
     })
   }
@@ -66,7 +68,7 @@ class Priority extends Component {
   getSelectUserPos = () => {
     const { posId } = this.state;
     HttpRequest("sys/selectUserPos", "POST", {
-      posId
+      posId: posId ? posId : -1
     }, res => {
       this.setState({
         userPosList: res.data
@@ -76,85 +78,125 @@ class Priority extends Component {
 
   // 减权重
   reduceWeight = (data) => {
-    const { userPosList, posId } = this.state;
-    let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
-    let weight = Number(data.weight) - 1;
-    let num = 0;
+    if (Number(data.weight) !== 0) {
+      const { userPosList, posId } = this.state;
+      let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
+      let weight = Number(data.weight) - 1;
+      let num = 0;
+      
+      if (weight !== 0) {
+        deepUserPosList.forEach(item => {
+          if (data.id !== item.id) {
+            if (weight === item.weight) {
+              num++
+            }
+          } else {
+            item.weight = weight
+          }
+        })
 
-    deepUserPosList.forEach(item => {
-      if (data.id !== item.id) {
-        if (weight === item.weight) {
-          num++
+        if (num > 0) {
+          message.warning('权重不能重复！')
+          this.setState({
+            userPosList: deepUserPosList
+          })
+        } else {
+          this.updateWeight({ posId, userPosId: data.userPosId, weight, userId: data.id }, deepUserPosList);
         }
       } else {
-        item.weight = weight
+        deepUserPosList.forEach(item => {
+          if (data.id === item.id) {
+            item.weight = weight
+          }
+        })
+
+        this.updateWeight({ posId, userPosId: data.userPosId, weight, userId: data.id }, deepUserPosList);
       }
-    })
-
-    if (num > 0) {
-      message.warning('权重不能重复！')
-    } else {
-      this.updateWeight({ posId, userPosId: data.userPosId, weight });
     }
-
-    this.setState({
-      userPosList: deepUserPosList
-    })
   }
 
   // 加权重
   addWeight = (data) => {
-    const { userPosList, posId } = this.state;
-    let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
-    let weight = Number(data.weight) + 1;
-    let num = 0;
+    if (Number(data.weight) !== 100) {
+      const { userPosList, posId } = this.state;
+      let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
+      let weight = Number(data.weight) + 1;
+      let num = 0;
 
-    deepUserPosList.forEach(item => {
-      if (data.id !== item.id) {
-        if (weight === item.weight) {
-          num++
+      deepUserPosList.forEach(item => {
+        if (data.id !== item.id) {
+          if (weight === item.weight) {
+            num++
+          }
+        } else {
+          item.weight = weight
         }
+      })
+
+      if (num > 0) {
+        message.warning('权重不能重复！')
+        this.setState({
+          userPosList: deepUserPosList
+        })
       } else {
-        item.weight = weight
+        this.updateWeight({ posId, userPosId: data.userPosId, weight, userId: data.id }, deepUserPosList);
       }
-    })
-
-    if (num > 0) {
-      message.warning('权重不能重复！')
     } else {
-      this.updateWeight({ posId, userPosId: data.userPosId, weight });
+      message.warning('权重最大100！')
     }
-
-    this.setState({
-      userPosList: deepUserPosList
-    })
   }
 
   // 监听数字框
   onChangeInputNumber = (data, value) => {
-    const { userPosList } = this.state;
-    let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
-    let weight = value;
+    if (value > 100 || value < 0 || !value) {
+      message.warning("权重区间0-100！")
+    } else {
+      const { userPosList, posId } = this.state;
+      let deepUserPosList = JSON.parse(JSON.stringify(userPosList));
+      let num = 0;
 
-    deepUserPosList.forEach(item => {
-      if (data.id !== item.id) {
-        
+      if (value === 0) {
+        deepUserPosList.forEach(item => {
+          if (data.id === item.id) {
+            item.weight = value
+          }
+        })
+        this.updateWeight({ posId, userPosId: data.userPosId, weight: value, userId: data.id });
       } else {
-        item.weight = weight
+        deepUserPosList.forEach(item => {
+          if (data.id !== item.id) {
+            if (item.weight === value) {
+              num++
+            }
+          } else {
+            item.weight = value
+          }
+        })
+  
+        if (num > 0) {
+          message.warning('权重不能重复！')
+        } else {
+          this.updateWeight({ posId, userPosId: data.userPosId, weight: value, userId: data.id });
+        }
       }
-    })
 
-    this.setState({
-      userPosList: deepUserPosList
-    })
+      this.setState({
+        userPosList: deepUserPosList
+      })
+    }
   }
 
   // 修改权重
-  updateWeight = (rowData) => {
+  updateWeight = (rowData, userPosList) => {
     HttpRequest("sys/updateWeight", "POST", {
       ...rowData
     }, res => {
       message.success('修改成功！')
+      if (userPosList) {
+        this.setState({
+          userPosList
+        })
+      } 
     })
   }
 
@@ -202,8 +244,6 @@ class Priority extends Component {
                 })
               }
             </Select>
-
-            <Button className="search-button" type="primary" shape="circle" icon="search" onClick={this.getSelectUserPos} />
           </div>
 
           <div className="table-box">
