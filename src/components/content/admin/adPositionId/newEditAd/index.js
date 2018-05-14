@@ -29,7 +29,7 @@ class NewEditAd extends Component {
       limitCopy: '', // 文案限制
       limitDesc: '', // 描述限制
       type: 9, // 出价方式 10- cpc, 9- cpm
-      money: '', // 出价
+      minMoney: '', // 出价
       state: '', // 仅编辑页面使用
       redirect: false, // 跳转状态
       validation: false, // 验证上传
@@ -113,7 +113,7 @@ class NewEditAd extends Component {
 
     // 确认前检测
     confirmationTest = () => {
-      const {fileList, channelId, name, no, text, descs, width, height, limitSize, limitCopy, limitDesc, type, money} = this.state;
+      const {fileList, channelId, name, no, text, descs, width, height, limitSize, limitCopy, limitDesc, type, minMoney} = this.state;
       
       if (!name) {
         message.warning('请填写广告位名称！')
@@ -138,7 +138,7 @@ class NewEditAd extends Component {
       } else if (!fileList.length) {
         message.warning('请上传示例图！')
       } else {
-        let obj = { channelId, name, no, text, descs, type, money};
+        let obj = { channelId, name, no, text, descs, type, minMoney};
         let content = { width, height, limitSize, limitCopy, limitDesc };
         let img = [];
         
@@ -206,7 +206,7 @@ class NewEditAd extends Component {
           no: d.no,
           text: d.text,
           descs: d.descs,
-          money: d.money,
+          minMoney: d.minMoney,
           type: d.type,
           width: content.width,
           height: content.height,
@@ -267,7 +267,7 @@ class NewEditAd extends Component {
     }
 
     render () {
-      const { isNowEdit, fileList, previewVisible, previewImage, channelsList, channelId, name, no, text, descs, width, height, limitSize, limitCopy, limitDesc, type, money, redirect } = this.state;
+      const { isNowEdit, fileList, previewVisible, previewImage, channelsList, channelId, name, no, text, descs, width, height, limitSize, limitCopy, limitDesc, type, minMoney, redirect } = this.state;
       const _this = this;
 
       const props = {
@@ -472,7 +472,7 @@ class NewEditAd extends Component {
                   <div className="input-group">
                       <label className="name">出价：</label>
                       <div className="main">
-                        <InputNumber value={money} min={0} onChange={ this.onChangeInputNumber.bind(this, 'money') } />
+                        <InputNumber value={minMoney} min={0} onChange={ this.onChangeInputNumber.bind(this, 'minMoney') } />
                       </div>
                   </div>
 

@@ -10,7 +10,7 @@ let userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
 class Customer extends Component {
   state = {
     userList: [], // 广告主列表
-    nowValue: '', // 当前广告主
+    nowValue: -1, // 当前广告主
   }
 
   componentDidMount () {
@@ -54,6 +54,7 @@ class Customer extends Component {
         <div className="customer-selected">
           <label className="name" htmlFor="name">客户：</label>
           <Select value={nowValue} style={{ width: 200 }} onChange={this.handleChange}>
+            <Option value={-1}>全部</Option>
             {
               userList.map(item => {
                 return <Option value={item.id} key={item.id}>{item.cName}</Option>

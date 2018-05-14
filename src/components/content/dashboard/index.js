@@ -3,7 +3,9 @@ import { Icon, Table } from 'antd';
 import { Chart, Tooltip, Axis, Legend, Line, Point, Guide } from 'viser-react';
 import HttpRequest from '@/utils/fetch';
 import Customer from '@/components/common/customer';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
+import { rejects } from 'assert';
 
 // 视图 -start
 const DataSet = require('@antv/data-set');
@@ -12,6 +14,7 @@ const scale = [{
   min: 0,
   max: 1,
 }];
+const userInfo = JSON.parse(getCookie('userInfo'));
 // 视图 -end
 
 // 表格 -start
@@ -57,6 +60,8 @@ const columns = [{
 }];
 // 表格 -end
 
+let timer;
+
 class Dashboard extends Component {
   state = {
     kpi: [{ // 指标列表
@@ -89,11 +94,15 @@ class Dashboard extends Component {
     visualizatData: [], // 趋势图数据
     newTabVal: 'showNum', // 当前tab
     visualList: [], // 当前视图数据
+    userNumber: [], // 客户总览
   }
 
   componentDidMount () {
     this.getCountDay()
     this.getCountVal()
+    if (userInfo.userId === -1) {
+      this.countUser()
+    }
   }
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -180,8 +189,17 @@ class Dashboard extends Component {
     })
   }
 
+  // 获取客户统计
+  countUser = () => {
+    HttpRequest("/count/countUser", "POST", {}, res => {
+      this.setState({
+        userNumber: res.data
+      })
+    })
+  }
+
   render () {
-    const { kpi, detailsList, visualList } = this.state;
+    const { kpi, detailsList, visualList, userNumber } = this.state;
     const dv = new DataSet.View().source(visualList);
     dv.transform({
       type: 'fold',
@@ -195,35 +213,39 @@ class Dashboard extends Component {
       <section className="content-box dashboard-box">
         {/* 切换客户 */}
         <Customer />
-        
-        <div className="content-top-name">
-          <h4>客户总览</h4>
-
-          <div className="overview-box">
-            <div className="block-group">
-              <div className="name">
-                <span>有效客户</span>
-                <Icon type="info-circle-o" />
+        {
+          userInfo.userId === -1
+          ?
+          <div className="content-top-name">
+            <h4>客户总览</h4>
+            <div className="overview-box">
+              <div className="block-group">
+                <div className="name">
+                  <span>有效客户</span>
+                  <Icon type="info-circle-o" />
+                </div>
+                <p className="value" style={{ color: '#1f91fe' }}>{userNumber[1]}</p>
               </div>
-              <p className="value" style={{ color: '#1f91fe' }}>10</p>
-            </div>
-            <div className="block-group">
-              <div className="name">
-                <span>待审客户</span>
-                <Icon type="info-circle-o" />
+              <div className="block-group">
+                <div className="name">
+                  <span>待审客户</span>
+                  <Icon type="info-circle-o" />
+                </div>
+                <p className="value" style={{ color: '#00ccb2' }}>{userNumber[0]}</p>
               </div>
-              <p className="value" style={{ color: '#00ccb2' }}>100</p>
-            </div>
-            <div className="block-group">
-              <div className="name">
-                <span>暂停客户</span>
-                <Icon type="info-circle-o" />
+              <div className="block-group">
+                <div className="name">
+                  <span>暂停客户</span>
+                  <Icon type="info-circle-o" />
+                </div>
+                <p className="value" style={{ color: '#7e37e1' }}>{userNumber[2]}</p>
               </div>
-              <p className="value" style={{ color: '#7e37e1' }}>1000</p>
             </div>
           </div>
-        </div>
-
+          :
+          ""
+        }
+        
         <section className="dashboard-main">
           <section className="tab-box">
             <ul className="dashboard-tabs">

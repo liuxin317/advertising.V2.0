@@ -185,7 +185,7 @@ class LPRegulation extends Component {
 
                 <div className="pos-row">
                   <label className="key" htmlFor="name">当前建议出价：</label>
-                  <em className="value">{ nowPos ? nowPos.money : ''}</em>
+                  <em className="value">{ nowPos ? nowPos.minMoney*(1+0.3).toFixed(2) : ''}</em>
                 </div>
               </div>
 
@@ -216,7 +216,7 @@ class LPRegulation extends Component {
 
             <div className="pos-row">
               <label className="key" htmlFor="name">当前建议出价：</label>
-              <em className="value">{ nowPos ? nowPos.money : ''}</em>
+              <em className="value">{ nowPos ? nowPos.minMoney*(1+0.3).toFixed(2) : ''}</em>
             </div>
 
             <div className="pos-row">

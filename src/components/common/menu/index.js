@@ -38,14 +38,14 @@ class MenuBar extends Component {
       str = 'sub3';
     }
 
+    defaultSelectedKeys = pathname
+
     if (pathname === '/content') {
       defaultSelectedKeys = '/content/dashboard'
-    } else if (pathname.indexOf('/content/admin/new-advertiser') !== -1) {
+    } else if (pathname.indexOf('/content/admin/advertiser-new-edit') !== -1) {
       defaultSelectedKeys = '/content/admin/advertiser'
     } if (pathname.indexOf('/content/admin/new-edit-ad') !== -1) {
       defaultSelectedKeys = '/content/admin/ad-position'
-    } else {
-      defaultSelectedKeys = pathname
     }
 
     return (

@@ -35,7 +35,7 @@ const columns = [{
 }, {
   title: '操作',
   render : (text, record) => {
-    var path = `/content/admin/new-advertiser/${record.id}`;
+    var path = `/content/admin/advertiser-new-edit/${record.id}`;
     return <div><Link to={path}>编辑</Link></div>
   }
 }];
@@ -45,7 +45,7 @@ class Advertiser extends Component {
     pageNum: 1,
     pageSize: 10,
     total: '', // 总共的数据条数
-    name: '', //查询名称
+    cName: '', //查询名称
     advertiserList: [], // 广告主列表
   }
 
@@ -55,11 +55,11 @@ class Advertiser extends Component {
 
   // 获取广告主列表
   getUserList = () => {
-    const { pageNum, pageSize, name } = this.state;
+    const { pageNum, pageSize, cName } = this.state;
     HttpRequest("/sys/userList", "POST", {
       pageNum,
       pageSize,
-      name
+      cName
     }, res => {
       this.setState({
         total: res.data.totalNum,
@@ -86,13 +86,13 @@ class Advertiser extends Component {
         <div className="content-top">
           <h4>广告主管理</h4>
           <div className="launch-top-button">
-            <Link to="/content/admin/new-advertiser/new"><Button type="primary">新建广告主</Button></Link>
+            <Link to="/content/admin/advertiser-new-edit/new"><Button type="primary">新建广告主</Button></Link>
           </div>
         </div>
 
         <div className="advertiser-tables">
           <div className="search-condition">
-            <Input style={{ width: 200, margin: "0 15px" }} placeholder="输入广告主名称" onChange={ this.onChangeInput.bind(this, 'name') } />
+            <Input style={{ width: 200, margin: "0 15px" }} placeholder="输入广告主名称" onChange={ this.onChangeInput.bind(this, 'cName') } />
             <Button className="search-button" type="primary" shape="circle" icon="search" onClick={ this.getUserList } />
           </div>
 

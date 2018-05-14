@@ -23,6 +23,7 @@ const radioStyle = {
   marginBottom: '10px',
   lineHeight: '30px',
 };
+let conditionalShow = { is: false }, conditionalClick = { is: false }; // 监听的条件判断
 
 class Advertising extends Component {
   state = {
@@ -83,10 +84,6 @@ class Advertising extends Component {
     clickLimit: '', // 点击上限
     isClickNext: false, // 是否通过下一步
     channelsList: [], // 渠道列表
-    conditional: { // 监听的条件判断
-      is: false,
-      message: ''
-    }, 
     adPos: '', // 获取广告版位ids
     dataSource: [], // 广告版位列表
   }
@@ -364,10 +361,10 @@ class Advertising extends Component {
 
   // 下一步
   nextStep = () => {
-    const { conditional } = this.state;
-
-    if (conditional.is) {
-      message.warning(conditional.message)
+    if (conditionalShow.is) {
+      message.warning(conditionalShow.message)
+    } else if (conditionalClick.is) {
+      message.warning(conditionalClick.message)
     } else {
       const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather } = this.state;
 
@@ -415,9 +412,11 @@ class Advertising extends Component {
       conditional.message = '';
     }
 
-    this.setState({
-      conditional
-    })
+    if (type === '展示监听') {
+      conditionalShow = conditional;
+    } else {
+      conditionalClick = conditional;
+    }
   }
 
   // 获取广告版位接口

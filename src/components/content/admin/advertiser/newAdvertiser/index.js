@@ -391,7 +391,7 @@ class NewAdvertiser extends Component {
 
     render () {
         const { industryOneList, industryTwoList, industryOneId, industryTwoId, AMList, AMPhoneList, phone, name, cName, icp, cNum, aptitude, adAptitude, cAddress, address, network, text, bd, bdPhone, detailedAddress, cImg, isNowEdit, redirect, editPassImgNum } = this.state;
-        console.log(editPassImgNum, cImg)
+        
         if (redirect) {
             return <Redirect pudh to="/content/admin/advertiser" />
         }
@@ -414,7 +414,7 @@ class NewAdvertiser extends Component {
                     <div className="input-group">
                         <label className="name"><em>*</em> 营业执照编码：</label>
                         <div className="main">
-                            <InputNumber min={0} value={ cNum } onChange={this.onChangeInputNumber.bind(this, 'cNum')} />
+                            <Input value={ cNum } onChange={this.onChangeInput.bind(this, 'cNum')} />
                         </div>
                     </div>
 
