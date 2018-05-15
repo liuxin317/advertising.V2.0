@@ -10,7 +10,6 @@ const RadioGroup = Radio.Group;
 class AdvertProgram extends Component {
   state = {
     selectdAdvertPlan: 1, // 选择的新建/已有广告计划
-    putType: 1, // 投放类型（1、均匀；2、加速）
     existingID: '', // 选择已有的广告ID
     newID: '', // 新建的广告ID
     dayMoney: '', //每日预算
@@ -34,13 +33,6 @@ class AdvertProgram extends Component {
   handleChangeHavePlans = (value) => {
     this.setState({
       existingID: value
-    })
-  }
-
-  // 投放类型选择
-  onChangeLaunchType = (e) => {
-    this.setState({
-      putType: e.target.value
     })
   }
 
@@ -85,8 +77,8 @@ class AdvertProgram extends Component {
 
   // 创建广告计划
   addPlan = () => {
-    const { dayMoney, planName, putType } = this.state;
-    let planJson = JSON.stringify({dayMoney, planName, putType});
+    const { dayMoney, planName } = this.state;
+    let planJson = JSON.stringify({dayMoney, planName});
 
     HttpRequest("/plan/addPlan","POST", {
       planJson
@@ -113,7 +105,7 @@ class AdvertProgram extends Component {
   }
 
   render () {
-    const { putType, isClickNext, selectdAdvertPlan, havePlans } = this.state;
+    const { isClickNext, selectdAdvertPlan, havePlans } = this.state;
     const { one } = this.props;
     
     return (
@@ -150,18 +142,6 @@ class AdvertProgram extends Component {
               <label className="name" htmlFor="name">广告计划名称：</label>
               <div className="input-group">
                 <Input disabled={isClickNext} min={1} onChange={this.onChangePlanName} placeholder="请输入广告计划名称" />
-              </div>
-            </div>
-
-            <div className="create-group">
-              <label className="name" htmlFor="name">投放控制：</label>
-              <div className="input-group">
-                <div className="channel-type launch-type">
-                  <RadioGroup disabled={isClickNext} onChange={this.onChangeLaunchType} value={putType}>
-                    <Radio value={1}>均匀投放</Radio>
-                    <Radio value={2}>加速投放</Radio>
-                  </RadioGroup>
-                </div>
               </div>
             </div>
           </TabPane>

@@ -289,7 +289,7 @@ class NewAdvertiser extends Component {
 
         this.setState({
             industryOneId: value,
-            industryTwoList: JSON.parse(item.json).cList,
+            industryTwoList: item.industries,
             industryTwoId: '请选择行业',
             industry: ''
         })
@@ -309,8 +309,8 @@ class NewAdvertiser extends Component {
             this.setState({
                 AMList: res.data,
                 AMPhoneList: res.data[0].phones,
-                name: res.data[0].name,
-                phone: res.data[0].phones[0]
+                name: "",
+                phone: ""
             })
         })
     }
@@ -364,11 +364,11 @@ class NewAdvertiser extends Component {
                 let deepIndustryOneList = JSON.parse(JSON.stringify(this.state.industryOneList));
 
                 deepIndustryOneList.forEach(item => {
-                    let jos = JSON.parse(item.json);
+                    let jos = item.industries;
                     
-                    if (String(jos.no) === String(industryOneId)) {
+                    if (String(item.no) === String(industryOneId)) {
                         this.setState({
-                            industryTwoList: jos.cList,
+                            industryTwoList: jos,
                             industryTwoId: data.industry.split(',')[1]
                         })
                     }
@@ -457,8 +457,7 @@ class NewAdvertiser extends Component {
                             <Select placeholder="请选行业类型" value={industryOneId} onChange={this.onChangeSlelected} style={{ width: 200 }}>
                                 {
                                     industryOneList.map((item, index) => {
-                                        let handleItem = JSON.parse(item.json)
-                                        return <Option item={item} value={handleItem.no} key={index}>{handleItem.name}</Option>
+                                        return <Option item={item} value={item.no} key={index}>{item.name}</Option>
                                     })
                                 }
                             </Select>
@@ -502,26 +501,28 @@ class NewAdvertiser extends Component {
                     <div className="input-group">
                         <label className="name"><em>*</em> AM：</label>
                         <div className="main">
-                            <Select style={{ width: 200 }} value={name} onChange={this.onSelectedAM}>
+                            <Input value={ name } onChange={this.onChangeInput.bind(this, 'name')} />
+                            {/* <Select style={{ width: 200 }} value={name} onChange={this.onSelectedAM}>
                                 {
                                     AMList.map(item => {
                                         return <Option item={item} value={item.id} key={item.id}>{item.name}</Option>
                                     })
                                 }
-                            </Select>
+                            </Select> */}
                         </div>
                     </div>
 
                     <div className="input-group">
                         <label className="name"><em>*</em> AM联系电话：</label>
                         <div className="main">
-                            <Select value={phone} style={{ width: 200 }} onChange={this.onSelectedAMPhone}>
+                            <InputNumber value={ phone } min={0} onChange={this.onChangeInputNumber.bind(this, 'phone')} />
+                            {/* <Select value={phone} style={{ width: 200 }} onChange={this.onSelectedAMPhone}>
                                 {
                                     AMPhoneList.map((item, index) => {
                                         return <Option value={item} key={index}>{item}</Option>
                                     })
                                 }
-                            </Select>
+                            </Select> */}
                         </div>
                     </div>
 

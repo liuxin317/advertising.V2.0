@@ -41,7 +41,7 @@ class Advertising extends Component {
     }],
     mode: 200, // 广告版位渠道类型（200、通用，201、选择渠道）
     dataType: 500, // 流量类型（500、移动WAP，501、APP）
-    sex: 1, // 性别(1、男，2、女)
+    sex: '', // 性别(1、男，2、女)
     fileList: [], // 上传列表
     offLinePerson: '', // 文件上传成功后返回地址离线人群包
     blackWhiteList: [{ // 黑白名单
@@ -86,17 +86,21 @@ class Advertising extends Component {
     channelsList: [], // 渠道列表
     adPos: '', // 获取广告版位ids
     dataSource: [], // 广告版位列表
+    putType: 1, // 投放类型（1、均匀；2、加速）
   }
 
   componentDidMount () {
     this.getChannels()
-    this.getPos()
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.one) {
       Store.dispatch({ type: Type.AD_CEATE_ONE, payload: { adCreateOne: true } });
     }
+  }
+
+  componentWillUnmount () {
+    Store.dispatch({ type: Type.AD_CEATE_ONE, payload: { adCreateOne: false } });
   }
 
   // 切换广告版位客户端
@@ -131,6 +135,10 @@ class Advertising extends Component {
     obj[name] = checkedValues.join(',')
     this.setState({
       ...obj
+    }, () => {
+      if (name === 'channelGather') {
+        this.getPos()
+      }
     })
   }
 
@@ -142,9 +150,9 @@ class Advertising extends Component {
   }
 
   // 监听性别类型
-  onChangeSex = (e) => {
+  onChangeSex = (checkedValues) => {
     this.setState({
-      sex: e.target.value
+      sex: checkedValues.join(',')
     })
   }
 
@@ -366,9 +374,9 @@ class Advertising extends Component {
     } else if (conditionalClick.is) {
       message.warning(conditionalClick.message)
     } else {
-      const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather } = this.state;
+      const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather, putType } = this.state;
 
-      let passParent = {name, openUrl, viewControl, clickControl, client: position, putChannel: mode, adFormat: advertGather, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime};
+      let passParent = {name, openUrl, viewControl, clickControl, client: position, putChannel: mode, adFormat: advertGather, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, putType};
 
       let obj = {};
 
@@ -399,14 +407,14 @@ class Advertising extends Component {
   // 监听展示监听和点击监听的规格
   blurDetectionText = (type, e) => {
     let val = e.target.value.trim();
-    let num = val.match(/(,|，)/g) ? val.match(/(,|，)/g).length : 0;
+    let num = val.match(/(\n)/g) ? val.match(/(\n)/g).length : 0;
     let conditional = {};
 
-    if (num > 2) {
+    if (num > 8) {
       conditional.is = true;
-      conditional.message = `${type}最多填写三条，并以逗号隔开`;
+      conditional.message = `${type}最多支持填写9条，换行分隔`;
 
-      message.warning(`${type}最多填写三条，并以逗号隔开`)
+      message.warning(`${type}最多支持填写9条，换行分隔`)
     } else {
       conditional.is = false;
       conditional.message = '';
@@ -421,15 +429,26 @@ class Advertising extends Component {
 
   // 获取广告版位接口
   getPos = () => {
-    HttpRequest("/plan/pos", "POST", {}, res => {
+    const { channelGather } = this.state;
+
+    HttpRequest("/plan/selPosList", "POST", {
+      channelIds: channelGather
+    }, res => {
       this.setState({
         dataSource: res.data
       })
     })
   }
 
+  // 投放类型选择
+  onChangeLaunchType = (e) => {
+    this.setState({
+      putType: e.target.value
+    })
+  }
+
   render () {
-    const { advertPosition, mode, position, dataType, sex, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList, isClickNext, dataSource } = this.state;
+    const { advertPosition, mode, position, dataType, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList, isClickNext, dataSource, putType } = this.state;
     const { one, two } = this.props;
     
     const props = {
@@ -499,7 +518,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">展示监听：</label>
             <div className="input-group">
-              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "viewControl") } onBlur={this.blurDetectionText.bind(this, "展示监听")} disabled={ isClickNext } placeholder="最多支持填写三条，以逗号分隔" />
+              <TextArea rows={5} onChange={ this.onchangeInput.bind(this, "viewControl") } onBlur={this.blurDetectionText.bind(this, "展示监听")} disabled={ isClickNext } placeholder="最多支持填写9条，换行分隔" />
             </div>
           </div>
 
@@ -507,7 +526,7 @@ class Advertising extends Component {
           <div className="create-group">
             <label className="name" htmlFor="name">点击监听：</label>
             <div className="input-group">
-              <TextArea rows={3} onChange={ this.onchangeInput.bind(this, "clickControl") } onBlur={this.blurDetectionText.bind(this, "点击监听")} disabled={ isClickNext } placeholder="最多支持填写三条，以逗号分隔" />
+              <TextArea rows={5} onChange={ this.onchangeInput.bind(this, "clickControl") } onBlur={this.blurDetectionText.bind(this, "点击监听")} disabled={ isClickNext } placeholder="最多支持填写9条，换行分隔" />
             </div>
           </div>
         </div>
@@ -589,6 +608,19 @@ class Advertising extends Component {
               </RadioGroup>
             </div>
           </div>
+
+          {/* 投放控制 */}
+          <div className="create-group" style={{ marginLeft: 30 }}>
+            <label className="name" htmlFor="name" style={{ width: 'auto' }}>投放控制：</label>
+            <div className="input-group">
+              <div className="channel-type launch-type">
+                <RadioGroup disabled={isClickNext} onChange={this.onChangeLaunchType} value={putType}>
+                  <Radio value={1}>均匀投放</Radio>
+                  <Radio value={2}>加速投放</Radio>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
           
           <div className="create-group" style={{ marginLeft: 30 }}>
             <Collapse bordered={false} defaultActiveKey={['1','2','3','4','5']}>
@@ -599,10 +631,12 @@ class Advertising extends Component {
                   <div className="create-group">
                     <label className="name" htmlFor="name" style={{ width: 'auto' }}>性别：</label>
                     <div className="input-group">
-                      <RadioGroup disabled={ isClickNext } onChange={this.onChangeSex} value={sex}>
-                        <Radio value={1}>男</Radio>
-                        <Radio value={2}>女</Radio>
-                      </RadioGroup>
+                      <Checkbox.Group disabled={ isClickNext } style={{ width: '100%' }} onChange={this.onChangeSex}>
+                        <Row className="age-row">
+                          <Col span={3}><Checkbox value={1}>男</Checkbox></Col>
+                          <Col span={3}><Checkbox value={2}>女</Checkbox></Col>
+                        </Row>
+                      </Checkbox.Group>
                     </div>
                   </div>
 

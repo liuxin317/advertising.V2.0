@@ -19,7 +19,7 @@ class MenuBar extends Component {
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.adCreateOne || nextProps.adCreateTwo) {
-        this.windowScroll()
+      this.windowScroll()
     }
   }
 
@@ -30,7 +30,7 @@ class MenuBar extends Component {
   // scroll事件
   windowScroll = () => {
     let $ = (e) => document.querySelector(e);
-    let monitorScrTops = [$("#selected_plan").offsetTop, $("#land_page").offsetTop, $("#ad_layout").offsetTop, $("#directional").offsetTop, $("#frequency").offsetTop, $("#bid").offsetTop, $("#originality").offsetTop];
+    let monitorScrTops = $("#selected_plan") ? [$("#selected_plan").offsetTop, $("#land_page").offsetTop, $("#ad_layout").offsetTop, $("#directional").offsetTop, $("#frequency").offsetTop, $("#bid").offsetTop, $("#originality").offsetTop] : '';
 
     // 监听竖向滚动条
     window.onscroll = () => {

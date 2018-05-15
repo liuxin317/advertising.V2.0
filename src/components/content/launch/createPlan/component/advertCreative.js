@@ -55,9 +55,13 @@ class AdvertCreative extends Component {
     let deepCreativeList= JSON.parse(JSON.stringify(creativeList));
     const len = creativeList.length;
 
+    deepCreativeList.forEach(item => {
+      item.active = false
+    })
+
     let obj = {
       url: "",
-      active: false
+      active: true
     }
     
     obj.name = `创意${len + 1}`
@@ -66,7 +70,8 @@ class AdvertCreative extends Component {
     deepCreativeList.push(obj)
 
     this.setState({
-      creativeList: deepCreativeList
+      creativeList: deepCreativeList,
+      creativeID: obj.id
     })
   }
 

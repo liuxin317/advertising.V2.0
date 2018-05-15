@@ -33,6 +33,8 @@ class Launch extends Component {
     name: '', // 查询名称
     searchListName: 'planList', // 根据切换更改接口地址名称
     nowKey: '1', // 当前所在tabs
+    visible: false, // 查看广告信息弹窗显示状态
+    adRowData: '', // 当前广告数据
   }
 
   componentDidMount () {
@@ -231,14 +233,42 @@ class Launch extends Component {
     })
   }
 
+  // 打开弹窗
+  openAdModal = (data) => {
+    this.setState({
+      visible: true,
+      adRowData: data
+    }, () => {
+      this.selAd()
+    })
+  }
+
+  // 查看单个广告
+  selAd = () => {
+    const { adRowData } = this.state;
+
+    HttpRequest("/plan/selAd", "POST", {
+      id: adRowData.id
+    }, res => {
+
+    })
+  }
+
+  // 关闭弹窗
+  handleCancel = () => {
+    this.setState({
+      visible: false
+    })
+  }
+
   render () {
-    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys, nowKey} = this.state;
-    const columns = [{
+    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys, nowKey, visible} = this.state;
+    let columns = [{
       title: `${String(nowKey) === "1" ? '计划名称' : '广告主名称'}`,
       dataIndex: 'name',
     }, {
       title: '计划ID',
-      dataIndex: 'id',
+      dataIndex: `${String(nowKey) === "1" ? 'id' : 'planId'}`,
     }, {
       title: '展示',
       dataIndex: 'channelId',
@@ -297,6 +327,17 @@ class Launch extends Component {
         return <span>{ String(nowKey) === "1" ? record.dayMoney : record.money }</span>
       }
     }];
+
+    if (String(nowKey) !== "1") {
+      let obj = {
+        title: '操作',
+        render: (text, record) => {
+          return <a onClick={this.openAdModal.bind(this, record)}>查看</a>
+        }
+      }
+
+      columns.push(obj)
+    }
 
     // 批量表格
     const rowSelection = {
@@ -425,6 +466,15 @@ class Launch extends Component {
             </TabPane>
           </Tabs>
         </div>
+
+        {/* 查看单个广告信息 */}
+        <Modal
+          title="查看广告信息"
+          visible={visible}
+          onCancel={this.handleCancel}
+        >
+          
+        </Modal>
       </section>
     )
   }
