@@ -216,7 +216,6 @@ class NewAdvertiser extends Component {
     onChangeInputNumber = (name, value) => {
         let obj = {};
         obj[name] = value
-        console.log(name, value)
 
         this.setState({
             ...obj

@@ -80,6 +80,9 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
             return false;
         } else if (String(data.code) === "403") {
             message.error('禁止访问');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500)
             return false;
         } else if (String(data.code) === "501") { // 参数错误
             let messages = [];

@@ -3,10 +3,13 @@ import { Button, Tabs, Select, Table, Modal, message, Input, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import Customer from '@/components/common/customer';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
 
 class Launch extends Component {
   state = {
@@ -328,15 +331,25 @@ class Launch extends Component {
       }
     }];
 
-    if (String(nowKey) !== "1") {
+    if (String(nowKey) !== "1") { // 广告
       let obj = {
-        title: '操作',
+        title: '编辑',
         render: (text, record) => {
-          return <a onClick={this.openAdModal.bind(this, record)}>查看</a>
+          return <a onClick={this.openAdModal.bind(this, record)}>编辑</a>
         }
       }
 
       columns.push(obj)
+      if (menus.indexOf('150') <= -1) { // 操作权限
+        columns.splice(-4, 1)
+      }
+      if (menus.indexOf('151') <= -1) { // 操作权限
+        columns.splice((columns.length - 1), 1)
+      }
+    } else { // 广告计划
+      if (menus.indexOf('144') <= -1) { // 操作权限
+        columns.splice(-3, 1)
+      }
     }
 
     // 批量表格
@@ -358,7 +371,13 @@ class Launch extends Component {
         <div className="content-top">
           <h4>投放管理</h4>
           <div className="launch-top-button">
-            <Link to="/content/create-plan"><Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button></Link>
+            {
+              menus.indexOf('140') > -1
+              ?
+              <Link to="/content/create-plan"><Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button></Link>
+              :
+              ''
+            }
           </div>
         </div>
 
@@ -370,9 +389,27 @@ class Launch extends Component {
                 ?
                 <div className="plan-examine">
                   <div className="operation-row">
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
+                    {
+                      menus.indexOf('141') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
+                      :
+                      ''
+                    }
+                    {
+                      menus.indexOf('142') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
+                      :
+                      ''
+                    }
+                    {
+                      menus.indexOf('143') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
+                      :
+                      ''
+                    }
                   </div>
 
                   <div className="table-box">
@@ -420,9 +457,27 @@ class Launch extends Component {
                 ?
                 <div className="plan-examine">
                   <div className="operation-row">
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
-                    <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
+                    {
+                      menus.indexOf('147') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 1) }>批量开启投放</a>
+                      :
+                      ''
+                    }
+                    {
+                      menus.indexOf('148') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 2) }>批量暂停投放</a>
+                      :
+                      ''
+                    }
+                    {
+                      menus.indexOf('149') > -1
+                      ?
+                      <a onClick={ this.showBatchDeleteModal.bind(this, 3) }>批量删除</a>
+                      :
+                      ''
+                    }
                   </div>
 
                   <div className="table-box">

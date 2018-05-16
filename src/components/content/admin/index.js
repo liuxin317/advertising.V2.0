@@ -39,6 +39,18 @@ const LPRegulation = loadable({
   loading: PreLoading
 })
 
+// 账户管理
+const Account = loadable({
+  loader: () => import('./account'),
+  loading: PreLoading
+})
+
+// 账户管理新建编辑
+const NewEdit = loadable({
+  loader: () => import('./account/newEdit'),
+  loading: PreLoading
+})
+
 class Admin extends Component {
   render () {
     const { match } = this.props;
@@ -51,6 +63,8 @@ class Admin extends Component {
         <Route path={`${ match.path }/new-edit-ad/:state`} component={ NewEditAd } />
         <Route path={`${ match.path }/priority`} component={ Priority } />
         <Route path={`${ match.path }/regulation`} component={ LPRegulation } />
+        <Route path={`${ match.path }/account`} component={ Account } />
+        <Route path={`${ match.path }/account-new-edit/:state`} component={ NewEdit } />
       </section>
     )
   }

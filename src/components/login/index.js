@@ -115,7 +115,6 @@ class Login extends Component {
   }
 
   componentDidMount () {
-    removeCookie('userInfo');
     canvas = document.getElementById('canvas');
 		canvas.width = WINDOW_WIDTH;
 		canvas.height = WINDOW_HEIGHT;
@@ -141,6 +140,7 @@ class Login extends Component {
           password: password.trim()
         }, res => {
           message.success("登陆成功！");
+          removeCookie('userInfo');
           res.data.userId = -1;
           setCookie("userInfo", JSON.stringify(res.data)); // 存取用户信息
           this.setState({ isLogin: true }); // 跳转页面
