@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import { Button, Input, Table, Modal, message } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
 const confirm = Modal.confirm;
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
 
 class AdPositionId extends Component {
   state = {
@@ -103,7 +106,7 @@ class AdPositionId extends Component {
 
   render () {
     const { pageNum, pageSize, total, adPositionList } = this.state;
-    const columns = [{
+    let columns = [{
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
@@ -138,20 +141,48 @@ class AdPositionId extends Component {
         var path = `/content/admin/new-edit-ad/${record.id}`;
         return (
           <div className="operation">
-            <Link to={path}>编辑</Link>
-            <a style={{ margin: '0 10px' }} onClick={ this.showConfirm.bind(this, 2, record) }>{ record.state === 0 ? '启用' : '禁用' }</a>
-            <a onClick={ this.showConfirm.bind(this, 1, record) }>删除</a>
+            {
+              menus.indexOf('162') > -1
+              ?
+              <Link to={path}>编辑</Link>
+              :
+              ''
+            }
+            {
+              menus.indexOf('163') > -1
+              ?
+              <a style={{ margin: '0 10px' }} onClick={ this.showConfirm.bind(this, 2, record) }>{ record.state === 0 ? '启用' : '禁用' }</a>
+              :
+              ''
+            }
+            {
+              menus.indexOf('164') > -1
+              ?
+              <a onClick={ this.showConfirm.bind(this, 1, record) }>删除</a>
+              :
+              ''
+            }
           </div>
         )
       }
     }];
+
+    if (menus.indexOf('162') === -1 && menus.indexOf('163') === -1 && menus.indexOf('164') === -1) {
+      columns.splice((columns.length -1), 1)
+    }
 
     return (
       <section className="adPosition-box">
         <div className="content-top">
           <h4>广告位管理</h4>
           <div className="launch-top-button">
-            <Link to="/content/admin/new-edit-ad/new"><Button type="primary">新建广告位</Button></Link>
+            {
+              menus.indexOf('161') > -1
+              ?
+              <Link to="/content/admin/new-edit-ad/new"><Button type="primary">新建广告位</Button></Link>
+              :
+              ''
+            }
           </div>
         </div>
 

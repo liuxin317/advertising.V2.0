@@ -2,9 +2,13 @@ import React, { Component } from 'react';
 import { Button, Input, Table } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
-const columns = [{
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
+
+let columns = [{
   title: 'ID',
   dataIndex: 'id',
   key: 'id',
@@ -39,6 +43,10 @@ const columns = [{
     return <div><Link to={path}>编辑</Link></div>
   }
 }];
+
+if (menus.indexOf('160') === -1) {
+  columns.splice((columns.length -1), 1)
+}
 
 class Advertiser extends Component {
   state = {
@@ -86,7 +94,13 @@ class Advertiser extends Component {
         <div className="content-top">
           <h4>广告主管理</h4>
           <div className="launch-top-button">
-            <Link to="/content/admin/advertiser-new-edit/new"><Button type="primary">新建广告主</Button></Link>
+            {
+              menus.indexOf('159') > -1
+              ?
+              <Link to="/content/admin/advertiser-new-edit/new"><Button type="primary">新建广告主</Button></Link>
+              :
+              ''
+            }
           </div>
         </div>
 

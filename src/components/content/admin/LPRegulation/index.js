@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { Select, Button, InputNumber, message, Modal, Radio } from 'antd';
 import HttpRequest from '@/utils/fetch';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
 
 class LPRegulation extends Component {
   state = {
@@ -189,7 +192,13 @@ class LPRegulation extends Component {
                 </div>
               </div>
 
-              <Button style={{ width: 120, marginTop: 20 }} onClick={this.openEditModal}>编辑</Button>
+              {
+                menus.indexOf('166') > -1
+                ?
+                <Button style={{ width: 120, marginTop: 20 }} onClick={this.openEditModal}>编辑</Button>
+                :
+                ''
+              }
             </div>
             :
             <p style={{ marginTop: 50, textAlign: 'center' }}>无数据</p>

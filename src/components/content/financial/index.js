@@ -3,7 +3,11 @@ import { Table, InputNumber, Modal, message } from 'antd';
 import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import Customer from '@/components/common/customer';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
+
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
 
 class Financial extends Component {
   state = {
@@ -112,7 +116,7 @@ class Financial extends Component {
 
   render () {
     const { channelMoneyList, rowData, dayLimit, depositMoney } = this.state;
-    const columns = [{
+    let columns = [{
       title: '渠道',
       dataIndex: 'name',
       key: 'name',
@@ -124,7 +128,13 @@ class Financial extends Component {
         return (
           <div className="operation">
             <span>{text}</span>
-            <a style={{ marginLeft: 10 }} onClick={this.openDayLimitModal.bind(this, record, "visible")}>编辑</a>
+            {
+              menus.indexOf('153') > -1
+              ?
+              <a style={{ marginLeft: 10 }} onClick={this.openDayLimitModal.bind(this, record, "visible")}>编辑</a>
+              :
+              ''
+            }
           </div>
         )
       }
@@ -137,12 +147,28 @@ class Financial extends Component {
       render: (text, record) => {
         return (
           <div className="operation">
-            <a style={{ marginRight: 10 }} onClick={this.openDayLimitModal.bind(this, record, "depositVisible")}>划账</a>
-            <Link to={`/content/financial-record/${record.id}/${record.name}`}>财务记录</Link>
+            {
+              menus.indexOf('152') > -1
+              ?
+              <a style={{ marginRight: 10 }} onClick={this.openDayLimitModal.bind(this, record, "depositVisible")}>划账</a>
+              :
+              ''
+            }
+            {
+              menus.indexOf('154') > -1
+              ?
+              <Link to={`/content/financial-record/${record.id}/${record.name}`}>财务记录</Link>
+              :
+              ''
+            }
           </div>
         )
       }
     }];
+
+    if (menus.indexOf('152') === -1 && menus.indexOf('154') === -1) {
+      columns.splice((columns.length -1), 1)
+    }
 
     return (
       <section className="content-box financial-box">

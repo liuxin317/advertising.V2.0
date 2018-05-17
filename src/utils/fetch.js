@@ -54,6 +54,7 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
     fetch(url, {
         method,
         headers: {
+            'Accept': 'text/plain;charset=UTF-8',
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         mode: "no-cors", // 允许跨域
@@ -84,6 +85,8 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
                 window.location.href = '/';
             }, 500)
             return false;
+        } else if (String(data.code) === "508") {
+            message.error('该账号已被禁用');
         } else if (String(data.code) === "501") { // 参数错误
             let messages = [];
 

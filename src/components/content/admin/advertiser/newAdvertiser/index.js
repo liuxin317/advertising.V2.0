@@ -46,7 +46,7 @@ class NewAdvertiser extends Component {
         const { match } = this.props;
 
         this.getQueryIndustrys()
-        this.getQueryAms()
+        // this.getQueryAms()
 
         if (match.params) {
             let isNowEdit = '';
@@ -269,7 +269,7 @@ class NewAdvertiser extends Component {
                 this.setState({
                     redirect: true
                 })
-            }, 1000)
+            }, 600)
         })
     }
 

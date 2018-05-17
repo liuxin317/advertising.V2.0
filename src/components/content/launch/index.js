@@ -343,7 +343,7 @@ class Launch extends Component {
       if (menus.indexOf('150') <= -1) { // 操作权限
         columns.splice(-4, 1)
       }
-      if (menus.indexOf('151') <= -1) { // 操作权限
+      if (menus.indexOf('151') <= -1) { // 编辑权限
         columns.splice((columns.length - 1), 1)
       }
     } else { // 广告计划
@@ -482,7 +482,7 @@ class Launch extends Component {
 
                   <div className="table-box">
                     <div className="table-top">
-                      <h5>详细数据 <span style={{marginLeft: 20}}>每日预算：500</span></h5>
+                      <h5>详细数据 {/* <span style={{marginLeft: 20}}>每日预算：500</span> */}</h5>
 
                       <div className="search-condition">
                         <Select

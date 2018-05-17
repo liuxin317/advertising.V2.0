@@ -170,7 +170,7 @@ class NewEditAd extends Component {
           this.setState({
             redirect: true
           })
-        }, 1000)
+        }, 600)
       })
     }
 

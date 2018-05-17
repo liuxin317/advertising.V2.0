@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { Select, Button, Table, Icon, InputNumber, message } from 'antd';
 import HttpRequest from '@/utils/fetch';
+import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
 const Option = Select.Option;
+const userInfo = getCookie('userInfo') ? JSON.parse(getCookie('userInfo')) : '';
+const menus = userInfo.menus;
 
 class Priority extends Component {
 
@@ -211,13 +214,17 @@ class Priority extends Component {
       dataIndex: 'weight',
       key: 'weight',
       render: (text, record) => {
-        return (
-          <div className="weight-box">
-            <Icon className="icon" onClick={this.reduceWeight.bind(this, record)} type="minus-circle" />
-            <InputNumber className="input-number" min={0} max={100} value={text} onChange={this.onChangeInputNumber.bind(this, record)} />
-            <Icon className="icon" onClick={this.addWeight.bind(this, record)} type="plus-circle" />
-          </div>
-        )
+        if (menus.indexOf('165') > -1) {
+          return (
+            <div className="weight-box">
+              <Icon className="icon" onClick={this.reduceWeight.bind(this, record)} type="minus-circle" />
+              <InputNumber className="input-number" min={0} max={100} value={text} onChange={this.onChangeInputNumber.bind(this, record)} />
+              <Icon className="icon" onClick={this.addWeight.bind(this, record)} type="plus-circle" />
+            </div>
+          )
+        } else {
+          return <span>{text}</span>
+        }
       }
     }]
 
