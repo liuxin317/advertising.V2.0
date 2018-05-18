@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Tabs, Select, Table, Modal, message, Input, Icon } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import Customer from '@/components/common/customer';
 import { getCookie } from '@/components/common/methods';
@@ -38,6 +38,7 @@ class Launch extends Component {
     nowKey: '1', // 当前所在tabs
     visible: false, // 查看广告信息弹窗显示状态
     adRowData: '', // 当前广告数据
+    isCreate: false, // 跳转创建界面
   }
 
   componentDidMount () {
@@ -178,16 +179,13 @@ class Launch extends Component {
 
   // 切换创建状态
   switchCreateStatus = () => {
-    this.setState({
-      isCreate: true
-    })
-  }
-
-  // 返回列表视图
-  backListView = () =>{
-    this.setState({
-      isCreate: false
-    })
+    if (userInfo.userId === -1) {
+      message.warning('请选择一位客户！')
+    } else {
+      this.setState({
+        isCreate: true
+      })
+    }
   }
 
   // 批量修改状态
@@ -265,7 +263,7 @@ class Launch extends Component {
   }
 
   render () {
-    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys, nowKey, visible} = this.state;
+    const {putInStatus, planList, pageNum, pageSize, total, selectedRowKeys, nowKey, visible, isCreate} = this.state;
     let columns = [{
       title: `${String(nowKey) === "1" ? '计划名称' : '广告主名称'}`,
       dataIndex: 'name',
@@ -331,6 +329,10 @@ class Launch extends Component {
       }
     }];
 
+    if (isCreate) {
+      return <Redirect push to="/content/create-plan" />
+    }
+
     if (String(nowKey) !== "1") { // 广告
       let obj = {
         title: '编辑',
@@ -374,7 +376,7 @@ class Launch extends Component {
             {
               menus.indexOf('140') > -1
               ?
-              <Link to="/content/create-plan"><Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button></Link>
+              <Button type="primary" onClick={ this.switchCreateStatus }>创建新广告</Button>
               :
               ''
             }

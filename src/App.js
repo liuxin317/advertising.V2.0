@@ -16,10 +16,4 @@ class App extends Component {
   }
 }
 
-// const mapDispatchToProps = (dispatch) => {
-//   return {
-//     hideLoadClick: () => { dispatch({ type: Type.LOAD_STATE, payload: { loading: false } }) }
-//   }
-// }
-
 export default App;

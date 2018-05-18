@@ -17,6 +17,7 @@ class Financial extends Component {
     dayLimit: "", // 当前日限额
     depositVisible: false, // 划账弹窗显示状态
     depositMoney: '', // 当前划账金额
+    balanceList: [], // 余额去重累加
   }
 
   componentDidMount () {
@@ -26,8 +27,43 @@ class Financial extends Component {
   // 获取渠道列表
   getChannelMoneyList = () => {
     HttpRequest("/sys/channelMoneyList", "POST", {}, res => {
+      let balanceList = [];
+
+      res.data.forEach((item, index) => {
+        item.id = index;
+
+        if (userInfo.userId === -1) { // 查询全部需要去重合并
+          let obj = {};
+          let num = 0;
+
+          if (!balanceList.length) {
+            obj.channelId = item.channelId;
+            obj.name = item.name;
+            obj.money = item.money;
+          } else {
+            balanceList.forEach(data => {
+              if (data.channelId === item.channelId) {
+                data.money += item.money
+                num++
+              }
+            })
+
+            if (num === 0) {
+              obj.channelId = item.channelId;
+              obj.name = item.name;
+              obj.money = item.money;
+            }
+          }
+
+          if (obj.name) {
+            balanceList.push(obj)
+          }
+        }
+      })
+      
       this.setState({
-        channelMoneyList: res.data
+        channelMoneyList: res.data,
+        balanceList
       })
     })
   }
@@ -56,8 +92,8 @@ class Financial extends Component {
     } else {
       HttpRequest("/sys/updateDayLimit", "POST", {
         dayLimit,
-        channelId: rowData.id,
-        id: rowData.userChannelId
+        channelId: rowData.channelId,
+        userChannelId: rowData.userChannelId
       }, res => {
         message.success('修改成功！')
         this.setState({
@@ -101,8 +137,8 @@ class Financial extends Component {
     }else {
       HttpRequest("/sys/splitMoney", "POST", {
         money: depositMoney,
-        channelId: rowData.id,
-        id: rowData.userChannelId
+        channelId: rowData.channelId,
+        userChannelId: rowData.userChannelId
       }, res => {
         message.success('转账成功！')
         this.setState({
@@ -115,8 +151,13 @@ class Financial extends Component {
   }
 
   render () {
-    const { channelMoneyList, rowData, dayLimit, depositMoney } = this.state;
+    const { channelMoneyList, rowData, dayLimit, depositMoney, balanceList } = this.state;
+    let channelBalanceList = channelMoneyList;
     let columns = [{
+      title: '客户ID',
+      dataIndex: 'userId',
+      key: 'userId',
+    }, {
       title: '渠道',
       dataIndex: 'name',
       key: 'name',
@@ -157,7 +198,7 @@ class Financial extends Component {
             {
               menus.indexOf('154') > -1
               ?
-              <Link to={`/content/financial-record/${record.id}/${record.name}`}>财务记录</Link>
+              <Link to={encodeURI(`/content/financial-record/${record.userChannelId}/${record.name}`)}>财务记录</Link>
               :
               ''
             }
@@ -168,6 +209,10 @@ class Financial extends Component {
 
     if (menus.indexOf('152') === -1 && menus.indexOf('154') === -1) {
       columns.splice((columns.length -1), 1)
+    }
+
+    if (userInfo.userId === -1) {
+      channelBalanceList = balanceList
     }
 
     return (
@@ -184,9 +229,9 @@ class Financial extends Component {
 
           <ul className="list-box">
             {
-              channelMoneyList.map(item => {
+              channelBalanceList.map(item => {
                 return (
-                  <li key={item.id}>
+                  <li key={item.channelId}>
                     <p className="money"><em>{item.money}</em>元</p>
                     <p className="title">{item.name}</p>
                   </li>
@@ -198,7 +243,7 @@ class Financial extends Component {
 
         <div className="table-box">
             <Table 
-              rowKey={(record, index) => index}
+              rowKey={record => record.id}
               columns={columns} 
               dataSource={channelMoneyList} 
               pagination={false}

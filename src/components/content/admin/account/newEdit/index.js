@@ -123,12 +123,12 @@ class NewEdit extends Component {
     return data.map((item) => {
       if (item.menus) {
         return (
-          <TreeNode title={item.name} key={item.id} dataRef={item}>
+          <TreeNode selectable={false} title={item.name} key={item.id} dataRef={item}>
             {this.renderTreeNodes(item.menus)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} />;
+      return <TreeNode {...item} selectable={false} />;
     });
   }
 

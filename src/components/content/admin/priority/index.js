@@ -151,7 +151,9 @@ class Priority extends Component {
 
   // 监听数字框
   onChangeInputNumber = (data, value) => {
-    if (value > 100 || value < 0 || !value) {
+    if (value === undefined || value === null || value === '') {
+      return false;
+    }else if (value > 100 || value < 0) {
       message.warning("权重区间0-100！")
     } else {
       const { userPosList, posId } = this.state;

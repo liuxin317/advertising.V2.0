@@ -4,15 +4,13 @@ import { Link } from 'react-router-dom';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
+// console.log(moment('2018-05-16').format('X'))
 // const dateFormat = 'YYYY-MM-DD HH:mm:ss',import moment from 'moment';
 const { RangePicker } = DatePicker;
 const columns = [{
   title: "日期",
-  key: 'days',
-  dataIndex: 'days',
-  render: (text, record) => {
-    return <span>{record.days ? record.days : record.days2}</span>
-  }
+  key: 'time',
+  dataIndex: 'time'
 }, {
   title: "存入（元）",
   key: 'inMoney',
@@ -40,8 +38,8 @@ class Record extends Component {
   // 时间选择框监听
   onChangeDate = (date, dateString) => {
     this.setState({
-      startTime: dateString[0] ? `${dateString[0]} 00:00:00` : '',
-      endTime: dateString[1] ? `${dateString[1]} 23:59:59` : ''
+      startTime: dateString[0] ? `${dateString[0]}` : '',
+      endTime: dateString[1] ? `${dateString[1]}` : ''
     })
   }
 
@@ -51,7 +49,7 @@ class Record extends Component {
     const { pageSize, pageNum, startTime, endTime } = this.state;
 
     HttpRequest("/sys/selectLogs", "POST", {
-      channelId: match.params.id,
+      userChannelId: match.params.id,
       pageSize,
       pageNum,
       startTime,

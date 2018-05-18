@@ -70,23 +70,6 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
         if (String(data.code) === "200") {
             successBack && successBack(data);
             return false;
-        } else if (String(data.code) === "401") {
-            message.warning('登录失效，请重新登录');
-            return false;
-        } if (String(data.code) === "404") {
-            message.error('资源未找到');
-            return false;
-        } else if (String(data.code) === "500")  {
-            message.error('服务器内部错误');
-            return false;
-        } else if (String(data.code) === "403") {
-            message.error('禁止访问');
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 500)
-            return false;
-        } else if (String(data.code) === "508") {
-            message.error('该账号已被禁用');
         } else if (String(data.code) === "501") { // 参数错误
             let messages = [];
 
@@ -104,8 +87,17 @@ function httpRequest (url, method, params, successBack, errorBack = null) {
                 message.warning(messages.join(','));
             }
             return false;
+        } else if (String(data.code) === "403") { // 禁止访问
+            message.warning('禁止访问');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 600)
         } else {
-            message.error("错误！");
+            for (let key in serverGoBackInfo) {
+                if (String(data.code) === String(key)) {
+                    message.warning(serverGoBackInfo[key])
+                }
+            }
         }
     })
     .catch(error => {
