@@ -25,6 +25,7 @@ class CreatePlan extends Component {
     one: false, // 广告计划下一步状态
     two: false, // 广告下一步
     redirect: false, // 创建成功状态
+    selectedRows: "", // 关联广告位
   }
 
   componentDidMount () {
@@ -45,10 +46,11 @@ class CreatePlan extends Component {
   }
 
   // 获取广告板块的数据集合
-  getAdvertData = (data) => {
+  getAdvertData = (data, selectedRows) => {
     console.log(data)
     this.setState({
       advertData: data,
+      selectedRows,
       two: true
     })
   }
@@ -66,10 +68,17 @@ class CreatePlan extends Component {
   // 提交创建
   addAd = () => {
     const { plan, advertData, originalitys } = this.state;
-    let obj = Object.assign({}, plan, advertData, {originalitys});
+    let obj = Object.assign({}, plan, advertData);
+
+    originalitys.forEach((item, index) => {
+      delete originalitys[index]['type']
+    })
+
+    console.log(originalitys)
     
     HttpRequest("/plan/addAdp", "POST",{
-      ad: JSON.stringify(obj)
+      ad: JSON.stringify(obj),
+      maJson: JSON.stringify(originalitys)
     }, res => {
       message.success('创建成功！')
       setTimeout(() => {
@@ -81,7 +90,7 @@ class CreatePlan extends Component {
   }
 
   render () {
-    const { one, two, redirect } = this.state;
+    const { one, two, redirect, selectedRows } = this.state;
 
     if (redirect) {
       return <Redirect push to="/content/launch" />
@@ -96,7 +105,7 @@ class CreatePlan extends Component {
         <Advertising one={ one } two={ two } getAdvertData={ this.getAdvertData } />
  
         {/* 广告创意 */}
-        <AdvertCreative two={ two } getOriginalitys={ this.getOriginalitys } />
+        <AdvertCreative two={ two } getOriginalitys={ this.getOriginalitys } selectedRows={selectedRows} />
       </section>
     )
   }

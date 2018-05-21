@@ -1,15 +1,19 @@
 .creative-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   .left {
-    width: 500px;
-    min-height: 200px;
+    width: 400px;
     margin-top: 10px;
+
+    .ant-upload.ant-upload-drag {
+      padding: 20px 0;
+      margin-bottom: 30px;
+    }
   }
 
   .right {
-    margin-left: 50px;
+    margin: 50px 0 0 50px;
     
     .sc-btn {
       height: 40px;

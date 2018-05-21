@@ -3,6 +3,7 @@ import { Button, Icon, message } from 'antd';
 import { Link } from 'react-router-dom';
 import Store from '@/store';
 import Type from '@/action/Type';
+import HttpRequest from '@/utils/fetch.js';
 // 上传创意
 import CreativeUpload from './creativeUpload';
 
@@ -15,6 +16,7 @@ class AdvertCreative extends Component {
       active: true
     }],
     creativeID: 1, // 当前创意ID 
+    dataSource: [], // 广告位列表
   }
 
   componentWillReceiveProps (nextProps) {
@@ -27,7 +29,29 @@ class AdvertCreative extends Component {
       if (winH > adCreativeH) {
         document.querySelector('.create-plan').style.paddingBottom = (winH - adCreativeH + 30) + 'px';
       }
+      // this.selMaterials()
     }
+    
+    if (this.props.selectedRows !== nextProps.selectedRows) {
+      if (nextProps.selectedRows.length) {
+        this.setState({
+          dataSource: nextProps.selectedRows
+        })
+      } else {
+        this.getPos()
+      }
+    }
+  }
+
+  // 获取广告版位接口
+  getPos = () => {
+    HttpRequest("/plan/selPosList", "POST", {
+      channelIds: ''
+    }, res => {
+      this.setState({
+        dataSource: res.data
+      })
+    })
   }
 
   // 切换黑白名单
@@ -105,19 +129,19 @@ class AdvertCreative extends Component {
     })
 
     arr.forEach(item => {
-      if (!item.creativeImgs.length) {
+      if (!item.url === '') {
         message.warning(`请上传创意${item.type}的创意！`)
         num++
         return false
-      } else if (!item.headPortrait) {
+      } else if (!item.logo) {
         message.warning(`请上传创意${item.type}的头像！`)
         num++
         return false
-      } else if (!item.copyWrite) {
+      } else if (!item.text) {
         message.warning(`请填写创意${item.type}的广告文案！`)
         num++
         return false
-      } else if (!item.description) {
+      } else if (!item.descs) {
         message.warning(`请填写创意${item.type}的广告描述！`)
         num++
         return false
@@ -130,9 +154,16 @@ class AdvertCreative extends Component {
     }
   }
 
+  // 获取素材库
+  selMaterials = () => {
+    HttpRequest("/plan/selMaterials", "POST", {}, res => {
+
+    })
+  }
+
   render () {
-    const { creativeList, creativeID } = this.state;
-    const { two } = this.props;
+    const { creativeList, creativeID, dataSource } = this.state;
+    const { two, selectedRows } = this.props;
 
     return (
       <section className={`create-plan__group ${ two ? '' : 'none' }`} id="ad_creative" style={{ height: 900 }}>
@@ -156,7 +187,7 @@ class AdvertCreative extends Component {
           {/* 上传创意,对应生成相应的信息填写 */}
           {
             creativeList.map(item => {
-              return <CreativeUpload ref={`creativity${item.id}`} key={item.id} type={item.id} creativeID={creativeID}  />
+              return <CreativeUpload ref={`creativity${item.id}`} key={item.id} type={item.id} creativeID={creativeID} dataSource={dataSource}  />
             })
           }
         </div>

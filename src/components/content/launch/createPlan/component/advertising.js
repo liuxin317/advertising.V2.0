@@ -87,6 +87,7 @@ class Advertising extends Component {
     adPos: '', // 获取广告版位ids
     dataSource: [], // 广告版位列表
     putType: 1, // 投放类型（1、均匀；2、加速）
+    selectedRows: [], // 勾选的广告位
   }
 
   componentDidMount () {
@@ -369,13 +370,17 @@ class Advertising extends Component {
 
   // 下一步
   nextStep = () => {
+    const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather, putType } = this.state;
+    
     if (conditionalShow.is) {
       message.warning(conditionalShow.message)
     } else if (conditionalClick.is) {
       message.warning(conditionalClick.message)
+    } else if (mode === 201 && this.state.channelGather === '') {
+      message.warning('请选择渠道！')
+    } else if (mode === 201 && this.state.adPos === '') {
+      message.warning('请选择广告位！')
     } else {
-      const {name, openUrl, viewControl, clickControl, position, mode, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, cycle, dateShowType, showNum, dateClickType, clickNum, bidWay, money, exposureNum, clickLimit, channelsList, advertGather, putType } = this.state;
-
       let passParent = {name, openUrl, viewControl, clickControl, client: position, putChannel: mode, adFormat: advertGather, dataType, sex, age, area, system, netType, netComp, offLinePerson, blackPerson, whitePerson, startTime, endTime, putTime, putType};
 
       let obj = {};
@@ -395,12 +400,12 @@ class Advertising extends Component {
 
       passParent.cycle = { type: cycle, ...obj, clickNum, showNum }
       passParent.bidSetting = { bidWay, money, exposureNum, clickLimit }
-
+      
       this.setState({
         isClickNext: true
       })
 
-      this.props.getAdvertData(passParent);
+      this.props.getAdvertData(passParent, this.state.selectedRows);
     }
   }
 
@@ -432,7 +437,7 @@ class Advertising extends Component {
     const { channelGather } = this.state;
 
     HttpRequest("/plan/selPosList", "POST", {
-      channelIds: channelGather
+      channelIds: channelGather === '' ? -1 : channelGather
     }, res => {
       this.setState({
         dataSource: res.data
@@ -447,6 +452,9 @@ class Advertising extends Component {
     })
   }
 
+  // 人群包删除
+
+
   render () {
     const { advertPosition, mode, position, dataType, blackWhiteList, modeTime, blackWhiteValue, cycle, dateShowType, dateClickType, bidWay, channelsList, isClickNext, dataSource, putType } = this.state;
     const { one, two } = this.props;
@@ -460,6 +468,11 @@ class Advertising extends Component {
       },
       headers: {
         authorization: 'authorization-text',
+      },
+      onRemove () {
+        if (isClickNext) {
+          return false
+        }
       }
     };
 
@@ -469,19 +482,20 @@ class Advertising extends Component {
       key: 'name',
     }, {
       title: '创意形式',
-      dataIndex: 'type',
-      key: 'type',
-      sorter: (a, b) => a.type.length - b.type.length
+      dataIndex: 'text',
+      key: 'text',
+      sorter: (a, b) => a.text.length - b.text.length
     }, {
       title: '描述',
-      dataIndex: 'desc',
-      key: 'desc',
+      dataIndex: 'descs',
+      key: 'descs',
     }];
 
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         this.setState({
-          adPos: selectedRowKeys.join(',')
+          adPos: selectedRowKeys.join(','),
+          selectedRows
         })
       },
       getCheckboxProps: record => ({

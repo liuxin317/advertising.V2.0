@@ -32,7 +32,6 @@ class NewEditAd extends Component {
       minMoney: '', // 出价
       state: '', // 仅编辑页面使用
       redirect: false, // 跳转状态
-      validation: false, // 验证上传
     }
 
     componentDidMount() {
@@ -234,12 +233,10 @@ class NewEditAd extends Component {
       }
       if (status === 'done') {
         if (Number(respone.code) === 200) {
-          if (this.state.validation) {
-            message.success(`${info.file.name} 上传成功！`);
-            this.setState({
-              fileList
-            })
-          }
+          message.success(`${info.file.name} 上传成功！`);
+          this.setState({
+            fileList
+          })
         } else {
           message.error(`${info.file.name} 上传失败！`);
           deepfileList.forEach((item, index) => {
@@ -281,65 +278,12 @@ class NewEditAd extends Component {
         },
         onPreview: _this.handlePreview,
         beforeUpload (file) {
-          const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+          const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png' || file.type === 'image/gif';
           if (!isJPG) {
-            message.error('请上传图片格式为JPG/JPEG!');
+            message.error('请上传图片格式为JPG/JPEG/PNG/GIF!');
           }
   
-          const isLt2M = file.size / 1024 < 100;
-          if (!isLt2M) {
-            message.error('图片大小不能超过100k');
-          }
-  
-          // 对比尺寸
-          const suffix ="." + file.name.replace(/^.+\./,'')
-          const filename = file.name.replace(suffix,"")
-          var img_url = window.URL.createObjectURL(file);
-          
-          let getWH = (imgUrl,filename,suffix) => {
-            return new Promise((resolve,reject)=>{
-                  let img = new Image();
-                  img.src = imgUrl;
-                  img.onload = ()=>{
-                      let w = img.width;
-                      let h = img.height;
-                      // let timestamp=new Date().getTime();
-                      // let fileSize = w +"*" + h;
-                      // let key = timestamp + filename +"_"+fileSize +"_"+ suffix;
-                      resolve({w, h});
-                  }
-                  img.onerror = ()=>{
-                      reject()
-                  }
-              })
-          }
-          let result= getWH(img_url,filename,suffix);
-          result.then(resp=>{
-            return resp.w === 760 && resp.h === 1280
-          }).then(res => {
-            if (!res) {
-              message.error(`${file.name}图片尺寸不为760*1280`);
-              setTimeout(() => {
-                let deepfileList = JSON.parse(JSON.stringify(_this.state.fileList));
-  
-                deepfileList.forEach((item, index) => {
-                  if (item.uid === file.uid) {
-                    deepfileList.splice(index, 1)
-                  }
-                })
-  
-                _this.setState({
-                  fileList: deepfileList
-                })
-              }, 500)
-            }
-
-            _this.setState({
-              validation: res
-            })
-          })
-  
-          return isJPG && isLt2M;
+          return isJPG;
         },
         onChange: _this.onChangeUpLoad,
         onRemove (file) {
@@ -484,9 +428,8 @@ class NewEditAd extends Component {
                             <p className="ant-upload-drag-icon">
                               <Icon type="inbox" />
                             </p>
-                            <p className="ant-upload-text">760*1280</p>
                             <p className="ant-upload-hint">请点击或拖拽</p>
-                            <p className="ant-upload-hint">JPG/JPEG/PNG, 小于100k</p>
+                            <p className="ant-upload-hint">JPG/JPEG/PNG/GIF</p>
                           </Dragger>
 
                           <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>

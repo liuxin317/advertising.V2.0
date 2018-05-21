@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Upload, Icon, message, Button, Input } from 'antd';
+import { Upload, Icon, message, Button, Input, Modal, Table } from 'antd';
 import { getCookie } from '@/components/common/methods';
 import './style.scss';
 
@@ -29,14 +29,19 @@ class CreativeUpload extends Component {
     backFileUrl: [], // 成功返回列表
     imageUrl: "", // 上传LOGO图片
     loading: false,
-    copyWrite: "", // 广告文案
-    description: "", // 广告描述
+    text: "", // 广告文案
+    descs: "", // 广告描述
+    previewVisible: false,
+    previewImage: '',
+    posIds: '', // 关联广告位ID
+    logo: '', // 头像链接
+    url: '', // 创意链接
   }
 
   // 监听上传LOGO
   handleChangeLOGO = (info) => {
     let response = info.file.response;
-    let headPortrait = "";
+    let logo = "";
 
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
@@ -51,15 +56,15 @@ class CreativeUpload extends Component {
           loading: false,
         })
       });
-      headPortrait = response.data;
+      logo = response.data;
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} 上传失败！`);
-      headPortrait = "";
+      logo = "";
       this.setState({ loading: false });
     }
 
     this.setState({
-      headPortrait
+      logo
     })
   }
 
@@ -75,95 +80,59 @@ class CreativeUpload extends Component {
 
   // 向上级传入当前数据
   passParentData = () => {
-    const { fileList, headPortrait, copyWrite, description } = this.state;
+    const { fileList, logo, text, descs, posIds } = this.state;
     const { type } = this.props;
-    let creativeImgs = [];
+    let url = [];
 
     fileList.forEach(item => {
       if (item.response && item.response.data) {
-        creativeImgs.push(item.response.data)
+        url.push(item.response.data)
       }
     })
 
     return {
       type,
-      creativeImgs,
-      headPortrait, 
-      copyWrite,
-      description
+      url: url.join(','),
+      logo,
+      text,
+      descs,
+      posIds
     }
+  }
+
+  handlePreview = (file) => {
+    this.setState({
+      previewImage: file.url || file.thumbUrl,
+      previewVisible: true,
+    });
+  }
+
+  handleCancel = () => {
+    this.setState({ previewVisible: false })
   }
   
   render () {
     const _this = this;
-    const { fileList, imageUrl } = this.state;
-    const { type, creativeID } = this.props;
-
+    const { fileList, imageUrl, previewVisible, previewImage } = this.state;
+    const { type, creativeID, dataSource } = this.props;
+    
     const props = {
       name: 'file',
       multiple: true,
       action: '/plan/upLoad',
+      listType: "picture-card",
       data: {
         type: 2,
         token: getCookie('userInfo') ? JSON.parse(getCookie('userInfo')).token : ""
       },
       beforeUpload (file) {
-        const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg';
+        const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png' || file.type === 'image/gif';
 
         if (!isJPG) {
-          message.error('请上传图片格式为JPG/JPEG!');
+          message.error('请上传图片格式为JPG/JPEG/PNG/GIF!');
         }
 
-        const isLt2M = file.size / 1024 < 50;
-        if (!isLt2M) {
-          message.error('图片大小不能超过50k');
-        }
-
-        // 对比尺寸
-        const suffix ="." + file.name.replace(/^.+\./,'')
-        const filename = file.name.replace(suffix,"")
-        var img_url = window.URL.createObjectURL(file);
-        
-        let getWH = (imgUrl,filename,suffix) => {
-          return new Promise((resolve,reject)=>{
-                let img = new Image();
-                img.src = imgUrl;
-                img.onload = ()=>{
-                    let w = img.width;
-                    let h = img.height;
-                    // let timestamp=new Date().getTime();
-                    // let fileSize = w +"*" + h;
-                    // let key = timestamp + filename +"_"+fileSize +"_"+ suffix;
-                    resolve({w, h});
-                }
-                img.onerror = ()=>{
-                    reject()
-                }
-            })
-        }
-        let result= getWH(img_url,filename,suffix);
-        result.then(resp=>{
-          return resp.w === 640 && resp.h === 180
-        }).then(res => {
-          if (!res) {
-            message.error(`${file.name}图片尺寸不为640*180`);
-            setTimeout(() => {
-              let deepfileList = JSON.parse(JSON.stringify(_this.state.fileList));
-
-              deepfileList.forEach((item, index) => {
-                if (item.uid === file.uid) {
-                  deepfileList.splice(index, 1)
-                }
-              })
-
-              _this.setState({
-                fileList: deepfileList
-              })
-            }, 500)
-          }
-        })
-
-        return isJPG && isLt2M;
+        return isJPG;
       },
       onChange (info) {
         const status = info.file.status;
@@ -219,7 +188,8 @@ class CreativeUpload extends Component {
         _this.setState({
           fileList: deepfileList
         })
-      } 
+      },
+      onPreview: this.handlePreview
     };
 
     // 上传按钮
@@ -229,6 +199,24 @@ class CreativeUpload extends Component {
         <div className="ant-upload-text">上传</div>
       </div>
     );
+
+    const columns = [{
+      title: '广告位名称',
+      dataIndex: 'name',
+      key: 'name',
+    }, {
+      title: '渠道',
+      dataIndex: 'channelName',
+      key: 'channelName',
+    }];
+
+    const rowSelection = {
+      onChange: (selectedRowKeys, selectedRows) => {
+        this.setState({
+          posIds: selectedRowKeys.join(',')
+        })
+      }
+    };
 
     return (
       <section className={ type === creativeID ? "creative-component" : "creative-component active"}>
@@ -240,9 +228,8 @@ class CreativeUpload extends Component {
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
                 </p>
-                <p className="ant-upload-text">640*180</p>
                 <p className="ant-upload-hint">请点击或拖拽</p>
-                <p className="ant-upload-hint">JPG/JPEG, 小于50k</p>
+                <p className="ant-upload-hint">JPG/JPEG/PNG/GIF</p>
               </Dragger>
             </div>
 
@@ -268,6 +255,9 @@ class CreativeUpload extends Component {
             >
               {imageUrl ? <div className="img-box"><img src={imageUrl} alt="" /></div> : uploadButton}
             </Upload>
+            <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+              <img alt="example" style={{ width: '100%' }} src={previewImage} />
+            </Modal>
           </div>
         </div>
 
@@ -275,7 +265,7 @@ class CreativeUpload extends Component {
           <h3>广告文案</h3>
 
           <div className="input-box">
-            <Input maxLength={20} onChange={this.onChangeInput.bind(this, "copyWrite")} placeholder="不能超过20个字符" />
+            <Input onChange={this.onChangeInput.bind(this, "text")} />
           </div>
         </div>
 
@@ -283,12 +273,23 @@ class CreativeUpload extends Component {
           <h3>广告描述</h3>
 
           <div className="input-box">
-            <Input maxLength={20} onChange={this.onChangeInput.bind(this, "description")} placeholder="不能超过20个字符" />
+            <Input onChange={this.onChangeInput.bind(this, "descs")} />
           </div>
         </div>
 
         <div className="creative-group">
-          <h3>广告预览</h3>
+          <h3>关联广告位</h3>
+
+          <div className="input-box table-box" key={type}>
+            {/* 表格 */}
+            <Table 
+              rowKey={(record, index) => record.id} 
+              rowSelection={ rowSelection } 
+              dataSource={dataSource} 
+              columns={columns} 
+              pagination={false} 
+            />
+          </div>
         </div>
       </section>
     )
