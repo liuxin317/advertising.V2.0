@@ -107,11 +107,13 @@ class LPRegulation extends Component {
 
   // 监听媒体出价
   onChangeInputNumber = (value) => {
-    let money = value * (1 + 0.3);
-    this.setState({
-      minMoney: value,
-      money
-    })
+    if (value) {
+      let money = value * (1 + 0.3);
+      this.setState({
+        minMoney: value,
+        money
+      })
+    }
   }
 
   // 修改底价

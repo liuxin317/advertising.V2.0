@@ -108,16 +108,7 @@ class MenuBar extends Component {
         }
       }
 
-      if (adCreateOne) {
-        if (defaultKey !== "7") {
-          this.rollAnimation(elmDocTop)
-          this.setState({
-            defaultKey
-          })
-        }
-      }
-
-      if (adCreateTwo) {
+      if (adCreateOne && defaultKey !== "7") {
         $('.one').classList.remove('ant-menu-item-selected')
         $('.two').classList.remove('ant-menu-item-selected')
         $('.three').classList.remove('ant-menu-item-selected')
@@ -126,6 +117,13 @@ class MenuBar extends Component {
         $('.six').classList.remove('ant-menu-item-selected')
         $('.seven').classList.remove('ant-menu-item-selected')
 
+        this.rollAnimation(elmDocTop)
+        this.setState({
+          defaultKey
+        })
+      }
+
+      if (adCreateTwo) {
         this.setState({
           defaultKey
         })
