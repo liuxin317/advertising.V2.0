@@ -50,6 +50,12 @@ const Record = loadable({
   loading: PreLoading
 })
 
+// 报表管理
+const Report = loadable({
+  loader: () => import('./report'),
+  loading: PreLoading
+})
+
 class Content extends Component {
   render () {
     const { match, location, leftMenuStatus } = this.props;
@@ -80,6 +86,7 @@ class Content extends Component {
           <Route path={`${ match.path }/admin`} component={ Admin } />
           <Route path={`${ match.path }/financial`} component={ Financial } />
           <Route path={`${ match.path }/financial-record/:id/:name`} component={ Record } />
+          <Route path={`${ match.path }/report`} component={ Report } />
         </div>
       </section>
     )

@@ -39,6 +39,8 @@ class MenuBar extends Component {
 
     if (pathname.indexOf('/content/admin') !== -1) {
       str = 'sub3';
+    } else if (pathname.indexOf('/content/report') !== -1) {
+      str = 'sub2';
     }
 
     defaultSelectedKeys = pathname
@@ -78,7 +80,7 @@ class MenuBar extends Component {
               {
                 menus.indexOf('168') > -1
                 ?
-                <Menu.Item key="3">实时报表</Menu.Item>
+                <Menu.Item key="/content/report/real-time"><Link to="/content/report/real-time">实时报表</Link></Menu.Item>
                 :
                 ''
               }

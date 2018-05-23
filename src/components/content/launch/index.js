@@ -57,6 +57,10 @@ class Launch extends Component {
 
   // 监听广告计划用户下拉
   handleChangeStatus = (value) => {
+    if (!value) {
+      value = ''
+    }
+    
     this.setState({
       putID: value
     })
@@ -423,6 +427,7 @@ class Launch extends Component {
                           showSearch
                           style={{ width: 200 }}
                           placeholder="投放状态"
+                          allowClear={true}
                           optionFilterProp="children"
                           onChange={this.handleChangeStatus}
                           filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
