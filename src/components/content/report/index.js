@@ -9,6 +9,12 @@ const RealTime = loadable({
   loading: PreLoading
 });
 
+// 深度报表
+const DepthReport = loadable({
+  loader: () => import('./depthReport'),
+  loading: PreLoading
+});
+
 class Report extends Component {
   render () {
     const { match } = this.props;
@@ -16,6 +22,7 @@ class Report extends Component {
     return(
       <section className="content-box">
         <Route path={`${match.path}/real-time`} component={RealTime}/>
+        <Route path={`${match.path}/depth/:id`} component={DepthReport}/>
       </section>
     )
   }

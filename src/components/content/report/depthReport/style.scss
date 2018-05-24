@@ -1,0 +1,95 @@
+.depth-box {
+  h4 {
+    a {
+      color: #333;
+    }
+  }
+  
+  .launch-top-button {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .depth-info {
+    margin-top: 20px;
+    padding-bottom: 10px;
+    border-bottom: #eee dashed 1px;
+
+    span {
+      margin-right: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+  }
+
+  .depth-main {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 10px;
+
+    .tree-mnue {
+      min-width: 210px;
+
+      .ant-tree-title {
+        color: #000;
+      }
+    }
+
+    .chart-box {
+      width: 83%;
+      margin-left: 2%;
+
+      .chart-content {
+        border: #eee solid 1px;
+        
+        .chart-name {
+          height: 36px;
+          padding: 0 10px;
+          line-height: 36px;
+          font-size: 14px;
+          color: #000;
+          border-bottom: #eee solid 1px;
+        }
+
+        .chart-frame {
+          margin: 40px 20px 20px;
+        }
+      }
+    }
+
+    .table-frame {
+      margin-top: 20px;
+
+      .search-group {
+        display: flex;
+        justify-content: flex-end;
+        margin: 20px 0 30px;
+    
+        .group {
+          margin-right: 10px;
+    
+          .export-button {
+            font-size: 18px;
+          }
+        }
+        
+        .ant-select {
+          position: relative;
+        }
+    
+        .ant-select-second::after {
+          content: "\E61D";
+          display: block;
+          position: absolute;
+          top: 50%;
+          right: 8px;
+          transform: translate(0, -50%);
+          font-family: anticon!important;
+          font-size: 12px;
+          color: rgba(0, 0, 0, 0.25);
+        }
+      }
+    }
+  }
+}

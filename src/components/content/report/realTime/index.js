@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { TreeSelect, Select, DatePicker, Input, Button, Icon, Tooltip, Table } from 'antd';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
@@ -7,6 +8,7 @@ import './style.scss';
 const SHOW_PARENT = TreeSelect.SHOW_PARENT;
 const Option = Select.Option;
 const { RangePicker } = DatePicker;
+const Search = Input.Search;
 /*二级 - start*/
 const treeData = [{
   label: '广告位',
@@ -25,26 +27,16 @@ const treeData = [{
 
 /*表格 - start*/
 const columns = [{
-  title: "日期",
-  key: 'time',
-  dataIndex: 'time',
-  sorter: (a, b) => moment(a.time).format('X') - moment(b.time).format('X'),
-}, {
   title: "广告计划",
   key: 'inMoney',
   dataIndex: 'inMoney',
-}, {
-  title: "广告",
-  key: 'outMoney',
-  dataIndex: 'outMoney',
+  render: (text, record) => {
+    return <Link to={`/content/report/depth/${record.key}`}>{text}</Link>
+  }
 }, {
   title: "渠道",
   key: 'outMoney1',
   dataIndex: 'outMoney1',
-}, {
-  title: "广告位",
-  key: 'outMoney2',
-  dataIndex: 'outMoney2',
 }, {
   title: "消耗金额（元）",
   key: 'outMoney3',
@@ -96,7 +88,7 @@ const dataSource = [{
 
 class RealTime extends Component {
   state = {
-    second: '',
+    second: [], // 二级维度
     startTime: '',
     endTime: '',
     pageNum: 1,
@@ -112,7 +104,6 @@ class RealTime extends Component {
 
   // 二级维度
   onChangeSecond = (value) => {
-    console.log('onChange ', value, arguments);
     this.setState({ second: value });
   }
 
@@ -146,6 +137,44 @@ class RealTime extends Component {
     })
   }
 
+  // 提取插入的位置
+  columnsSplice = (str, add) => {
+    let num = '', isBol = false, targetStr = '';
+    if (str === '渠道') {
+      targetStr = '广告位'
+    } else if (str === '广告计划') {
+      targetStr = '广告'
+    } else if (str === '日期') {
+      targetStr = '日期'
+    }
+
+    columns.forEach((item, index) => {
+      if (item.title === str) {
+        num = index + 1;
+      }
+      if (item.title === targetStr) {
+        isBol = true;
+      }
+    })
+
+    if (!isBol) {
+      if (str === '日期') {
+        columns.unshift(add)
+      } else {
+        columns.splice(num, 0, add)
+      }
+    }
+  }
+
+  // 删除指定的表格列
+  columnsRemove = (str) => {
+    columns.forEach((item, index) => {
+      if (item.title === str) {
+        columns.splice(index, 1)
+      }
+    })
+  }
+
   render () {
     const { second, reportList, total, pageNum, pageSize, userList } = this.state;
 
@@ -162,6 +191,39 @@ class RealTime extends Component {
       },
       dropdownStyle: { maxHeight: 400, overflow: 'auto' }
     };
+
+    // 根据勾选维度显示列表
+    const setSecond = new Set(second);
+    if (setSecond.has('0-0')) { // 广告位
+      this.columnsSplice('渠道', {
+        title: "广告位",
+        key: 'outMoney2',
+        dataIndex: 'outMoney2',
+      })
+    } else {
+      this.columnsRemove('广告位')
+    }
+    
+    if (setSecond.has('0-1')) { // 广告
+      this.columnsSplice('广告计划', {
+        title: "广告",
+        key: 'outMoney',
+        dataIndex: 'outMoney',
+      })
+    } else {
+      this.columnsRemove('广告')
+    }
+    
+    if (setSecond.has('0-2')) { // 日期
+      this.columnsSplice('日期', {
+        title: "日期",
+        key: 'time',
+        dataIndex: 'time',
+        sorter: (a, b) => moment(a.time).format('X') - moment(b.time).format('X'),
+      })
+    } else {
+      this.columnsRemove('日期')
+    }
 
     return (
       <section className="real-time-box">
@@ -196,11 +258,11 @@ class RealTime extends Component {
           </div>
 
           <div className="group">
-            <Input placeholder="搜索" />
-          </div>
-
-          <div className="group">
-            <Button className="search-button" type="primary" shape="circle" icon="search" />
+            <Search
+              placeholder="搜索"
+              onSearch={value => console.log(value)}
+              enterButton
+            />
           </div>
 
           <div className="group">
