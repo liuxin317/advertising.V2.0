@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
-import { TreeSelect, Select, DatePicker, Input, Button, Icon, Tooltip, Table } from 'antd';
+import { TreeSelect, Select, DatePicker, Input, Button, Icon, Tooltip, Table, message } from 'antd';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 import HttpRequest from '@/utils/fetch';
 import './style.scss';
+import { encode } from 'punycode';
 
 const SHOW_PARENT = TreeSelect.SHOW_PARENT;
 const Option = Select.Option;
 const { RangePicker } = DatePicker;
 const Search = Input.Search;
+const dateFormat = 'YYYY-MM-DD';
+
 /*二级 - start*/
 const treeData = [{
   label: '广告位',
@@ -28,88 +31,74 @@ const treeData = [{
 /*表格 - start*/
 const columns = [{
   title: "广告计划",
-  key: 'inMoney',
-  dataIndex: 'inMoney',
+  key: 'planName',
+  dataIndex: 'planName',
   render: (text, record) => {
-    return <Link to={`/content/report/depth/${record.key}`}>{text}</Link>
+    return <Link to={`/content/report/depth/${record.planId}`}>{text}</Link>
   }
 }, {
   title: "渠道",
-  key: 'outMoney1',
-  dataIndex: 'outMoney1',
+  key: 'channelName',
+  dataIndex: 'channelName',
 }, {
   title: "消耗金额（元）",
-  key: 'outMoney3',
-  dataIndex: 'outMoney3',
-  sorter: (a, b) => a.outMoney3 - b.outMoney3
+  key: 'totalCost',
+  dataIndex: 'totalCost',
+  sorter: (a, b) => a.totalCost - b.totalCost
 }, {
   title: "曝光度",
-  key: 'outMoney4',
-  dataIndex: 'outMoney4',
-  sorter: (a, b) => a.outMoney4 - b.outMoney4,
+  key: 'totalShow',
+  dataIndex: 'totalShow',
+  sorter: (a, b) => a.totalShow - b.totalShow,
 }, {
   title: "点击数",
-  key: 'outMoney5',
-  dataIndex: 'outMoney5',
-  sorter: (a, b) => a.outMoney5 - b.outMoney5,
+  key: 'totalClick',
+  dataIndex: 'totalClick',
+  sorter: (a, b) => a.totalClick - b.totalClick,
 }, {
   title: "点击率（%）",
-  key: 'outMoney6',
-  dataIndex: 'outMoney6',
-  sorter: (a, b) => a.outMoney6 - b.outMoney6,
-}];
-
-const dataSource = [{
-  key: '1',
-  name: '胡彦斌',
-  time: '2017-05-20',
-  inMoney: '西湖区湖底公园1号',
-  outMoney: 36,  
-  outMoney1: 20,  
-  outMoney2: 40, 
-  outMoney3: 50, 
-  outMoney4: 11,  
-  outMoney5: 77, 
-  outMoney6: 88,
-}, {
-  key: '2',
-  name: '胡彦祖',
-  time: '2017-05-30',
-  inMoney: '西湖区湖底公园1号',
-  outMoney: 13,  
-  outMoney1: 40,  
-  outMoney2: 10, 
-  outMoney3: 77, 
-  outMoney4: 55,  
-  outMoney5: 88, 
-  outMoney6: 66,
+  sorter: (a, b) => (a.totalClick / a.totalShow) - (b.totalClick / b.totalShow),
+  render: (text, record) => {
+    return <span>{(record.totalClick / record.totalShow) * 100}%</span>
+  }
 }];
 /*表格 - end*/
 
 class RealTime extends Component {
   state = {
     second: [], // 二级维度
-    startTime: '',
-    endTime: '',
+    startTime: moment().subtract(7, 'days').format(dateFormat),
+    endTime: moment().format(dateFormat),
     pageNum: 1,
     pageSize: 10,
     total: 0, // 总页码
     reportList: [], // 列表
     userList: [], //客户列表
+    userId: -1, // 客户ID
+    dataSource: [], // 表格数据
+    name: '', // 搜索内容
+    upLoadUrl: '', // 导出连接
   }
 
   componentDidMount () {
     this.getUserList()
+    this.actualTime()
   }
 
   // 二级维度
   onChangeSecond = (value) => {
-    this.setState({ second: value });
+    this.setState({ second: value }, () => {
+      this.actualTime()
+    });
   }
 
   // 客户
-  handleChangeClient (value) {
-    console.log(`selected ${value}`);
+  handleChangeClient = (value) => {
+    this.setState({
+      userId: value
+    }, () => {
+      this.actualTime()
+    })
   }
 
   // 无法选择未来的日子
@@ -122,6 +111,8 @@ class RealTime extends Component {
     this.setState({
       startTime: dateString[0] ? `${dateString[0]}` : '',
       endTime: dateString[1] ? `${dateString[1]}` : ''
+    }, () => {
+      this.actualTime()
     })
   }
 
@@ -175,8 +166,100 @@ class RealTime extends Component {
     })
   }
 
+  // 获取实时报表
+  actualTime = () =>{
+    const { startTime, endTime, pageNum, pageSize, second, userId, name } = this.state;
+    let pos = false, ad = false, date = false;
+    const setSecond = new Set(second);
+
+    if (setSecond.has('0-1')) { // 广告
+      ad = true
+    }
+
+    if (setSecond.has('0-0')) { // 广告位
+      pos = true
+    } 
+
+    if (setSecond.has('0-2')) { // 日期
+      date = true
+    }
+
+    HttpRequest("/count/actualTime", "POST", {
+      startTime,
+      endTime,
+      pos,
+      ad,
+      date,
+      userId,
+      name,
+      pageNum,
+      pageSize
+    }, res => {
+      this.setState({
+        dataSource: res.data.ls,
+        total: res.data.totalNum
+      })
+    })
+  }
+
+  // 导出
+  outCsv = () => {
+    const { startTime, endTime, pageNum, pageSize, second, userId, name } = this.state;
+    let pos = false, ad = false, date = false;
+    const setSecond = new Set(second);
+
+    if (setSecond.has('0-1')) { // 广告
+      ad = true
+    }
+
+    if (setSecond.has('0-0')) { // 广告位
+      pos = true
+    } 
+
+    if (setSecond.has('0-2')) { // 日期
+      date = true
+    }
+
+    HttpRequest("/count/outCsv", "POST", {
+      startTime,
+      endTime,
+      pos,
+      ad,
+      date,
+      userId,
+      pageNum,
+      name,
+      pageSize
+    }, res => {
+      this.setState({
+        upLoadUrl: encodeURI(res.data)
+      })
+
+      window.open(encodeURI(res.data));
+    })
+  }
+
+  // 导出判断
+  isUpLoadUrl = () => {
+    const { upLoadUrl } = this.state;
+    if (!upLoadUrl) {
+      message.error('导出出错！')
+    } else {
+      window.open(upLoadUrl);
+    }
+  }
+
+  // 搜索内容
+  onSearch = (value) => {
+    this.setState({
+      name: value
+    }, () => {
+      this.actualTime()
+    })
+  }
+
   render () {
-    const { second, reportList, total, pageNum, pageSize, userList } = this.state;
+    const { second, reportList, total, pageNum, pageSize, userList, dataSource } = this.state;
 
     const tProps = {
       treeData,
@@ -197,8 +280,8 @@ class RealTime extends Component {
     if (setSecond.has('0-0')) { // 广告位
       this.columnsSplice('渠道', {
         title: "广告位",
-        key: 'outMoney2',
-        dataIndex: 'outMoney2',
+        key: 'posName',
+        dataIndex: 'posName',
       })
     } else {
       this.columnsRemove('广告位')
@@ -207,8 +290,8 @@ class RealTime extends Component {
     if (setSecond.has('0-1')) { // 广告
       this.columnsSplice('广告计划', {
         title: "广告",
-        key: 'outMoney',
-        dataIndex: 'outMoney',
+        key: 'adName',
+        dataIndex: 'adName',
       })
     } else {
       this.columnsRemove('广告')
@@ -217,9 +300,9 @@ class RealTime extends Component {
     if (setSecond.has('0-2')) { // 日期
       this.columnsSplice('日期', {
         title: "日期",
-        key: 'time',
-        dataIndex: 'time',
-        sorter: (a, b) => moment(a.time).format('X') - moment(b.time).format('X'),
+        key: 'days',
+        dataIndex: 'days',
+        sorter: (a, b) => moment(a.days).format('X') - moment(b.days).format('X'),
       })
     } else {
       this.columnsRemove('日期')
@@ -254,20 +337,20 @@ class RealTime extends Component {
           </div>
 
           <div className="group">
-            <RangePicker style={{ width: 250 }} onChange={this.onChangeDate} disabledDate={this.disabledDate} />
+            <RangePicker defaultValue={[moment(moment().subtract(7, 'days').format(dateFormat), dateFormat), moment(new Date(), dateFormat)]} style={{ width: 250 }} onChange={this.onChangeDate} disabledDate={this.disabledDate} />
           </div>
 
           <div className="group">
             <Search
               placeholder="搜索"
-              onSearch={value => console.log(value)}
+              onSearch={this.onSearch}
               enterButton
             />
           </div>
 
           <div className="group">
             <Tooltip placement="top" title="导出">
-              <Button className="export-button" type="primary" icon="export" />
+              <Button className="export-button" type="primary" icon="export" onClick={this.outCsv} />
             </Tooltip>
           </div>
         </div>
