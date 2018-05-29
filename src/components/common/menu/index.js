@@ -84,13 +84,13 @@ class MenuBar extends Component {
                 :
                 ''
               }
-              {
+              {/* {
                 menus.indexOf('167') > -1
                 ?
                 <Menu.Item key="4">基础报表</Menu.Item>
                 :
                 ''
-              }
+              } */}
             </SubMenu>
             :
             ''

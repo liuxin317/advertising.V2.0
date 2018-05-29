@@ -34,7 +34,11 @@ const columns = [{
   key: 'planName',
   dataIndex: 'planName',
   render: (text, record) => {
-    return <Link to={`/content/report/depth/${record.planId}`}>{text}</Link>
+    return (
+      <div className="operation">
+        <Link to={`/content/report/depth/${record.planId}`}>{text}</Link>
+      </div>
+    )
   }
 }, {
   title: "渠道",
@@ -59,7 +63,7 @@ const columns = [{
   title: "点击率（%）",
   sorter: (a, b) => (a.totalClick / a.totalShow) - (b.totalClick / b.totalShow),
   render: (text, record) => {
-    return <span>{(record.totalClick / record.totalShow) * 100}%</span>
+    return <span>{(record.totalClick / record.totalShow).toFixed(2) * 100}%</span>
   }
 }];
 /*表格 - end*/
@@ -77,7 +81,6 @@ class RealTime extends Component {
     userId: -1, // 客户ID
     dataSource: [], // 表格数据
     name: '', // 搜索内容
-    upLoadUrl: '', // 导出连接
   }
 
   componentDidMount () {
@@ -204,6 +207,11 @@ class RealTime extends Component {
 
   // 导出
   outCsv = () => {
+    if (!this.state.dataSource.length) {
+      message.warning('无数据')
+      return false
+    }
+
     const { startTime, endTime, pageNum, pageSize, second, userId, name } = this.state;
     let pos = false, ad = false, date = false;
     const setSecond = new Set(second);
@@ -231,22 +239,8 @@ class RealTime extends Component {
       name,
       pageSize
     }, res => {
-      this.setState({
-        upLoadUrl: encodeURI(res.data)
-      })
-
       window.open(encodeURI(res.data));
     })
-  }
-
-  // 导出判断
-  isUpLoadUrl = () => {
-    const { upLoadUrl } = this.state;
-    if (!upLoadUrl) {
-      message.error('导出出错！')
-    } else {
-      window.open(upLoadUrl);
-    }
   }
 
   // 搜索内容

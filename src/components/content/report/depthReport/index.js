@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import {  TreeSelect, Button, DatePicker, Tree, Tooltip as TooltipAntd, Table, Icon  } from 'antd';
+import {  TreeSelect, Button, DatePicker, Tree, Tooltip as TooltipAntd, Table, Icon, message } from 'antd';
 import { Chart, Tooltip, Axis, Bar, Line, Point, Legend, Guide } from 'viser-react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
+import HttpRequest from '@/utils/fetch';
 import './style.scss';
 
 const SHOW_PARENT = TreeSelect.SHOW_PARENT;
 const TreeNode = Tree.TreeNode;
-const dateFormat = 'YYYY/MM/DD';
+const dateFormat = 'YYYY-MM-DD';
+
 /**
  * 树形菜单
  */
@@ -60,24 +62,16 @@ const treeData = [{
 /**
  * 图表
  */
-const data = [
-  { time: '10:10', call: 4, waiting: 2, people: 2 },
-  { time: '10:15', call: 2, waiting: 6, people: 3 },
-  { time: '10:20', call: 13, waiting: 2, people: 5 },
-  { time: '10:25', call: 9, waiting: 9, people: 1 },
-  { time: '10:30', call: 5, waiting: 2, people: 3 },
-  { time: '10:35', call: 8, waiting: 2, people: 1 },
-  { time: '10:40', call: 13, waiting: 1, people: 2 }
-];
-
 const scale = [{
-  dataKey: 'call',
+  dataKey: 'totalCost',
   min: 0
 }, {
-  dataKey: 'people',
+  dataKey: 'totalClick',
+  alias: '点击数',
   min: 0
 }, {
-  dataKey: 'waiting',
+  dataKey: 'totalShow',
+  alias: '展示数',
   min: 0
 }];
 
@@ -91,68 +85,33 @@ const twoTreeData = [{
   value: '0-1',
   key: '0-1'
 }, {
-  label: '日期',
+  label: '渠道',
   value: '0-2',
   key: '0-2'
 }];
 /*二级 - end*/
 
 /** 表格 - start */
-const columns = [{
-  title: "渠道",
-  key: 'outMoney1',
-  dataIndex: 'outMoney1',
+let columns = [{
+  title: "时间",
+  key: 'hour',
+  dataIndex: 'hour'
 }, {
   title: "展示数",
-  key: 'outMoney3',
-  dataIndex: 'outMoney3',
-  sorter: (a, b) => a.outMoney3 - b.outMoney3
-}, {
-  title: "独立展示数",
-  key: 'outMoney4',
-  dataIndex: 'outMoney4',
-  sorter: (a, b) => a.outMoney4 - b.outMoney4,
+  key: 'totalShow',
+  dataIndex: 'totalShow',
+  sorter: (a, b) => a.totalShow - b.totalShow
 }, {
   title: "点击数",
-  key: 'outMoney5',
-  dataIndex: 'outMoney5',
-  sorter: (a, b) => a.outMoney5 - b.outMoney5,
-}, {
-  title: "独立点击数",
-  key: 'outMoney6',
-  dataIndex: 'outMoney6',
-  sorter: (a, b) => a.outMoney6 - b.outMoney6,
+  key: 'totalClick',
+  dataIndex: 'totalClick',
+  sorter: (a, b) => a.totalClick - b.totalClick,
 }, {
   title: "CTR（%）",
-  key: 'outMoney7',
-  dataIndex: 'outMoney7',
-  sorter: (a, b) => a.outMoney7 - b.outMoney7,
-}];
-
-const dataSource = [{
-  key: '1',
-  name: '胡彦斌',
-  time: '2017-05-20',
-  inMoney: '西湖区湖底公园1号',
-  outMoney: 36,  
-  outMoney1: 20,  
-  outMoney2: 40, 
-  outMoney3: 50, 
-  outMoney4: 11,  
-  outMoney5: 77, 
-  outMoney6: 88,
-}, {
-  key: '2',
-  name: '胡彦祖',
-  time: '2017-05-30',
-  inMoney: '西湖区湖底公园1号',
-  outMoney: 13,  
-  outMoney1: 40,  
-  outMoney2: 10, 
-  outMoney3: 77, 
-  outMoney4: 55,  
-  outMoney5: 88, 
-  outMoney6: 66,
+  render: (text, record) => {
+    return <span>{`${(record.totalClick / record.totalShow).toFixed(2)*100}%`}</span>
+  },
+  sorter: (a, b) => (a.totalClick / a.totalShow) - (b.totalClick / b.totalShow),
 }];
 /** 表格 - end */
 
@@ -161,11 +120,32 @@ class DepthReport extends Component {
     second: [], // 二级维度
     selectedKeys: ['0-0-0'],
     chartName:'基本-小时报', // 图标名称
+    pageSize: 100,
+    pageNum: 1,
+    time: moment(new Date()).format(dateFormat), // 日期
+    planId: '', // 广告计划ID
+    dataSource: [], // 列表
+    planInfo: '', // 计划信息
+  }
+
+  componentDidMount () {
+    const { match } = this.props;
+    this.setState({
+      planId: match.params.id
+    }, () => {
+      this.selPlan()
+      this.deepTable()
+    })
   }
 
   // 日期监听
   onChangeDate = (date, dateString) => {
     console.log(date, dateString)
+    this.setState({
+      time: dateString
+    }, () => {
+      this.deepTable()
+    })
   }
 
   // 无法选择未来的日子
@@ -198,43 +178,48 @@ class DepthReport extends Component {
 
   // 二级维度
   onChangeSecond = (value) => {
-    this.setState({ second: value });
+    this.setState({ second: value }, () => {
+      this.deepTable()
+    });
   }
 
-  // 提取插入的位置
-  columnsSplice = (str, add) => {
-    let num = '', isBol = false, targetStr = '';
-    if (str === '渠道') {
-      targetStr = '广告位'
-    } else if (str === '广告') {
-      str = '渠道'
-      targetStr = '广告'
-    } else if (str === '时间') {
-      targetStr = '时间'
+  // 深度报表
+  deepTable = () => {
+    const { planId, pageSize, pageNum, second, time } = this.state;
+    let pos = false, ad = false, channel = false;
+    const setSecond = new Set(second);
+
+    if (setSecond.has('0-1')) { // 广告
+      ad = true
     }
 
-    columns.forEach((item, index) => {
-      if (item.title === str) {
-        if (str === '渠道' && targetStr === '广告') {
-          console.log(index)
-          num = index - 1;
-        } else {
-          num = index + 1;
-        }
-      }
-      if (item.title === targetStr) {
-        isBol = true;
+    if (setSecond.has('0-0')) { // 广告位
+      pos = true
+    } 
+
+    if (setSecond.has('0-2')) { // 渠道
+      channel = true
+    }
+
+    HttpRequest("/count/deepTable", "POST", {
+      time,
+      pos,
+      ad,
+      channel,
+      planId,
+      pageNum,
+      pageSize
+    }, res => {
+      if (res.data.ls && res.data.ls.length) {
+        res.data.ls.forEach(item => {
+          item.hour = `${item.hour.split(' ')[1]}:00`
+        })
+
+        this.setState({
+          dataSource: res.data.ls
+        })
       }
     })
-
-    if (!isBol) {
-      if (str === '时间') {
-        columns.unshift(add)
-      } else {
-        num = num < 0 ? 0 : num === 0 ? 1 : num
-        columns.splice(num, 0, add)
-      }
-    }
   }
 
   // 删除指定的表格列
@@ -246,8 +231,93 @@ class DepthReport extends Component {
     })
   }
 
+  // 查询单个计划
+  selPlan = () => {
+    HttpRequest("/plan/selPlan", "POST", {
+      id: this.state.planId
+    }, res => {
+      this.setState({
+        planInfo: res.data
+      })
+    })
+  }
+
+  // 提取插入的位置
+  columnsSplice = (str, add, link) => {
+    let num = 0, index = '';
+
+    columns.forEach((item, idx) => {
+      if (item.title === str) {
+        num ++;
+      }
+
+      if (item.title === link) {
+        index = idx;
+      }
+    })
+
+    if (num === 0) {
+      if (str === '广告位') {
+        columns.splice(index, 0, add)
+      } else if (str === '广告') {
+        columns.splice(1, 0, add)
+      } else if (str === '渠道') {
+        if (index === '') {
+          columns.splice(1, 0, add)
+        } else {
+          columns.splice(2, 0, add)
+        }
+      }
+    }
+  }
+
+  // 删除列表
+  removeList = (str) => {
+    columns.forEach((item, index) => {
+      if (item.title === str) {
+        columns.splice(index, 1)
+      }
+    })
+  }
+
+  // 导出
+  deepOutCsv = () => {
+    if (!this.state.dataSource.length) {
+      message.warning('无数据')
+      return false
+    }
+
+    const { planId, pageSize, pageNum, second, time } = this.state;
+    let pos = false, ad = false, channel = false;
+    const setSecond = new Set(second);
+
+    if (setSecond.has('0-1')) { // 广告
+      ad = true
+    }
+
+    if (setSecond.has('0-0')) { // 广告位
+      pos = true
+    } 
+
+    if (setSecond.has('0-2')) { // 渠道
+      channel = true
+    }
+
+    HttpRequest("/count/deepOutCsv", "POST", {
+      time,
+      pos,
+      ad,
+      channel,
+      planId,
+      pageNum,
+      pageSize
+    }, res => {
+      window.open(encodeURI(res.data));
+    })
+  }
+
   render () {
-    const { selectedKeys, chartName, second } = this.state;
+    const { selectedKeys, chartName, second, dataSource, planInfo } = this.state;
     
     const tProps = {
       treeData: twoTreeData,
@@ -266,40 +336,39 @@ class DepthReport extends Component {
     // 根据勾选维度显示列表
     const setSecond = new Set(second);
     if (setSecond.has('0-0')) { // 广告位
-      this.columnsSplice('渠道', {
+      this.columnsSplice('广告位', {
         title: "广告位",
-        key: 'outMoney2',
-        dataIndex: 'outMoney2',
-      })
+        key: 'posName',
+        dataIndex: 'posName'
+      }, '展示数');
     } else {
-      this.columnsRemove('广告位')
+      this.removeList('广告位');
     }
     
     if (setSecond.has('0-1')) { // 广告
       this.columnsSplice('广告', {
         title: "广告",
-        key: 'outMoney',
-        dataIndex: 'outMoney',
-      })
+        key: 'adName',
+        dataIndex: 'adName'
+      });
     } else {
-      this.columnsRemove('广告')
+      this.removeList('广告');
     }
     
-    if (setSecond.has('0-2')) { // 日期
-      this.columnsSplice('时间', {
-        title: "时间",
-        key: 'time',
-        dataIndex: 'time',
-        sorter: (a, b) => moment(a.time).format('X') - moment(b.time).format('X'),
-      })
+    if (setSecond.has('0-2')) { // 渠道
+      this.columnsSplice('渠道', {
+        title: "渠道",
+        key: 'channelName',
+        dataIndex: 'channelName'
+      }, '广告');
     } else {
-      this.columnsRemove('时间')
+      this.removeList('渠道');
     }
     
     return (
       <section className="depth-box">
         <div className="content-top">
-          <h4><Link to="/content/report/real-time"><Icon type="left" /> 广告主</Link></h4>
+          <h4><Link to="/content/report/real-time"><Icon type="left" /> 深度报表</Link></h4>
 
           <div className="launch-top-button">
             <DatePicker 
@@ -313,8 +382,8 @@ class DepthReport extends Component {
         </div>
 
         <div className="depth-info">
-          <span>状态：</span>
-          <span>广告主：</span>
+          <span>状态：{ planInfo.state === 0 ? '暂停': '投放中' }</span>
+          <span>广告主：{ planInfo.userName }</span>
           <span>投放日期：</span>
         </div>
 
@@ -334,42 +403,49 @@ class DepthReport extends Component {
               <h6 className="chart-name">{chartName}</h6>
               
               <div className="chart-frame">
-                <Chart forceFit height={400} data={data} scale={scale}>
-                  <Tooltip />
-                  <Legend
-                    custom
-                    allowAllCanceled
-                    items={[
-                      {value: 'waiting', marker: {symbol: 'square', fill: '#008ed2', radius: 5} },
-                      {value: 'people', marker: {symbol: 'hyphen', stroke: '#00c3f0', radius: 5, lineWidth: 3} }
-                    ]}
-                    onClick={(ev, chart) => {
-                      const item = ev.item;
-                      const value = item.value;
-                      const checked = ev.checked;
-                      const geoms = chart.getAllGeoms();
-                      for (let i = 0; i < geoms.length; i++) {
-                        const geom = geoms[i];
-                        if (geom.getYScale().field === value) {
-                          if (checked) {
-                            geom.show();
-                          } else {
-                            geom.hide();
+                {
+                  dataSource.length 
+                  ?
+                  <Chart forceFit height={400} padding={[20, 50, 95, 80]} data={dataSource} scale={scale} defs={{ 'totalShow': { alias: '展示数' }, totalClick: { alias: '点击数' } }}>
+                    <Tooltip 
+                    itemTpl='<li data-index={index}><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value}</li>' />
+                    <Legend
+                      custom
+                      allowAllCanceled
+                      items={[
+                        {value: '展示数', marker: {symbol: 'square', fill: '#008ed2', radius: 5} },
+                        {value: '点击数', marker: {symbol: 'hyphen', stroke: '#00c3f0', radius: 5, lineWidth: 3} }
+                      ]}
+                      onClick={(ev, chart) => {
+                        const item = ev.item;
+                        const value = item.value;
+                        const checked = ev.checked;
+                        const geoms = chart.getAllGeoms();
+                        for (let i = 0; i < geoms.length; i++) {
+                          const geom = geoms[i];
+                          if (geom.getYScale().field === value) {
+                            if (checked) {
+                              geom.show();
+                            } else {
+                              geom.hide();
+                            }
                           }
                         }
-                      }
-                    }}
-                  />
-                  <Axis
-                    dataKey="people"
-                    grid={null}
-                  />
-                  <Guide type="text" content="展示数" position={["0%", "0"]} style={{ fill: '#008ed2' }} top={true} />
-                  <Guide type="text" content="点击数" position={["96%", "0"]} style={{ fill: '#00c3f0' }} top={true} />
-                  <Bar position="time*waiting" color="#008ed2" />
-                  <Line position="time*people" color="#00c3f0" size={3} />
-                  <Point shape="circle" position="time*people" color="#fff" style={{ stroke: '#00c3f0', lineWidth: 1 }} size={3} />
-                </Chart>
+                      }}
+                    />
+                    <Axis
+                      dataKey="totalClick"
+                      grid={null}
+                    />
+                    <Guide type="text" content="展示数" position={["0%", "0"]} style={{ fill: '#008ed2' }} top={true} />
+                    <Guide type="text" content="点击数" position={["96%", "0"]} style={{ fill: '#00c3f0' }} top={true} />
+                    <Bar position="hour*totalShow" color="#008ed2" />
+                    <Line position="hour*totalClick" color="#00c3f0" size={3} />
+                    <Point shape="circle" position="hour*totalClick" color="#fff" style={{ stroke: '#00c3f0', lineWidth: 1 }} size={3} />
+                  </Chart>
+                  :
+                  <p style={{ textAlign: 'center', margin: '10px' }}>无数据</p>
+                }
               </div>
             </div>
 
@@ -381,7 +457,7 @@ class DepthReport extends Component {
 
                 <div className="group">
                   <TooltipAntd placement="top" title="导出">
-                    <Button className="export-button" type="primary" icon="export" />
+                    <Button className="export-button" type="primary" icon="export" onClick={this.deepOutCsv} />
                   </TooltipAntd>
                 </div>
               </div>
