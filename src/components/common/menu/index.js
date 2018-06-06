@@ -12,7 +12,7 @@ const menus = userInfo.menus;
 
 class MenuBar extends Component {
   state = {
-    collapsed: false
+    collapsed: false,
   }
 
   componentDidMount () {
@@ -20,7 +20,7 @@ class MenuBar extends Component {
   }
 
   handleClick = (e) => {
-    console.log('click ', e);
+    console.log(e);
   }
 
   // 收缩菜单
@@ -30,6 +30,16 @@ class MenuBar extends Component {
     }, () => {
       Store.dispatch({ type: Type.COLLAPSED, payload: { collapsed: this.state.collapsed } });
     });
+  }
+
+  // 防止重复点击
+  noDbClick = (e, key) => {
+    const { pathname } = this.props;
+    
+    if (pathname === key) {
+      
+      e.preventDefault()
+    }    
   }
 
   render () {
@@ -64,11 +74,11 @@ class MenuBar extends Component {
           mode="inline"
           inlineCollapsed={this.state.collapsed}
         >
-          <Menu.Item key="/content/dashboard"><Link to="/content/dashboard"><Icon type="area-chart" /><span>Dashboard</span></Link></Menu.Item>
+          <Menu.Item key="/content/dashboard"><Link to="/content/dashboard" onClick={(e) => { this.noDbClick( e, "/content/dashboard") }}><Icon type="area-chart" /><span>Dashboard</span></Link></Menu.Item>
           {
             menus.indexOf('169') > -1
             ?
-            <Menu.Item key="/content/launch"><Link to="/content/launch"><Icon type="shop" /><span>投放管理</span></Link></Menu.Item>
+            <Menu.Item key="/content/launch"><Link to="/content/launch" onClick={(e) => { this.noDbClick( e, "/content/launch") }}><Icon type="shop" /><span>投放管理</span></Link></Menu.Item>
             :
             ''
           }
@@ -80,7 +90,7 @@ class MenuBar extends Component {
               {
                 menus.indexOf('168') > -1
                 ?
-                <Menu.Item key="/content/report/real-time"><Link to="/content/report/real-time">实时报表</Link></Menu.Item>
+                <Menu.Item key="/content/report/real-time"><Link to="/content/report/real-time" onClick={(e) => { this.noDbClick( e, "/content/report/real-time") }}>实时报表</Link></Menu.Item>
                 :
                 ''
               }
@@ -98,7 +108,7 @@ class MenuBar extends Component {
           {
             menus.indexOf('170') > -1
             ?
-            <Menu.Item key="/content/financial"><Link to="/content/financial"><Icon type="pay-circle-o" /><span>财务管理</span></Link></Menu.Item>   
+            <Menu.Item key="/content/financial"><Link to="/content/financial" onClick={(e) => { this.noDbClick( e, "/content/financial") }}><Icon type="pay-circle-o" /><span>财务管理</span></Link></Menu.Item>   
             :
             ''  
           }
@@ -109,35 +119,35 @@ class MenuBar extends Component {
               {
                 menus.indexOf('155') > -1
                 ?
-                <Menu.Item key="/content/admin/advertiser"><Link to="/content/admin/advertiser"><span>广告主管理</span></Link></Menu.Item>
+                <Menu.Item key="/content/admin/advertiser"><Link to="/content/admin/advertiser" onClick={(e) => { this.noDbClick( e, "/content/admin/advertiser") }}><span>广告主管理</span></Link></Menu.Item>
                 :
                 ''
               }
               {
                 menus.indexOf('156') > -1
                 ?
-                <Menu.Item key="/content/admin/ad-position"><Link to="/content/admin/ad-position"><span>广告位管理</span></Link></Menu.Item>
+                <Menu.Item key="/content/admin/ad-position"><Link to="/content/admin/ad-position" onClick={(e) => { this.noDbClick( e, "/content/admin/ad-position") }}><span>广告位管理</span></Link></Menu.Item>
                 :
                 ''
               }
               {
                 menus.indexOf('157') > -1
                 ?
-                <Menu.Item key="/content/admin/priority"><Link to="/content/admin/priority"><span>优先级调控</span></Link></Menu.Item>
+                <Menu.Item key="/content/admin/priority"><Link to="/content/admin/priority" onClick={(e) => { this.noDbClick( e, "/content/admin/priority") }}><span>优先级调控</span></Link></Menu.Item>
                 :
                 ''
               }
               {
                 menus.indexOf('158') > -1
                 ?
-                <Menu.Item key="/content/admin/regulation"><Link to="/content/admin/regulation"><span>低价调控</span></Link></Menu.Item>
+                <Menu.Item key="/content/admin/regulation"><Link to="/content/admin/regulation" onClick={(e) => { this.noDbClick( e, "/content/admin/regulation") }}><span>低价调控</span></Link></Menu.Item>
                 :
                 ''
               }
               {
                 userInfo.superUser === 1
                 ?
-                <Menu.Item key="/content/admin/account"><Link to="/content/admin/account"><span>账户管理</span></Link></Menu.Item>
+                <Menu.Item key="/content/admin/account"><Link to="/content/admin/account" onClick={(e) => { this.noDbClick( e, "/content/admin/account") }}><span>账户管理</span></Link></Menu.Item>
                 :
                 ''
               }
