@@ -210,15 +210,21 @@ class DepthReport extends Component {
       pageNum,
       pageSize
     }, res => {
+      let dataSource;
+
       if (res.data.ls && res.data.ls.length) {
         res.data.ls.forEach(item => {
           item.hour = `${item.hour.split(' ')[1]}:00`
         })
 
-        this.setState({
-          dataSource: res.data.ls
-        })
+        dataSource = res.data.ls;
+      } else {
+        dataSource = [];
       }
+
+      this.setState({
+        dataSource
+      })
     })
   }
 
@@ -318,6 +324,8 @@ class DepthReport extends Component {
 
   render () {
     const { selectedKeys, chartName, second, dataSource, planInfo } = this.state;
+
+    console.log(dataSource.length)
     
     const tProps = {
       treeData: twoTreeData,
@@ -404,7 +412,7 @@ class DepthReport extends Component {
               
               <div className="chart-frame">
                 {
-                  dataSource.length 
+                  dataSource.length
                   ?
                   <Chart forceFit height={400} padding={[20, 50, 95, 80]} data={dataSource} scale={scale} defs={{ 'totalShow': { alias: '展示数' }, totalClick: { alias: '点击数' } }}>
                     <Tooltip 
